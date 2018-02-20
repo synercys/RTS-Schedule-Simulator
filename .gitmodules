@@ -1,0 +1,4 @@
+[submodule "CY-Utility-Library-Java"]
+	path = CY-Utility-Library-Java
+	url = https://github.com/cchen140/CY-Utility-Library-Java.git
+	branch = master
