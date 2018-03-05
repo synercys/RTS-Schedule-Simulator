@@ -3,7 +3,7 @@ package synercys.rts.simulator;
 import synercys.rts.event.SchedulerIntervalEvent;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
-import synercys.util.Umath;
+import cy.utility.Umath;
 
 import java.util.ArrayList;
 

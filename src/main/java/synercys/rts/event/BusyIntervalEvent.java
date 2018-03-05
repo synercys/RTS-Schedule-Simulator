@@ -73,4 +73,15 @@ public class BusyIntervalEvent extends IntervalEvent {
 
         return resultBis;
     }
+
+    public String toBinaryString() {
+        String outStr = "";
+        for (long i=orgBeginTimestamp; i<getOrgEndTimestamp(); i++) {
+            outStr += "1, ";
+        }
+        if (outStr.length() != 0)
+            outStr = outStr.substring(0, outStr.length()-2);
+
+        return outStr;
+    }
 }

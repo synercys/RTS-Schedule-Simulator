@@ -9,7 +9,7 @@ import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
 import synercys.rts.simulator.TaskSetContainer;
 import synercys.rts.simulator.TaskSetGenerator;
 import synercys.rts.util.ExcelLogHandler;
-import synercys.util.Umath;
+import cy.utility.Umath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

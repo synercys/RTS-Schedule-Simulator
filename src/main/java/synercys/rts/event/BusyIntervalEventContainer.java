@@ -268,4 +268,28 @@ public class BusyIntervalEventContainer {
     public int size() {
         return busyIntervals.size();
     }
+
+    public String toBinaryString() {
+        String outStr = "";
+        long lastTimestamp = 0;
+        boolean firstPass = true;
+        for (BusyIntervalEvent thisBi : busyIntervals) {
+            if (firstPass) {
+                firstPass = false;
+                lastTimestamp = thisBi.orgBeginTimestamp;
+            }
+
+            for (long i=lastTimestamp; i<thisBi.getOrgBeginTimestamp(); i++) {
+                outStr += "0, ";
+            }
+
+            outStr += thisBi.toBinaryString() + ", ";
+            lastTimestamp = thisBi.orgEndTimestamp;
+        }
+
+        if (outStr.length() != 0) {
+            outStr = outStr.substring(0, outStr.length()-2);
+        }
+        return outStr;
+    }
 }

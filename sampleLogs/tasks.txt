@@ -1,6 +1,6 @@
 @LogFormat
 10
-# id, task type, task name, period (ns), computation time (ns), priority (small is low)
+# id, task type, task name, period (0.1ms, e.g., 100=10ms), computation time (ns), priority (small is low)
 # task type:
 #    public static int TASK_TYPE_UNKNOWN = 0;
 #    public static int TASK_TYPE_SYS = 1;
@@ -9,6 +9,6 @@
 #    public static int TASK_TYPE_HACK = 4;
 @TaskList
 0, 3, "IDLE", 0, 0, 0
-1, 2, "APP1", 32000000, 9600000, 1
-2, 2, "APP2", 20000000, 4300000, 2
-3, 2, "APP3", 10000000, 1900000, 3
+1, 2, "APP1", 320, 96, 1
+2, 2, "APP2", 200, 43, 2
+3, 2, "APP3", 100, 19, 3

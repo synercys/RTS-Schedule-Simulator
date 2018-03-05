@@ -4,7 +4,7 @@ import synercys.rts.event.EventContainer;
 import synercys.rts.event.TaskInstantEvent;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import synercys.util.ProgMsg;
+//import synercys.util.ProgMsg;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,11 +25,15 @@ public class V11LogParser implements LogParser {
 
     private long firstTimestamp = -1;
     private EventContainer eventContainer = new EventContainer();
-    private TaskSet taskSet = new TaskSet();
+    private TaskSet taskSet;// = new TaskSet();
 
-    public void setTaskSet(TaskSet taskSet) {
-        this.taskSet = taskSet;
+    public V11LogParser() {
+        taskSet = eventContainer.getTaskSet();
     }
+
+    //    public void setTaskSet(TaskSet taskSet) {
+//        this.taskSet = taskSet;
+//    }
 
     @Override
     public int getParserVersion() {
@@ -124,16 +128,16 @@ public class V11LogParser implements LogParser {
             return false;
         }
 
-        ProgMsg.putLine("%d lines loaded from the log file.", lineCounter);
+        //ProgMsg.putLine("%d lines loaded from the log file.", lineCounter);
         System.out.format("%d lines loaded from the log file.\n", lineCounter);
 
-        ProgMsg.putLine("first time stamp: %d", firstTimestamp);
+        //ProgMsg.putLine("first time stamp: %d", firstTimestamp);
         return true;
     }
 
     @Override
     public EventContainer getEventContainer() {
-        return null;
+        return eventContainer;
     }
 
     /**

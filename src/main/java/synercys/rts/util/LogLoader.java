@@ -1,17 +1,17 @@
 package synercys.rts.util;
 
 import synercys.rts.event.EventContainer;
-import synercys.util.file.FileHandler;
+import cy.utility.file.FileHandler;
 
 import java.io.IOException;
 
 /**
  * Created by jjs on 2/13/17.
  */
-public class LogHandler extends FileHandler{
+public class LogLoader extends FileHandler{
     private LogParser logParser;
 
-    public LogHandler() {
+    public LogLoader() {
     }
 
     protected int initializeLogParser() throws IOException {
@@ -89,8 +89,9 @@ public class LogHandler extends FileHandler{
         return true;
     }
 
-
-
+    public EventContainer getEventContainer() {
+        return logParser.getEventContainer();
+    }
 
 
 

@@ -3,7 +3,7 @@ package synercys.rts.simulator;
 import synercys.rts.RtsConfig;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import synercys.util.Umath;
+import cy.utility.Umath;
 
 import java.util.ArrayList;
 import java.util.Random;

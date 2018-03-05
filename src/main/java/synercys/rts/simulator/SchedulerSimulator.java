@@ -4,7 +4,7 @@ import synercys.rts.event.EventContainer;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import synercys.util.ProgressUpdater;
+import cy.utility.ProgressUpdater;
 
 import java.util.*;
 
