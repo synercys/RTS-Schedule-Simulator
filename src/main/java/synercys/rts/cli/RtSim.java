@@ -35,6 +35,9 @@ public class RtSim implements Callable {
     @CommandLine.Option(names = {"-b", "--bibs"}, required = false, description = "Output busy intervals as binary string.")
     boolean optionGenBisBinaryString = false;
 
+    @CommandLine.Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
+    boolean optionExecutionVariation = false;
+
 
     public static void main(String... args) {
         //String[] testArgs = { "-n", "1"};
@@ -59,6 +62,8 @@ public class RtSim implements Callable {
         // New and configure a RM scheduling simulator.
         QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator();
         rmSimulator.setTaskSet(taskSet);
+
+        rmSimulator.setExecutionTimeVariation(optionExecutionVariation);
 
         //for (int i=1; i<=3; i++) {
         //    taskSet.getOneTaskByPriority(2+i).setSporadicTask(true);

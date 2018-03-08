@@ -12,120 +12,11 @@ import java.util.ArrayList;
  */
 public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
 
-//    public QuickRmScheduling( TaskContainer inTaskContainer )
-//    {
-//        setTaskContainer(inTaskContainer);
-//    }
+    private boolean executionTimeVariation = true;
 
-    /* This function is only used by Amir's algorithm to reconstruct schedules. */
-    // Write scheduling inference to ArrayList<TaskIntervalEvent> inside the busy interval.
-    /* Prerequisite: arrival time windows */
-    // TODO: It doesn't handle the scheduling correctly when multiple tasks have the same period.
-//    public static void constructSchedulingOfBusyIntervalByArrivalWindow( BusyIntervalEvent bi )
-//    {
-//        // Get the arrival events by replicating the container since we'll be modifying the container later (pop events).
-//        TaskArrivalEventContainer arrivalEventContainer = new TaskArrivalEventContainer( bi.arrivalInference );
-//
-//        if ( arrivalEventContainer.size() == 0 ) {
-//            // No arrival event is available thus cannot proceed simulation.
-//            return;
-//        }
-//
-//        QuickRmSimJobContainer jobContainer = arrivalWindowsToSimJobs( bi );
-////        ProgMsg.debugPutline(jobContainer.toString());
-//        ArrayList resultSchedulingEvents = bi.schedulingInference;
-//
-//        Task currentRunTask = null;
-//        SimJob currentJob = null;
-//        SimJob nextJob;
-//        int currentTimeStamp = bi.getBeginTimeStamp();    // TODO: may have to check whether it includes the error.
-//
-//        Boolean anyJobRunning = false;
-//        while ( true ) {
-//
-//            if ( anyJobRunning == false ) {
-//                anyJobRunning = true;
-//                currentJob = jobContainer.popNextHighestPriorityJobByTime(currentTimeStamp);
-//
-//                // TODO: If the schedule is not continuous, we still plot the intervals that will not be in the same busy interval.
-////                if ( currentJob == null ) {
-////                    break;
-////                }
-//                if ((currentJob == null) && (jobContainer.size() == 0)) {
-//                    break;
-//                } else if (currentJob == null) {
-//                    currentJob = jobContainer.popNextEarliestHighestPriorityJob();
-//                    currentTimeStamp = (int)currentJob.releaseTime;
-//                }
-//
-//                currentRunTask = currentJob.task;
-//                if (currentTimeStamp > (int)currentJob.releaseTime) {
-//                    currentJob.releaseTime = (long)currentTimeStamp;
-//                }
-//
-//                if ( (int)currentJob.remainingExecTime == currentRunTask.getComputationTimeNs() ) {
-//                    AppEvent thisReleaseEvent = new AppEvent((int) currentJob.releaseTime, currentRunTask, 0, "BEGIN");
-//                    resultSchedulingEvents.addNextEvent(thisReleaseEvent);
-//                    bi.startTimesInference.addNextEvent(thisReleaseEvent);
-//                }
-//
-//                continue;
-//            }
-//
-//            /* There is a job running. */
-//
-//            // Get the job that will preempt current job before within the remaining computation time.
-//            nextJob = jobContainer.popNextEarliestHigherPriorityJobByTime(currentRunTask.getPriority(), (int) (currentTimeStamp + currentJob.remainingExecTime));
-//
-//            if ( nextJob != null ) {
-//                // Current job is being preempted. Create and push the updated current job.
-//                TaskIntervalEvent currentJobEvent = new TaskIntervalEvent((int) currentJob.releaseTime, (int) nextJob.releaseTime, currentRunTask, "");
-//                resultSchedulingEvents.addNextEvent(currentJobEvent);
-//
-//                currentJob.remainingExecTime -= (nextJob.releaseTime - currentTimeStamp);
-//                currentJob.releaseTime = nextJob.releaseTime;
-//                jobContainer.addNextEvent(currentJob);
-//
-//                currentJob = nextJob;
-//                currentRunTask = currentJob.task;
-//                currentTimeStamp = (int)currentJob.releaseTime;
-//
-//                // Check if it is the beginning of a new job.
-//                if ( ((int)currentJob.remainingExecTime) == currentRunTask.getComputationTimeNs() ) {
-//                    AppEvent thisReleaseEvent = new AppEvent((int) currentJob.releaseTime, currentRunTask, 0, "BEGIN");
-//                    resultSchedulingEvents.addNextEvent(thisReleaseEvent);
-//                    bi.startTimesInference.addNextEvent(thisReleaseEvent);
-//                }
-//
-//
-//            } else {
-//
-//                // No next higher priority event, thus finish the last remaining job.
-//                TaskIntervalEvent currentJobEvent = new TaskIntervalEvent( currentTimeStamp, (int)(currentTimeStamp+currentJob.remainingExecTime), currentRunTask, "END");
-//                resultSchedulingEvents.addNextEvent(currentJobEvent);
-//
-//                anyJobRunning = false;
-//                currentTimeStamp = (int)(currentTimeStamp+currentJob.remainingExecTime);
-//            }
-//
-//            continue;
-//        }
-//
-//
-//    }
-
-    /* This function is only used by Amir's algorithm to reconstruct schedules. */
-//    public static QuickRmSimJobContainer arrivalWindowsToSimJobs( BusyIntervalEvent bi )
-//    {
-//        QuickRmSimJobContainer resultSimJobs = new QuickRmSimJobContainer();
-//        TaskArrivalEventContainer arrivalEventContainer = bi.arrivalInference;
-//        for ( AppEvent thisEvent : arrivalEventContainer.getEvents() ) {
-//            resultSimJobs.addNextEvent( new SimJob(thisEvent.getTask(), thisEvent.getOrgBeginTimestampNs(), thisEvent.getTask().getComputationTimeNs()) );
-//        }
-//        return resultSimJobs;
-//    }
-
-
+    public void setExecutionTimeVariation(boolean val) {
+        executionTimeVariation = val;
+    }
 
     @Override
     public boolean runSim(long tickLimit) {
@@ -163,14 +54,19 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
                 long thisInterArrival = thisTask.getPeriod();
                 for (long tick = thisOffset; tick < tickLimit; tick += getVariedInterArrivalTime(thisInterArrival)) {
                     //resultSimJobs.addNextEvent( new SimJob(thisTask, tick, thisTask.getComputationTimeNs()) );
-                    resultSimJobs.add(new Job(thisTask, tick, getDeviatedExecutionTime(thisTask)));
+                    if (executionTimeVariation == true)
+                        resultSimJobs.add(new Job(thisTask, tick, getDeviatedExecutionTime(thisTask)));
+                    else
+                        resultSimJobs.add(new Job(thisTask, tick, thisTask.getExecTime()));
                 }
             } else {
                 long thisPeriod = thisTask.getPeriod();
                 long thisOffset = thisTask.getInitialOffset();
                 for (long tick = thisOffset; tick < tickLimit; tick += thisPeriod) {
-                    //resultSimJobs.addNextEvent( new SimJob(thisTask, tick, thisTask.getComputationTimeNs()) );
-                    resultSimJobs.add(new Job(thisTask, tick, getDeviatedExecutionTime(thisTask)));
+                    if (executionTimeVariation == true)
+                        resultSimJobs.add(new Job(thisTask, tick, getDeviatedExecutionTime(thisTask)));
+                    else
+                        resultSimJobs.add(new Job(thisTask, tick, thisTask.getExecTime()));
                 }
             }
         }
