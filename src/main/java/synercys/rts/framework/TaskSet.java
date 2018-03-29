@@ -8,6 +8,7 @@ import java.util.HashMap;
  * Created by jjs on 2/13/17.
  */
 public class TaskSet {
+    protected int id = 0;   // This field is intended for easily identifying individual tasksets in mass experiments.
     //private ArrayList<Task> tasks = new ArrayList<Task>();
     public HashMap<Integer, Task> tasks = new HashMap<Integer, Task>();
     //private ArrayList<Color> colorList = new ArrayList<Color>();
@@ -444,6 +445,14 @@ public class TaskSet {
             }
         }
         return null;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override

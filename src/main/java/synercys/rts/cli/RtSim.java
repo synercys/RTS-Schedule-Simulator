@@ -21,8 +21,6 @@ import java.util.concurrent.Callable;
 public class RtSim implements Callable {
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
-    protected String[] args;
-
     @CommandLine.Option(names = {"-i", "--in"}, required = true, description = "A file that contains task configurations.")
     String taskInputFile = "";
 

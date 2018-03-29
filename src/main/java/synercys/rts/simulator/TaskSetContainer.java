@@ -25,6 +25,9 @@ public class TaskSetContainer {
         taskSets.add(inTaskSet);
     }
 
+    public void addTaskSets(ArrayList<TaskSet> inTaskSets) {
+        taskSets.addAll(inTaskSets);
+    }
     public void setTaskSets(ArrayList<TaskSet> inTaskContainers) {
         taskSets.clear();
         taskSets.addAll( inTaskContainers );

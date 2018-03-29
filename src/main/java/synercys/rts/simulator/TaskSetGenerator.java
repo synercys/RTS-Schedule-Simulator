@@ -26,8 +26,8 @@ public class TaskSetGenerator {
 
     static Boolean generateFromHpDivisors;
 
-    static long minExecTime;
-    static long maxExecTime;
+    static long minWcet;
+    static long maxWcet;
 
     static long minInitOffset;
     static long maxInitOffset;
@@ -63,8 +63,8 @@ public class TaskSetGenerator {
         maxPeriod = 100_000_000/ RtsConfig.TIMESTAMP_UNIT_NS; // 100 ms
         minPeriod = 10_000_000/ RtsConfig.TIMESTAMP_UNIT_NS;   // 10 ms // org = 5ms
 
-        maxExecTime = 50_000_000/ RtsConfig.TIMESTAMP_UNIT_NS; // 50 ms // org=3 ms
-        minExecTime = 100_000/ RtsConfig.TIMESTAMP_UNIT_NS; // 0.1 ms
+        maxWcet = 50_000_000/ RtsConfig.TIMESTAMP_UNIT_NS; // 50 ms // org=3 ms
+        minWcet = 100_000/ RtsConfig.TIMESTAMP_UNIT_NS; // 0.1 ms
 
         maxInitOffset = maxHyperPeriod; // 0ms //10_000_000; // 10 ms
         minInitOffset = 0; // 0 ms
@@ -119,7 +119,7 @@ public class TaskSetGenerator {
 //    {
 //		/* TODO: Genearate input in a given range of utilization*/
 //        System.out.println("--Usage--");
-//        System.out.println("java GenInput [minNumTasks] [maxNumTasks] [minPeriod] [maxPeriod] [minExecTime] [maxExecTime] [inputStartNo] [inputEndNo] [minUtil] [maxUtil]");
+//        System.out.println("java GenInput [minNumTasks] [maxNumTasks] [minPeriod] [maxPeriod] [minWcet] [maxWcet] [inputStartNo] [inputEndNo] [minUtil] [maxUtil]");
 //
 //
 //        int startNo = Integer.parseInt(args[6]);
@@ -143,8 +143,8 @@ public class TaskSetGenerator {
 //        maxNumTasks = Integer.parseInt(args[1]);
 //        minPeriod = Integer.parseInt(args[2]);
 //        maxPeriod= Integer.parseInt(args[3]);
-//        minExecTime = Integer.parseInt(args[4]);
-//        maxExecTime = Integer.parseInt(args[5]);
+//        minWcet = Integer.parseInt(args[4]);
+//        maxWcet = Integer.parseInt(args[5]);
 //        minUtil = Double.parseDouble(args[8]);
 //        maxUtil = Double.parseDouble(args[9]);
 
@@ -214,7 +214,7 @@ public class TaskSetGenerator {
             tempComputationTime = task.getPeriod();
             tempComputationTime  = (long)(((double)tempComputationTime)*utilDistribution.get(i));
             //tempComputationTime = (int)(utilDistribution.get(i)*((double)task.getPeriodNs()));
-            if (tempComputationTime<minExecTime || tempComputationTime>maxExecTime) {
+            if (tempComputationTime< minWcet || tempComputationTime> maxWcet) {
                 failureCount++;
                 if (failureCount > 10) {
                     return null;
@@ -226,10 +226,10 @@ public class TaskSetGenerator {
                 failureCount = 0;
             }
 
-//            if (minExecTime>task.getPeriodNs()) {
+//            if (minWcet>task.getPeriodNs()) {
 //                return null;
 //            } else {
-//                tempComputationTime = (int) getRandom(minExecTime, Math.min(task.getPeriodNs(), maxExecTime));
+//                tempComputationTime = (int) getRandom(minWcet, Math.min(task.getPeriodNs(), maxWcet));
 //            }
 
             // Round to 0.1ms (100us).
@@ -547,20 +547,20 @@ public class TaskSetGenerator {
         TaskSetGenerator.maxHyperPeriod = maxHyperPeriod;
     }
 
-    public long getMinExecTime() {
-        return minExecTime;
+    public long getMinWcet() {
+        return minWcet;
     }
 
-    public void setMinExecTime(int minExecTime) {
-        TaskSetGenerator.minExecTime = minExecTime;
+    public void setMinWcet(int minWcet) {
+        TaskSetGenerator.minWcet = minWcet;
     }
 
-    public long getMaxExecTime() {
-        return maxExecTime;
+    public long getMaxWcet() {
+        return maxWcet;
     }
 
-    public void setMaxExecTime(int maxExecTime) {
-        TaskSetGenerator.maxExecTime = maxExecTime;
+    public void setMaxWcet(int maxWcet) {
+        TaskSetGenerator.maxWcet = maxWcet;
     }
 
     public long getMinInitOffset() {
@@ -665,7 +665,7 @@ public class TaskSetGenerator {
         outputStr += "## Task set parameters:\r\n";
         outputStr += "# num of tasks per set = " + numTaskPerSet + "\r\n";
         outputStr += "# util = " + minUtil*100 + "%% - " + maxUtil*100 + "%%\r\n";
-        outputStr += "# exe = " + minExecTime* RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms - " + maxExecTime* RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms\r\n";
+        outputStr += "# exe = " + minWcet * RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms - " + maxWcet * RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms\r\n";
         outputStr += "# offset = " + minInitOffset* RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms - " + maxInitOffset* RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms\r\n";
         outputStr += "# period = " + minPeriod* RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms - " + maxPeriod* RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER + "ms\r\n";
         outputStr += "#  - Is tasks generated based on HP upper bound? " + generateFromHpDivisors + "\r\n";
