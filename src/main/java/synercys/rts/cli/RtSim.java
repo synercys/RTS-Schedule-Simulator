@@ -8,7 +8,6 @@ import synercys.rts.event.EventContainer;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.simulator.QuickFPSchedulerJobContainer;
 import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
-import synercys.rts.util.ExcelLogHandler;
 import synercys.rts.util.LogExporter;
 import synercys.rts.util.LogLoader;
 
@@ -58,21 +57,18 @@ public class RtSim implements Callable {
         loggerConsole.info(taskSet.toString());
 
         // New and configure a RM scheduling simulator.
-        QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator();
-        rmSimulator.setTaskSet(taskSet);
-
-        rmSimulator.setExecutionTimeVariation(optionExecutionVariation);
+        QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet);
+        //rmSimulator.setTaskSet(taskSet);
+        rmSimulator.setRunTimeVariation(optionExecutionVariation); // it is by default ON.
 
         //for (int i=1; i<=3; i++) {
         //    taskSet.getOneTaskByPriority(2+i).setSporadicTask(true);
         //}
 
-        // Pre-schedule
-        QuickFPSchedulerJobContainer simJobContainer = rmSimulator.preSchedule(simDuration);
-
         // Run simulation.
-        rmSimulator.simJobs(simJobContainer);
-        EventContainer eventContainer = rmSimulator.getSimEventContainer();
+        //QuickFPSchedulerJobContainer simJobContainer = rmSimulator.preSchedule(simDuration);
+        //rmSimulator.simJobs(simJobContainer);
+        EventContainer eventContainer = rmSimulator.runSim(simDuration);
 
         // Build busy intervals for ScheduLeak
         BusyIntervalEventContainer biEvents = new BusyIntervalEventContainer();

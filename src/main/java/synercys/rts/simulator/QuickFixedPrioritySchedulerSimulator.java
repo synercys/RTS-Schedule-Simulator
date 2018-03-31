@@ -1,36 +1,51 @@
 package synercys.rts.simulator;
 
+import synercys.rts.event.EventContainer;
 import synercys.rts.event.SchedulerIntervalEvent;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
-import cy.utility.Umath;
+import synercys.rts.framework.TaskSet;
 
 import java.util.ArrayList;
 
 /**
  * Created by cy on 3/13/2017.
+ * This fixed priority scheduler simulator is intended to improve the simulation performance by skipping unnecessary tick times.
+ * Usage:
+ *  OptionA:
+ *  1. new QuickFixedPrioritySchedulerSimulator(YOUR_TASKSET);
+ *  2. TEMP_JOB_CONTAINER = preSchedule(SIM_DURATION);
+ *  3. simJobs(TEMP_JOB_CONTAINER);
+ *  4. getSimEventContainer();  // get the simulation result.
+ *  OptionB:
+ *  1. new QuickFixedPrioritySchedulerSimulator(YOUR_TASKSET);
+ *  2. runSim(SIM_DURATION); // simulation result is returned, or get it by using getSimEventContainer()
+ *
  */
 public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
 
-    private boolean executionTimeVariation = true;
+    /* runTimeVariation:
+     * Runtime variation includes execution time and inter-arrival time variations.
+     * False value disables runtime variation: execution time will always be WCETs and inter-arrival time will be the task's periods.
+     */
+    protected boolean runTimeVariation = true;
 
-    public void setExecutionTimeVariation(boolean val) {
-        executionTimeVariation = val;
+    public QuickFixedPrioritySchedulerSimulator(TaskSet inTaskSet) {
+        setTaskSet(inTaskSet);
+    }
+
+    public void setRunTimeVariation(boolean val) {
+        runTimeVariation = val;
     }
 
     @Override
-    public boolean runSim(long tickLimit) {
-//        if (taskContainer.schedulabilityTest() == true)
-//            ProgMsg.debugPutline("schedulable.");
-//        else
-//            ProgMsg.errPutline("not schedulable.");
-
-        // Pre-schedule, turn tasks into jobs
+    public EventContainer runSim(long tickLimit) {
+        // Pre-schedule, turn tasks into scheduled jobs.
         QuickFPSchedulerJobContainer simJobContainer = preSchedule(tickLimit);
 
-        // Start simulating, the output schedule will be stored in
+        // Start simulating, the output schedule will be stored in simEventContainer (an EventContainer object).
         simJobs(simJobContainer);
-        return true;
+        return simEventContainer;
     }
 
     @Override
@@ -54,8 +69,8 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
                 long thisInterArrival = thisTask.getPeriod();
                 for (long tick = thisOffset; tick < tickLimit; tick += getVariedInterArrivalTime(thisInterArrival)) {
                     //resultSimJobs.addNextEvent( new SimJob(thisTask, tick, thisTask.getComputationTimeNs()) );
-                    if (executionTimeVariation == true)
-                        resultSimJobs.add(new Job(thisTask, tick, getDeviatedExecutionTime(thisTask)));
+                    if (runTimeVariation == true)
+                        resultSimJobs.add(new Job(thisTask, tick, getVariedExecutionTime(thisTask)));
                     else
                         resultSimJobs.add(new Job(thisTask, tick, thisTask.getExecTime()));
                 }
@@ -63,22 +78,14 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
                 long thisPeriod = thisTask.getPeriod();
                 long thisOffset = thisTask.getInitialOffset();
                 for (long tick = thisOffset; tick < tickLimit; tick += thisPeriod) {
-                    if (executionTimeVariation == true)
-                        resultSimJobs.add(new Job(thisTask, tick, getDeviatedExecutionTime(thisTask)));
+                    if (runTimeVariation == true)
+                        resultSimJobs.add(new Job(thisTask, tick, getVariedExecutionTime(thisTask)));
                     else
                         resultSimJobs.add(new Job(thisTask, tick, thisTask.getExecTime()));
                 }
             }
         }
         return resultSimJobs;
-    }
-
-    public long getVariedInterArrivalTime(long minInterArrival) {
-        long result = 0;
-        while (result < minInterArrival) {
-            result = Umath.getPoisson((minInterArrival/10)*1.2)*10;
-        }
-        return result;
     }
 
     public void simJobs(QuickFPSchedulerJobContainer jobContainer) {
