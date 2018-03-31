@@ -12,48 +12,41 @@ import java.util.Random;
  * Created by jjs on 2/13/17.
  */
 public class TaskSetGenerator {
-    //    private TaskSetContainer taskSetContainer = new TaskSetContainer();
 
-    //static int resolution;
+    int minNumTasks;
+    int maxNumTasks;
 
-    static int minNumTasks;
-    static int maxNumTasks;
+    long minPeriod;
+    long maxPeriod;
 
-    static long minPeriod;
-    static long maxPeriod;
+    long maxHyperPeriod;
 
-    static long maxHyperPeriod;
+    Boolean generateFromHpDivisors;
 
-    static Boolean generateFromHpDivisors;
+    long minWcet;
+    long maxWcet;
 
-    static long minWcet;
-    static long maxWcet;
-
-    static long minInitOffset;
-    static long maxInitOffset;
+    long minInitOffset;
+    long maxInitOffset;
 
 	/* Assume Period = Deadline */
 
-    static double minUtil;
-    static double maxUtil;
+    double minUtil;
+    double maxUtil;
 
-    static int numTaskPerSet;
-    static int numTaskSet;
+    int numTaskPerSet;
+    int numTaskSet;
 
-    static Boolean nonHarmonicOnly;
+    Boolean nonHarmonicOnly;
 
-    static Boolean needGenObserverTask;
-    static double maxObservationRatio;
-    static double minObservationRatio;
+    Boolean needGenObserverTask;
+    double maxObservationRatio;
+    double minObservationRatio;
 
-    //static Boolean needGenBadObserverTask;
+    int observerTaskPriority;
+    int victimTaskPriority;
 
-    static int observerTaskPriority;
-    static int victimTaskPriority;
-
-
-
-    static Random rand = new Random();
+    Random rand = new Random();
 
     public TaskSetGenerator() {
 
@@ -111,51 +104,18 @@ public class TaskSetGenerator {
         return resultTaskSetContainer;
     }
 
-    public static int getRandom(int min, int max) {
+    public int getRandom(int min, int max) {
         return rand.nextInt(max - min + 1) + min;
     }
-
-//    public static void main(String[] args)
-//    {
-//		/* TODO: Genearate input in a given range of utilization*/
-//        System.out.println("--Usage--");
-//        System.out.println("java GenInput [minNumTasks] [maxNumTasks] [minPeriod] [maxPeriod] [minWcet] [maxWcet] [inputStartNo] [inputEndNo] [minUtil] [maxUtil]");
-//
-//
-//        int startNo = Integer.parseInt(args[6]);
-//        int endNo = Integer.parseInt(args[7]);
-//
-//        for (int i = startNo; i <= endNo; i++) {
-//            if (gen(args, i) == false) {
-//                i--;
-//            } else {
-//                System.out.println("Inputfile #" + i + " has been generated!");
-//            }
-//        }
-//
-//    }
 
     /* The configurations are passed by global variables. */
     private TaskSet gen()
     {
-
-//        minNumTasks = Integer.parseInt(args[0]);
-//        maxNumTasks = Integer.parseInt(args[1]);
-//        minPeriod = Integer.parseInt(args[2]);
-//        maxPeriod= Integer.parseInt(args[3]);
-//        minWcet = Integer.parseInt(args[4]);
-//        maxWcet = Integer.parseInt(args[5]);
-//        minUtil = Double.parseDouble(args[8]);
-//        maxUtil = Double.parseDouble(args[9]);
-
-        int taskSeq = 0;
         int failureCount = 0;
 
         TaskSet taskContainer = new TaskSet();
-//        ArrayList<Task> allTasks= new ArrayList<Task>();
 
         int numTasks = getRandom(minNumTasks, maxNumTasks);
-
 
         // Is maxHyperPeriod enabled?
         ArrayList<Long> hyperPeriodFactors = null;
@@ -285,172 +245,9 @@ public class TaskSetGenerator {
             }
         }
 
-//        int[][] sl = new int[numTasks][numTasks];
-//        for (int i=0; i<numTasks; i++)
-//        {
-//            for (int j=0; j<numTasks; j++)
-//                sl[i][j] = 0;
-//        }
-//
-//        for (int i=0; i<numTasks; i++)
-//        {
-//            for (int j=i+1; j<numTasks; j++)
-//            {
-//                if (rand.nextDouble()<=0.5)
-//                    sl[i][j] = 1;
-//            }
-//        }
-
         taskContainer.addIdleTask();
         return taskContainer;
-
-
-
-        //System.out.println("Total util = " + total_util);
-
-//        FileWriter fw = null;
-//        PrintWriter pw = null;
-//        try
-//        {
-//            new File("input").mkdir();
-//            fw = new FileWriter("input/input_" + outputFileIndex + ".txt");
-//            pw = new PrintWriter(fw);
-//            pw.println(numTasks);
-//
-//            for (int i = 0; i < numTasks; i++)
-//            {
-//                Task task = allTasks.get(i);
-//                System.out.println(task.id+ " " + task.period + " " + task.execTime + " " + task.deadline);
-//                pw.println(task.id+ " " + task.period + " " + task.execTime + " " + task.deadline);
-//            }
-//            System.out.println("Total Util = " + total_util);
-//
-//            for (int i=0; i<numTasks; i++)
-//            {
-//                for (int j=i+1; j<numTasks; j++)
-//                {
-//                    if (sl[i][j] == 1)
-//                    {
-//                        System.out.println(i + " " + j);
-//                        pw.println(i + " " + j);
-//                    }
-//                }
-//            }
-//            pw.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return true;
     }
-
-//    static long GCD(long a, long b) {
-//        long Remainder;
-//
-//        while (b != 0) {
-//            Remainder = a % b;
-//            a = b;
-//            b = Remainder;
-//        }
-//
-//        return a;
-//    }
-//
-//    static long LCM(long a, long b) {
-//        return a * b / GCD(a, b);
-//    }
-//
-//    public long calHyperPeriod(TaskContainer taskContainer) {
-//        long hyperPeriod = 1;
-//        for (Task thisTask : taskContainer.getAppTasksAsArray()) {
-//            hyperPeriod = LCM(hyperPeriod, thisTask.getPeriodNs());
-//        }
-//        return hyperPeriod;
-//    }
-//
-//    public Boolean schedulabilityTest(TaskContainer taskContainer) {
-//        //int numTasks = taskContainer.getAppTasksAsArray().size();
-//        for (Task thisTask : taskContainer.getAppTasksAsArray()) {
-//            int thisWCRT = calc_WCRT(taskContainer, thisTask);
-//            if (thisWCRT > thisTask.getDeadlineNs()) {
-//                // unschedulable.
-//                //ProgMsg.errPutline("%d > %d", thisWCRT, thisTask.getDeadlineNs());
-//                return false;
-//            } else {
-//                //ProgMsg.sysPutLine("ok: %d < %d", thisWCRT, thisTask.getDeadlineNs());
-//            }
-//        }
-//        return true;
-//    }
-//
-//    // Code modified from Man-Ki's code
-//    int calc_WCRT(TaskContainer taskContainer, Task task_i) {
-//        int numItr = 0;
-//        int Wi = task_i.getComputationTimeNs();
-//        int prev_Wi = 0;
-//
-//        //int numTasks = taskContainer.getAppTasksAsArray().size();
-//        while (true) {
-//            int interference = 0;
-//            for (Task thisTask : taskContainer.getAppTasksAsArray()) {
-//                Task task_hp = thisTask;
-//                if (task_hp.getPriority() <= task_i.getPriority())  // Priority: the bigger the higher
-//                    continue;
-//
-//                int Tj = task_hp.getPeriodNs();
-//                int Cj = task_hp.getComputationTimeNs();
-//
-//                interference += (int)myCeil((double)Wi / (double)Tj) * Cj;
-//            }
-//
-//            Wi = task_i.getComputationTimeNs() + interference;
-//
-//            if (Integer.compare(Wi, prev_Wi) == 0)
-//                return Wi;
-//
-//            prev_Wi = Wi;
-//
-//            numItr++;
-//            if (numItr > 1000 || Wi < 0)
-//                return Integer.MAX_VALUE;
-//        }
-//    }
-//
-//
-//    // Code from Man-Ki
-//    double myCeil(double val) {
-//        double diff = Math.ceil(val) - val;
-//        if (diff > 0.99999) {
-//            ProgMsg.errPutline("###" + (val) + "###\t\t " + Math.ceil(val));
-//            System.exit(-1);
-//        }
-//        return Math.ceil(val);
-//    }
-//
-//    // The bigger the number the higher the priority
-//    // When calling this function, the taskContainer should not contain idle task.
-//    protected void assignPriority(TaskContainer taskContainer)
-//    {
-//        ArrayList<Task> allTasks = taskContainer.getTasksAsArray();
-//        int numTasks = taskContainer.getAppTasksAsArray().size();
-//
-//        /* Assign priorities (RM) */
-//        for (Task task_i : taskContainer.getAppTasksAsArray()) {
-//            //Task task_i = allTasks.get(i);
-//            int cnt = 1;    // 1 represents highest priority.
-//            /* Get the priority by comparing other tasks. */
-//            for (Task task_j : taskContainer.getAppTasksAsArray()) {
-//                if (task_i.equals(task_j))
-//                    continue;
-//
-//                //Task task_j = allTasks.get(j);
-//                if (task_j.getPeriodNs() > task_i.getPeriodNs()
-//                        || (task_j.getPeriodNs() == task_i.getPeriodNs() && task_j.getId() > task_i.getId())) {
-//                    cnt++;
-//                }
-//            }
-//            task_i.setPriority(cnt);
-//        }
-//    }
 
     int getRandomDivisor(ArrayList<Long> inFactors, int numOfChosenFactors) {
         ArrayList<Long> factors = (ArrayList<Long>) inFactors.clone();
@@ -512,7 +309,7 @@ public class TaskSetGenerator {
     }
 
     public void setMinNumTasks(int minNumTasks) {
-        TaskSetGenerator.minNumTasks = minNumTasks;
+        this.minNumTasks = minNumTasks;
     }
 
     public int getMaxNumTasks() {
@@ -520,63 +317,71 @@ public class TaskSetGenerator {
     }
 
     public void setMaxNumTasks(int maxNumTasks) {
-        TaskSetGenerator.maxNumTasks = maxNumTasks;
+        this.maxNumTasks = maxNumTasks;
     }
 
     public long getMinPeriod() {
         return minPeriod;
     }
 
-    public void setMinPeriod(int minPeriod) {
-        TaskSetGenerator.minPeriod = minPeriod;
+    public void setMinPeriod(long minPeriod) {
+        this.minPeriod = minPeriod;
     }
 
     public long getMaxPeriod() {
         return maxPeriod;
     }
 
-    public void setMaxPeriod(int maxPeriod) {
-        TaskSetGenerator.maxPeriod = maxPeriod;
+    public void setMaxPeriod(long maxPeriod) {
+        this.maxPeriod = maxPeriod;
     }
 
     public long getMaxHyperPeriod() {
         return maxHyperPeriod;
     }
 
-    public void setMaxHyperPeriod(int maxHyperPeriod) {
-        TaskSetGenerator.maxHyperPeriod = maxHyperPeriod;
+    public void setMaxHyperPeriod(long maxHyperPeriod) {
+        this.maxHyperPeriod = maxHyperPeriod;
+    }
+
+    public Boolean getGenerateFromHpDivisors() {
+        return generateFromHpDivisors;
+    }
+
+    public void setGenerateFromHpDivisors(Boolean generateFromHpDivisors) {
+        this.generateFromHpDivisors = generateFromHpDivisors;
     }
 
     public long getMinWcet() {
         return minWcet;
     }
 
-    public void setMinWcet(int minWcet) {
-        TaskSetGenerator.minWcet = minWcet;
+    public void setMinWcet(long minWcet) {
+        this.minWcet = minWcet;
     }
 
     public long getMaxWcet() {
         return maxWcet;
     }
 
-    public void setMaxWcet(int maxWcet) {
-        TaskSetGenerator.maxWcet = maxWcet;
+    public void setMaxWcet(long maxWcet) {
+        this.maxWcet = maxWcet;
     }
 
     public long getMinInitOffset() {
         return minInitOffset;
     }
 
-    public void setMinInitOffset(int minInitOffset) {
-        TaskSetGenerator.minInitOffset = minInitOffset;
+    public void setMinInitOffset(long minInitOffset) {
+        this.minInitOffset = minInitOffset;
     }
 
     public long getMaxInitOffset() {
         return maxInitOffset;
     }
 
-    public void setMaxInitOffset(int maxInitOffset) {
-        TaskSetGenerator.maxInitOffset = maxInitOffset;
+    public void setMaxInitOffset(long maxInitOffset) {
+        this.maxInitOffset = maxInitOffset;
     }
 
     public double getMinUtil() {
@@ -584,7 +389,7 @@ public class TaskSetGenerator {
     }
 
     public void setMinUtil(double minUtil) {
-        TaskSetGenerator.minUtil = minUtil;
+        this.minUtil = minUtil;
     }
 
     public double getMaxUtil() {
@@ -592,7 +397,7 @@ public class TaskSetGenerator {
     }
 
     public void setMaxUtil(double maxUtil) {
-        TaskSetGenerator.maxUtil = maxUtil;
+        this.maxUtil = maxUtil;
     }
 
     public int getNumTaskPerSet() {
@@ -600,7 +405,7 @@ public class TaskSetGenerator {
     }
 
     public void setNumTaskPerSet(int numTaskPerSet) {
-        TaskSetGenerator.numTaskPerSet = numTaskPerSet;
+        this.numTaskPerSet = numTaskPerSet;
     }
 
     public int getNumTaskSet() {
@@ -608,55 +413,55 @@ public class TaskSetGenerator {
     }
 
     public void setNumTaskSet(int numTaskSet) {
-        TaskSetGenerator.numTaskSet = numTaskSet;
+        this.numTaskSet = numTaskSet;
     }
 
-    public static Boolean getGenerateFromHpDivisors() {
-        return generateFromHpDivisors;
-    }
-
-    public static Boolean getNeedGenObserverTask() {
-        return needGenObserverTask;
-    }
-
-    public static void setNeedGenObserverTask(Boolean needGenObserverTask) {
-        TaskSetGenerator.needGenObserverTask = needGenObserverTask;
-    }
-
-    public static void setMaxObservationRatio(double maxObservationRatio) {
-        TaskSetGenerator.maxObservationRatio = maxObservationRatio;
-    }
-
-    public static void setMinObservationRatio(double minObservationRatio) {
-        TaskSetGenerator.minObservationRatio = minObservationRatio;
-    }
-
-    public static int getObserverTaskPriority() {
-        return observerTaskPriority;
-    }
-
-    public static void setObserverTaskPriority(int observerTaskPriority) {
-        TaskSetGenerator.observerTaskPriority = observerTaskPriority;
-    }
-
-    public static int getVictimTaskPriority() {
-        return victimTaskPriority;
-    }
-
-    public static void setVictimTaskPriority(int victimTaskPriority) {
-        TaskSetGenerator.victimTaskPriority = victimTaskPriority;
-    }
-
-    public static void setGenerateFromHpDivisors(Boolean generateFromHpDivisors) {
-        TaskSetGenerator.generateFromHpDivisors = generateFromHpDivisors;
-    }
-
-    public static Boolean getNonHarmonicOnly() {
+    public Boolean getNonHarmonicOnly() {
         return nonHarmonicOnly;
     }
 
-    public static void setNonHarmonicOnly(Boolean nonHarmonicOnly) {
-        TaskSetGenerator.nonHarmonicOnly = nonHarmonicOnly;
+    public void setNonHarmonicOnly(Boolean nonHarmonicOnly) {
+        this.nonHarmonicOnly = nonHarmonicOnly;
+    }
+
+    public Boolean getNeedGenObserverTask() {
+        return needGenObserverTask;
+    }
+
+    public void setNeedGenObserverTask(Boolean needGenObserverTask) {
+        this.needGenObserverTask = needGenObserverTask;
+    }
+
+    public double getMaxObservationRatio() {
+        return maxObservationRatio;
+    }
+
+    public void setMaxObservationRatio(double maxObservationRatio) {
+        this.maxObservationRatio = maxObservationRatio;
+    }
+
+    public double getMinObservationRatio() {
+        return minObservationRatio;
+    }
+
+    public void setMinObservationRatio(double minObservationRatio) {
+        this.minObservationRatio = minObservationRatio;
+    }
+
+    public int getObserverTaskPriority() {
+        return observerTaskPriority;
+    }
+
+    public void setObserverTaskPriority(int observerTaskPriority) {
+        this.observerTaskPriority = observerTaskPriority;
+    }
+
+    public int getVictimTaskPriority() {
+        return victimTaskPriority;
+    }
+
+    public void setVictimTaskPriority(int victimTaskPriority) {
+        this.victimTaskPriority = victimTaskPriority;
     }
 
     public String toCommentString() {
