@@ -61,7 +61,7 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
     public QuickFPSchedulerJobContainer preSchedule(long tickLimit) {
         QuickFPSchedulerJobContainer resultSimJobs = new QuickFPSchedulerJobContainer();
         for (Task thisTask : taskSet.getTasksAsArray()) {
-            if (thisTask.getTaskType() == Task.TASK_TYPE_IDLE)
+            if (thisTask.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE))
                 continue;
 
             if (thisTask.isSporadicTask() == true) {

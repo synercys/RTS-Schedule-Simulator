@@ -153,13 +153,17 @@ public class V11LogParser implements LogParser {
         if (splitStrings.length == 6) {
             int taskId = Integer.valueOf(splitStrings[0].trim()).intValue();
             int taskType = Integer.valueOf(splitStrings[1].trim()).intValue();
+            String taskTypeString = "";
+            if (taskType == 2) { taskTypeString = Task.TASK_TYPE_APP; }
+            else if (taskType == 3) { taskTypeString = Task.TASK_TYPE_IDLE; }
+            else { taskTypeString = Task.TASK_TYPE_UNKNOWN; }
             String taskTitle = splitStrings[2].trim().substring(1, splitStrings[2].trim().length() - 1);
             long taskPeriod = Integer.valueOf(splitStrings[3].trim()).intValue();
             long taskExecTime = Integer.valueOf(splitStrings[4].trim()).intValue();
             int taskPriority = Integer.valueOf(splitStrings[5].trim()).intValue();
 
             // Let deadline be the same as period.
-            taskSet.addTask( taskId, taskTitle, taskType, taskPeriod, taskPeriod, taskExecTime, taskPriority);
+            taskSet.addTask( taskId, taskTitle, taskTypeString, taskPeriod, taskPeriod, taskExecTime, taskPriority);
             return true;
         }
         else {

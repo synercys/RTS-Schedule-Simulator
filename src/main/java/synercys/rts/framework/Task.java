@@ -4,17 +4,16 @@ package synercys.rts.framework;
  * Created by CY on 2/13/17.
  */
 public class Task {
-    public static int TASK_TYPE_UNKNOWN = 0;
-    public static int TASK_TYPE_SYS = 1;
-    public static int TASK_TYPE_APP = 2;
-    public static int TASK_TYPE_IDLE = 3;
-    public static int TASK_TYPE_HACK = 4;
+    public static String TASK_TYPE_UNKNOWN = "UNKNOWN";
+    public static String TASK_TYPE_SYS = "SYS";
+    public static String TASK_TYPE_APP = "APP";
+    public static String TASK_TYPE_IDLE = "IDLE";
 
     public static int IDLE_TASK_ID = 0;
 
     /* Fundamental Task Parameters */
     protected int id = 0;
-    private int taskType = TASK_TYPE_UNKNOWN;
+    private String taskType = TASK_TYPE_UNKNOWN;
 
     private String title = "";
 
@@ -24,9 +23,6 @@ public class Task {
     protected long wcet = 0;
 
     protected long execTime = 0;
-    protected long execTimeError = 1;  // The error should be positive.
-    protected long execTimeLowerBound = 0;    // Lower bound error
-    protected long execTimeUpperBound = 0;    // Upper bound error
 
     protected int priority = 0;
 
@@ -39,7 +35,7 @@ public class Task {
 
     public Task(){}
 
-    public Task(int inTaskId, String inTitle, int inType, long inPeriod, long inDeadline, long inExecTime, int inPriority)
+    public Task(int inTaskId, String inTitle, String inType, long inPeriod, long inDeadline, long inExecTime, int inPriority)
     {
         title = inTitle;
         id = inTaskId;
@@ -89,7 +85,7 @@ public class Task {
         return title;
     }
 
-    public int getTaskType()
+    public String getTaskType()
     {
         return taskType;
     }
@@ -101,14 +97,6 @@ public class Task {
     public void setPriority(int inPriority)
     {
         priority = inPriority;
-    }
-
-    public void setExecTimeError(long execTimeError) {
-        this.execTimeError = execTimeError;
-    }
-
-    public long getExecTimeError() {
-        return execTimeError;
     }
 
     public long getInitialOffset() {
@@ -127,7 +115,7 @@ public class Task {
         this.nextReleaseTime = nextReleaseTime;
     }
 
-    public void setTaskType(int taskType) {
+    public void setTaskType(String taskType) {
         this.taskType = taskType;
     }
 
@@ -145,19 +133,6 @@ public class Task {
         if (wcet == 0) {
             wcet = execTime;
         }
-
-        /* Deviation */
-        //TODO: This has to be formulated.
-        execTimeLowerBound = (long) (execTime*0.8);
-        execTimeUpperBound = (long) (execTime*1.2);
-    }
-
-    public long getExecTimeLowerBound() {
-        return execTimeLowerBound;
-    }
-
-    public long getExecTimeUpperBound() {
-        return execTimeUpperBound;
     }
 
     public long getWcet() {

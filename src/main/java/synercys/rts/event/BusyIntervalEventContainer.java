@@ -34,7 +34,7 @@ public class BusyIntervalEventContainer {
         ArrayList<SchedulerIntervalEvent> schedulerIntervalEventsInCurrentBI = new ArrayList<>();
         for (SchedulerIntervalEvent currentEvent : schedulerEvents) {
             if (busyIntervalFound == false) {
-                if (currentEvent.getTask().getTaskType() == Task.TASK_TYPE_IDLE) {
+                if (currentEvent.getTask().getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)) {
                     continue;
                 } else { // Start of a busy interval is found.
                     busyIntervalFound = true;
@@ -46,7 +46,7 @@ public class BusyIntervalEventContainer {
                 }
             }
 
-            if (currentEvent.getTask().getTaskType() == Task.TASK_TYPE_IDLE) { // This is the end of a busy interval.
+            if (currentEvent.getTask().getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)) { // This is the end of a busy interval.
                 endTimeStamp = currentEvent.getOrgBeginTimestamp();
                 //TaskReleaseEventContainer thisBusyIntervalGroundTruth = new TaskReleaseEventContainer();
                 BusyIntervalEvent thisBusyInterval = new BusyIntervalEvent(beginTimeStamp, endTimeStamp);

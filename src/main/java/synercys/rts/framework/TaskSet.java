@@ -17,7 +17,7 @@ public class TaskSet {
     {
     }
 
-    public Boolean addTask(Integer inTaskId, String inTitle, int inType, long inPeriod, long inDeadline, long inExecTime, int inPriority)
+    public Boolean addTask(Integer inTaskId, String inTitle, String inType, long inPeriod, long inDeadline, long inExecTime, int inPriority)
     {
         int newTaskId = 0;
 
@@ -184,7 +184,7 @@ public class TaskSet {
         ArrayList<Task> appTasks = new ArrayList<Task>();
         for (Task thisTask: tasks.values())
         {
-            if (thisTask.getTaskType() == Task.TASK_TYPE_APP)
+            if (thisTask.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_APP))
             {
                 appTasks.add(thisTask);
             }
@@ -204,7 +204,7 @@ public class TaskSet {
         ArrayList<Task> higherPriorityTask = new ArrayList<Task>();
         for (Task thisTask: tasks.values())
         {
-            if ((thisTask.getTaskType()==Task.TASK_TYPE_APP) && (thisTask.getPriority()>inPriority))
+            if ((thisTask.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_APP)) && (thisTask.getPriority()>inPriority))
             {
                 higherPriorityTask.add(thisTask);
             }
@@ -225,7 +225,7 @@ public class TaskSet {
 
     public Task getIdleTask() {
         for (Task thisTask : tasks.values()) {
-            if (thisTask.getTaskType() == Task.TASK_TYPE_IDLE) {
+            if (thisTask.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)) {
                 return thisTask;
             }
         }

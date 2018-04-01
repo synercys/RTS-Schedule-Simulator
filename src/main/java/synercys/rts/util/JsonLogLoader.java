@@ -2,6 +2,7 @@ package synercys.rts.util;
 
 import cy.utility.file.FileHandler;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import synercys.rts.event.EventContainer;
 import synercys.rts.framework.Task;
@@ -87,7 +88,7 @@ public class JsonLogLoader extends FileHandler implements LogParser{
             taskSet.addTask(
                     jsonTask.getInt(JsonLogStr.TASK_ID),
                     jsonTask.getString(JsonLogStr.TASK_NAME),
-                    jsonTask.getInt(JsonLogStr.TASK_TYPE),
+                    jsonTask.getString(JsonLogStr.TASK_TYPE),
                     jsonTask.getLong(JsonLogStr.TASK_PERIOD),
                     jsonTask.getLong(JsonLogStr.TASK_DEADLINE),
                     jsonTask.getLong(JsonLogStr.TASK_WCET),
@@ -131,24 +132,24 @@ public class JsonLogLoader extends FileHandler implements LogParser{
             taskSetGenerators.add(taskSetGenerator);
             JSONObject jsonGenConfig = jsonGenConfigArray.getJSONObject(i);
 
-            taskSetGenerator.setMaxHyperPeriod(jsonGenConfig.getInt("maxHyperPeriod"));
-            taskSetGenerator.setMaxPeriod(jsonGenConfig.getInt("maxPeriod"));
-            taskSetGenerator.setMinPeriod(jsonGenConfig.getInt("minPeriod"));
-            taskSetGenerator.setMaxWcet(jsonGenConfig.getInt("maxWcet"));
-            taskSetGenerator.setMinWcet(jsonGenConfig.getInt("minWcet"));
-            taskSetGenerator.setMaxInitOffset(jsonGenConfig.getInt("maxInitOffset"));
-            taskSetGenerator.setMinInitOffset(jsonGenConfig.getInt("minInitOffset"));
-            taskSetGenerator.setMaxUtil(jsonGenConfig.getDouble("maxUtil"));
-            taskSetGenerator.setMinUtil(jsonGenConfig.getDouble("minUtil"));
-            taskSetGenerator.setNumTaskPerSet(jsonGenConfig.getInt("numTaskPerSet"));
-            taskSetGenerator.setNumTaskSet(jsonGenConfig.getInt("numTaskSet"));
-            taskSetGenerator.setGenerateFromHpDivisors(jsonGenConfig.getBoolean("generateFromHpDivisors"));
-            taskSetGenerator.setNonHarmonicOnly(jsonGenConfig.getBoolean("nonHarmonicOnly"));
-            taskSetGenerator.setNeedGenObserverTask(jsonGenConfig.getBoolean("needGenObserverTask"));
-            taskSetGenerator.setMaxObservationRatio(jsonGenConfig.getDouble("maxObservationRatio"));
-            taskSetGenerator.setMinObservationRatio(jsonGenConfig.getDouble("minObservationRatio"));
-            taskSetGenerator.setObserverTaskPriority(jsonGenConfig.getInt("observerTaskPriority"));
-            taskSetGenerator.setVictimTaskPriority(jsonGenConfig.getInt("victimTaskPriority"));
+            try{taskSetGenerator.setMaxHyperPeriod(jsonGenConfig.getInt("maxHyperPeriod"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMaxPeriod(jsonGenConfig.getInt("maxPeriod"));} catch (JSONException e){}
+            try{taskSetGenerator.setMinPeriod(jsonGenConfig.getInt("minPeriod"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMaxWcet(jsonGenConfig.getInt("maxWcet"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMinWcet(jsonGenConfig.getInt("minWcet"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMaxInitOffset(jsonGenConfig.getInt("maxInitOffset"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMinInitOffset(jsonGenConfig.getInt("minInitOffset"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMaxUtil(jsonGenConfig.getDouble("maxUtil"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMinUtil(jsonGenConfig.getDouble("minUtil"));}  catch (JSONException e){}
+            try{taskSetGenerator.setNumTaskPerSet(jsonGenConfig.getInt("numTaskPerSet"));}  catch (JSONException e){}
+            try{taskSetGenerator.setNumTaskSet(jsonGenConfig.getInt("numTaskSet"));}  catch (JSONException e){}
+            try{taskSetGenerator.setGenerateFromHpDivisors(jsonGenConfig.getBoolean("generateFromHpDivisors"));}  catch (JSONException e){}
+            try{taskSetGenerator.setNonHarmonicOnly(jsonGenConfig.getBoolean("nonHarmonicOnly"));}  catch (JSONException e){}
+            try{taskSetGenerator.setNeedGenObserverTask(jsonGenConfig.getBoolean("needGenObserverTask"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMaxObservationRatio(jsonGenConfig.getDouble("maxObservationRatio"));}  catch (JSONException e){}
+            try{taskSetGenerator.setMinObservationRatio(jsonGenConfig.getDouble("minObservationRatio"));}  catch (JSONException e){}
+            try{taskSetGenerator.setObserverTaskPriority(jsonGenConfig.getInt("observerTaskPriority"));}  catch (JSONException e){}
+            try{taskSetGenerator.setVictimTaskPriority(jsonGenConfig.getInt("victimTaskPriority"));}  catch (JSONException e){}
         }
 
         result = taskSetGenerators;

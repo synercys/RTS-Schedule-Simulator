@@ -39,12 +39,13 @@ public class TaskSetGenerator {
 
     Boolean nonHarmonicOnly;
 
+    /*==== Dedicated to the research for schedule-based side-channel =====*/
     Boolean needGenObserverTask;
     double maxObservationRatio;
     double minObservationRatio;
-
     int observerTaskPriority;
     int victimTaskPriority;
+    /*===== end =====*/
 
     Random rand = new Random();
 
@@ -72,12 +73,13 @@ public class TaskSetGenerator {
 
         nonHarmonicOnly = false;
 
+        /*==== Dedicated to the research for schedule-based side-channel =====*/
         needGenObserverTask = false;
         maxObservationRatio = 999;
         minObservationRatio = 1.0;
-
         observerTaskPriority = 1;
         victimTaskPriority = 2;
+        /*===== end =====*/
     }
 
     public TaskSetContainer generate() {
@@ -233,6 +235,7 @@ public class TaskSetGenerator {
             return null;
 
 
+        /*==== Dedicated to the research for schedule-based side-channel =====*/
         double observationRatio = 0;
         if (needGenObserverTask == true) {
             Task victim, observer;
@@ -244,6 +247,7 @@ public class TaskSetGenerator {
                 return null;
             }
         }
+        /*===== end =====*/
 
         taskContainer.addIdleTask();
         return taskContainer;
