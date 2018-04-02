@@ -1,7 +1,6 @@
 package synercys.rts.framework;
 
-import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.HashMap;
 
 /**
@@ -9,12 +8,22 @@ import java.util.HashMap;
  */
 public class TaskSet {
     protected int id = 0;   // This field is intended for easily identifying individual tasksets in mass experiments.
-    //private ArrayList<Task> tasks = new ArrayList<Task>();
     public HashMap<Integer, Task> tasks = new HashMap<Integer, Task>();
-    //private ArrayList<Color> colorList = new ArrayList<Color>();
 
-    public TaskSet()
-    {
+    public TaskSet() {}
+
+    /**
+     * This is a copy constructor. It does deep copy.
+     * @param taskSet the taskset to be cloned.
+     */
+    public TaskSet(TaskSet taskSet) {
+        id = taskSet.id;
+
+        /* Clone tasks (a hashmap) */
+        for (HashMap.Entry<Integer, Task> taskEntry : taskSet.tasks.entrySet()) {
+            Task clonedTask = new Task(taskEntry.getValue());   // The task is also cloned by using a (deep copy) copy constructor.
+            tasks.put((taskEntry.getKey()).intValue(), clonedTask);
+        }
     }
 
     public Boolean addTask(Integer inTaskId, String inTitle, String inType, long inPeriod, long inDeadline, long inExecTime, int inPriority)

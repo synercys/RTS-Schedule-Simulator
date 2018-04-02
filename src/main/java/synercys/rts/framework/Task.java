@@ -46,10 +46,23 @@ public class Task {
         priority = inPriority;
     }
 
-    //public Task(Task inTask) {
-    //    cloneSettings(inTask);
-    //}
-
+    /**
+     * This is a copy constructor. It does deep copy.
+     * @param task the task to be cloned.
+     */
+    public Task(Task task) {
+        id = task.id;
+        taskType = task.taskType;
+        title = task.title;
+        period = task.period;
+        deadline = task.deadline;
+        wcet = task.wcet;
+        execTime = task.execTime;
+        priority = task.priority;
+        initialOffset = task.initialOffset;
+        nextReleaseTime = task.nextReleaseTime;
+        isSporadicTask = task.isSporadicTask;
+    }
 
     public boolean isSporadicTask() {
         return isSporadicTask;
