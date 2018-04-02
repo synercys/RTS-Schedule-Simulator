@@ -85,7 +85,7 @@ public class JsonLogLoader extends FileHandler implements LogParser{
         int taskSize = jsonTaskSet.getJSONArray(JsonLogStr.TASKSET_TASKS).length();
         for (int i=0; i<taskSize; i++) {
             JSONObject jsonTask = jsonTaskSet.getJSONArray(JsonLogStr.TASKSET_TASKS).getJSONObject(i);
-            taskSet.addTask(
+            Task task = new Task(
                     jsonTask.getInt(JsonLogStr.TASK_ID),
                     jsonTask.getString(JsonLogStr.TASK_NAME),
                     jsonTask.getString(JsonLogStr.TASK_TYPE),
@@ -94,6 +94,10 @@ public class JsonLogLoader extends FileHandler implements LogParser{
                     jsonTask.getLong(JsonLogStr.TASK_WCET),
                     jsonTask.getInt(JsonLogStr.TASK_PRIORITY)
                     );
+
+            task.setSporadicTask(jsonTask.getString(JsonLogStr.TASK_ARRIVAL_TYPE).equalsIgnoreCase(JsonLogStr.TASK_ARRIVAL_TYPE_SPORADIC) ? true : false);
+            task.setInitialOffset(jsonTask.getLong(JsonLogStr.TASK_PHASE));
+            taskSet.addTask(task);
         }
 
         return taskSet;
