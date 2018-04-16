@@ -45,6 +45,14 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
 
         // Start simulating, the output schedule will be stored in simEventContainer (an EventContainer object).
         simJobs(simJobContainer);
+
+        // Trim the last interval events since it's possible that some events run over the tickLimit.
+        simEventContainer.removeEventsAfterButExcludeTimeStamp(tickLimit);
+        SchedulerIntervalEvent lastInterval = simEventContainer.getSchedulerEvents().get(simEventContainer.getSchedulerEvents().size()-1);
+        if (lastInterval.getOrgEndTimestamp() > tickLimit) {
+            lastInterval.setOrgEndTimestamp(tickLimit);
+        }
+
         return simEventContainer;
     }
 

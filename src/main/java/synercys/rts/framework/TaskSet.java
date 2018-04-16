@@ -222,6 +222,26 @@ public class TaskSet {
         return higherPriorityTask;
     }
 
+    /**
+     * Get one task of which the priority is higher than and closest to the given priority.
+     * In the case there are more than one candidates, it returns the first found one.
+     * @param inPriority priority
+     * @return a task of which the priority is higher than and closest to the given priority. It returns null if no task is found.
+     */
+    public Task getOneHigherPriorityTask(int inPriority) {
+        Task rTask = null; // The task to be returned.
+        for (Task task : tasks.values()) {
+            if (task.getPriority() > inPriority) {
+                if (rTask == null) {
+                    rTask = task;
+                } else if (task.getPriority() < rTask.getPriority()) {
+                    rTask = task;
+                }
+            }
+        }
+        return rTask;
+    }
+
     public Task getTaskByName( String inName ) {
         for (Task thisTask : getTasksAsArray()) {
             if ( thisTask.getTitle().equalsIgnoreCase(inName) == true ) {

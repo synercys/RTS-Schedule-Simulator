@@ -20,7 +20,6 @@ public class EventContainer {
 
     private ArrayList<SchedulerIntervalEvent> schedulerEvents = new ArrayList<SchedulerIntervalEvent>();
     private ArrayList<TaskInstantEvent> taskInstantEvents = new ArrayList<TaskInstantEvent>();
-    //private ArrayList<HackerEvent> hackerEvents = new ArrayList<HackerEvent>();
 
     private TaskSet taskSet = new TaskSet();
 
@@ -206,6 +205,24 @@ public class EventContainer {
         ArrayList<TaskInstantEvent> taskInstantEventsToBeRemoved = new ArrayList<>();
         for (TaskInstantEvent thisInstantEvent : taskInstantEvents) {
             if (thisInstantEvent.getOrgTimestamp() < inTimeStamp) {
+                taskInstantEventsToBeRemoved.add(thisInstantEvent);
+            }
+        }
+        taskInstantEvents.removeAll(taskInstantEventsToBeRemoved);
+    }
+
+    public void removeEventsAfterButExcludeTimeStamp(long inTimeStamp) {
+        ArrayList<SchedulerIntervalEvent> schedulerIntervalEventsToBeRemoved = new ArrayList<>();
+        for (SchedulerIntervalEvent thisSchedulerEvent : schedulerEvents) {
+            if (thisSchedulerEvent.getOrgBeginTimestamp() > inTimeStamp) {
+                schedulerIntervalEventsToBeRemoved.add(thisSchedulerEvent);
+            }
+        }
+        schedulerEvents.removeAll(schedulerIntervalEventsToBeRemoved);
+
+        ArrayList<TaskInstantEvent> taskInstantEventsToBeRemoved = new ArrayList<>();
+        for (TaskInstantEvent thisInstantEvent : taskInstantEvents) {
+            if (thisInstantEvent.getOrgTimestamp() > inTimeStamp) {
                 taskInstantEventsToBeRemoved.add(thisInstantEvent);
             }
         }
