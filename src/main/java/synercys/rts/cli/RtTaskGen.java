@@ -31,9 +31,11 @@ public class RtTaskGen implements Callable {
     String outputFilePrefix = "";
 
     public static void main(String... args) {
-        //String[] testArgs = { "-n", "1"};
-        String[] testArgs = {"-n", "5", "-i", "\"sampleLogs\\\\task_config.txt\"", "-o", "\"sampleLogs\\\\jsontask_out.txt\""};
-        args = testArgs;
+        /* If no argument is given, then use demo inputs. */
+        if (args.length == 0) {
+            String[] testArgs = {"-n", "5", "-i", "\"sampleLogs\\\\task_config.txt\"", "-o", "\"sampleLogs\\\\jsontask_out.txt\""};
+            args = testArgs;
+        }
         CommandLine.call(new RtTaskGen(), System.err, args);
     }
 
@@ -65,9 +67,14 @@ public class RtTaskGen implements Callable {
             }
         }
 
+        int taskSetId = 0;
         for (TaskSet taskSet : taskSetContainer.getTaskSets()) {
+            taskSet.setId(taskSetId);
             loggerConsole.info(taskSet.toString());
+            taskSetId++;
         }
+
+        loggerConsole.info(String.valueOf(taskSetContainer.size()) + " tasksets are generated.");
 
         return null;
     }

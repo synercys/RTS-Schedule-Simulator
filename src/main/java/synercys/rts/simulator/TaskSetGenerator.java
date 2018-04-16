@@ -99,6 +99,7 @@ public class TaskSetGenerator {
                 i--;
                 continue;
             } else {
+                thisTaskContainer.setId(i);
                 resultTaskSetContainer.addTaskSet(thisTaskContainer);
             }
         }
