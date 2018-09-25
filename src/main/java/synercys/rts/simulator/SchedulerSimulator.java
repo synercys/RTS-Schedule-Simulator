@@ -95,8 +95,9 @@ abstract class SchedulerSimulator {
         // Gaussian Distribution
         double stddev = 0.2;    // added by CY
         double gaussianFactor = random.nextGaussian();
-        long deviatedExecutionTime = (long) (gaussianFactor * (task_i.getWcet() * stddev) + task_i.getWcet());
-        return deviatedExecutionTime;
+        long deviatedExecutionTime = (long) (gaussianFactor * (task_i.getWcet() * stddev) + task_i.getWcet()*0.8);
+        //System.out.println(task_i.getWcet() + " : " + String.valueOf(Long.min(deviatedExecutionTime, task_i.getWcet())));
+        return Long.min(deviatedExecutionTime, task_i.getWcet());
     }
 
     long getVariedInterArrivalTime(long minInterArrival) {
