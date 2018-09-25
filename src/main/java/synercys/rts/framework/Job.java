@@ -8,6 +8,7 @@ public class Job {
     public Task task;
     public long remainingExecTime;
     public long releaseTime;
+    public long absoluteDeadline;
     //public long responseTime;
     public boolean hasStarted;
 
@@ -18,6 +19,7 @@ public class Job {
         task = inTask;
         releaseTime = inReleaseTime;
         remainingExecTime = inRemainingExecTime;
+        absoluteDeadline = inReleaseTime + inTask.getDeadline();
         hasStarted = false;
     }
 }

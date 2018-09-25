@@ -64,7 +64,7 @@ public class MainSingleTaskSetTest {
 
         double gcd = Umath.gcd(victimTask.getPeriod(), observerTask.getPeriod());
         double lcm = Umath.lcm(victimTask.getPeriod(), observerTask.getPeriod());
-        double observationRatio = observerTask.getExecTime() / gcd;
+        double observationRatio = observerTask.getWcet() / gcd;
 
 
         loggerConsole.info(taskSet.toString());

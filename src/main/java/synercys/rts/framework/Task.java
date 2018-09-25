@@ -22,7 +22,7 @@ public class Task {
 
     protected long wcet = 0;
 
-    protected long execTime = 0;
+    //protected long execTime = 0;
 
     protected int priority = 0;
 
@@ -35,14 +35,15 @@ public class Task {
 
     public Task(){}
 
-    public Task(int inTaskId, String inTitle, String inType, long inPeriod, long inDeadline, long inExecTime, int inPriority)
+    public Task(int inTaskId, String inTitle, String inType, long inPeriod, long inDeadline, long inWCET, int inPriority)
     {
         title = inTitle;
         id = inTaskId;
         taskType = inType;
         period = inPeriod;
         deadline = inDeadline;
-        execTime = inExecTime;
+        //execTime = inExecTime;
+        wcet = inWCET;
         priority = inPriority;
     }
 
@@ -57,7 +58,7 @@ public class Task {
         period = task.period;
         deadline = task.deadline;
         wcet = task.wcet;
-        execTime = task.execTime;
+        //execTime = task.execTime;
         priority = task.priority;
         initialOffset = task.initialOffset;
         nextReleaseTime = task.nextReleaseTime;
@@ -83,10 +84,6 @@ public class Task {
     public int getId()
     {
         return id;
-    }
-
-    public long getExecTime() {
-        return execTime;
     }
 
     public long getPeriod() {
@@ -140,14 +137,6 @@ public class Task {
         this.deadline = deadline;
     }
 
-    public void setExecTime(long execTime) {
-        this.execTime = execTime;
-
-        if (wcet == 0) {
-            wcet = execTime;
-        }
-    }
-
     public long getWcet() {
         return wcet;
     }
@@ -160,7 +149,7 @@ public class Task {
     public String toString() {
         return "Task-" + id +
                 ": p=" + period +
-                ", c=" + execTime +
+                ", c=" + wcet +
                 ", pri=" + priority +
                 ", offset=" + initialOffset;
     }

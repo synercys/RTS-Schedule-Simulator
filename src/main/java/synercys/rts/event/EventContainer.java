@@ -228,4 +228,12 @@ public class EventContainer {
         }
         taskInstantEvents.removeAll(taskInstantEventsToBeRemoved);
     }
+
+    public void trimEventsToTimeStamp(long timeLimit) {
+        removeEventsAfterButExcludeTimeStamp(timeLimit);
+        SchedulerIntervalEvent lastInterval = schedulerEvents.get(schedulerEvents.size()-1);
+        if (lastInterval.getOrgEndTimestamp() > timeLimit) {
+            lastInterval.setOrgEndTimestamp(timeLimit);
+        }
+    }
 }

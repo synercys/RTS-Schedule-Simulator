@@ -129,7 +129,7 @@ public class TaskSet {
             }
             else
             {
-                if (thisTask.getExecTime() > LargestComputationTimeTask.getExecTime())
+                if (thisTask.getWcet() > LargestComputationTimeTask.getWcet())
                 {
                     LargestComputationTimeTask = thisTask;
                 }
@@ -200,6 +200,23 @@ public class TaskSet {
             }
         }
         return appTasks;
+    }
+
+    /**
+     * Get tasks (all except the idle task) stored in a new ArrayList instance.
+     * @return A list containing all tasks except for the idle task
+     */
+    public ArrayList<Task> getRunnableTasksAsArray()
+    {
+        ArrayList<Task> resultTaskList = new ArrayList<Task>();
+        for (Task thisTask: tasks.values())
+        {
+            if (!thisTask.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE))
+            {
+                resultTaskList.add(thisTask);
+            }
+        }
+        return resultTaskList;
     }
 
     public void clear()
@@ -332,7 +349,7 @@ public class TaskSet {
     // Code modified from Man-Ki's code (compute worst case response time)
     public long calc_WCRT(Task task_i) {
         int numItr = 0;
-        long Wi = task_i.getExecTime();
+        long Wi = task_i.getWcet();
         long prev_Wi = 0;
 
         //int numTasks = taskContainer.getAppTasksAsArray().size();
@@ -344,12 +361,12 @@ public class TaskSet {
                     continue;
 
                 long Tj = task_hp.getPeriod();
-                long Cj = task_hp.getExecTime();
+                long Cj = task_hp.getWcet();
 
                 interference += (int)myCeil((double)Wi / (double)Tj) * Cj;
             }
 
-            Wi = task_i.getExecTime() + interference;
+            Wi = task_i.getWcet() + interference;
 
             if (Long.compare(Wi, prev_Wi) == 0)
                 return Wi;
@@ -433,7 +450,7 @@ public class TaskSet {
     public double getUtilization() {
         double resultUtil = 0;
         for (Task thisTask : getAppTasksAsArray()) {
-            resultUtil += ((double)thisTask.getExecTime())/((double)thisTask.getPeriod());
+            resultUtil += ((double)thisTask.getWcet())/((double)thisTask.getPeriod());
         }
         return resultUtil;
     }

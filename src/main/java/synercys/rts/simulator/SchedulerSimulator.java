@@ -19,9 +19,8 @@ abstract class SchedulerSimulator {
 
     public ProgressUpdater progressUpdater = new ProgressUpdater();
 
-    TaskSet taskSet = null;
-    ArrayList<Task> allTasks = null;
-    int numTasks = 0;
+    protected TaskSet taskSet = null;
+
     double totalUtil = 0;
     ArrayList<Job> readyQueue = new ArrayList<>();
     ArrayList<Job> activeQueue = new ArrayList<>();
@@ -39,8 +38,18 @@ abstract class SchedulerSimulator {
 
     protected EventContainer simEventContainer = new EventContainer();
 
+    /* runTimeVariation:
+     * Runtime variation includes execution time and inter-arrival time variations.
+     * False value disables runtime variation: execution time will always be WCETs and inter-arrival time will be the task's periods.
+     */
+    boolean runTimeVariation = true;
+
     abstract public EventContainer runSim(long tickLimit);
     abstract protected void setTaskSetHook();
+
+    public SchedulerSimulator(TaskSet taskSet) {
+        this.taskSet = taskSet;
+    }
 
     public void setTaskSet(TaskSet inTaskSet)
     {
@@ -78,11 +87,15 @@ abstract class SchedulerSimulator {
         }
     }
 
+    public void setRunTimeVariation(boolean val) {
+        runTimeVariation = val;
+    }
+
     long getVariedExecutionTime(Task task_i) {
         // Gaussian Distribution
         double stddev = 0.2;    // added by CY
         double gaussianFactor = random.nextGaussian();
-        long deviatedExecutionTime = (long) (gaussianFactor * (task_i.getExecTime() * stddev) + task_i.getExecTime());
+        long deviatedExecutionTime = (long) (gaussianFactor * (task_i.getWcet() * stddev) + task_i.getWcet());
         return deviatedExecutionTime;
     }
 
@@ -139,8 +152,11 @@ abstract class SchedulerSimulator {
 
     double calc_WCRT(Task task_i) {
         int numItr = 0;
-        double Wi = task_i.getExecTime();
+        double Wi = task_i.getWcet();
         double prev_Wi = 0;
+
+        ArrayList<Task> allTasks = taskSet.getAppTasksAsArray();
+        int numTasks = allTasks.size();
 
         while (true) {
             double interference = 0;
@@ -150,12 +166,12 @@ abstract class SchedulerSimulator {
                     continue;
 
                 double Tj = task_hp.getPeriod();
-                double Cj = task_hp.getExecTime();
+                double Cj = task_hp.getWcet();
 
                 interference += myCeil(Wi / Tj) * Cj;
             }
 
-            Wi = task_i.getExecTime() + interference;
+            Wi = task_i.getWcet() + interference;
 
             if (Double.compare(Wi, prev_Wi) == 0)
                 return Wi;

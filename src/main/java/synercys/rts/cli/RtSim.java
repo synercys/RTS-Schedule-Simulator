@@ -6,6 +6,7 @@ import picocli.CommandLine;
 import synercys.rts.event.BusyIntervalEventContainer;
 import synercys.rts.event.EventContainer;
 import synercys.rts.framework.TaskSet;
+import synercys.rts.simulator.EdfSchedulerSimulator;
 import synercys.rts.simulator.QuickFPSchedulerJobContainer;
 import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
 import synercys.rts.util.LogExporter;
@@ -26,6 +27,9 @@ public class RtSim implements Callable {
     @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "A file for storing schedule simulation output.")
     String outputFilePrefix = "";
 
+    @CommandLine.Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\" or \"RM\".")
+    String schedulingPolicy = "";
+
     @CommandLine.Option(names = {"-d", "--duration"}, required = true, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
     long simDuration = 0;
 
@@ -39,8 +43,9 @@ public class RtSim implements Callable {
     public static void main(String... args) {
         //String[] testArgs = { "-n", "1"};
         //String[] testArgs = {"-i", "D:\\myProgram\\Java\\RTS-Schedule-Simulator\\sampleLogs\\tasks.txt", "-d", "1000"};
-        String[] testArgs = {"-i", "sampleLogs\\1tasks.txt", "-o", "sampleLogs\\1task_out.txt", "-d", "10000"};
+        String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-d", "10000", "-p", "EDF"};
         args = testArgs;
+
         CommandLine.call(new RtSim(), System.err, args);
     }
 
@@ -56,19 +61,26 @@ public class RtSim implements Callable {
         TaskSet taskSet = logLoader.getEventContainer().getTaskSet();
         loggerConsole.info(taskSet.toString());
 
-        // New and configure a RM scheduling simulator.
-        QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet);
-        //rmSimulator.setTaskSet(taskSet);
-        rmSimulator.setRunTimeVariation(optionExecutionVariation); // it is by default ON.
+        EventContainer eventContainer;
+        if (schedulingPolicy.equalsIgnoreCase("RM")) {
+            loggerConsole.info("RM selected.");
 
-        //for (int i=1; i<=3; i++) {
-        //    taskSet.getOneTaskByPriority(2+i).setSporadicTask(true);
-        //}
+            // New and configure a RM scheduling simulator.
+            QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet);
+            rmSimulator.setRunTimeVariation(optionExecutionVariation); // it is by default ON.
 
-        // Run simulation.
-        //QuickFPSchedulerJobContainer simJobContainer = rmSimulator.preSchedule(simDuration);
-        //rmSimulator.simJobs(simJobContainer);
-        EventContainer eventContainer = rmSimulator.runSim(simDuration);
+            //for (int i=1; i<=3; i++) {
+            //    taskSet.getOneTaskByPriority(2+i).setSporadicTask(true);
+            //}
+
+            // Run simulation.
+            eventContainer = rmSimulator.runSim(simDuration);
+        } else { // EDF
+            loggerConsole.info("EDF selected.");
+            EdfSchedulerSimulator edfSimulator = new EdfSchedulerSimulator(taskSet);
+            edfSimulator.setRunTimeVariation(optionExecutionVariation); // it is by default ON.
+            eventContainer = edfSimulator.runSim(simDuration);
+        }
 
         // Build busy intervals for ScheduLeak
         BusyIntervalEventContainer biEvents = new BusyIntervalEventContainer();

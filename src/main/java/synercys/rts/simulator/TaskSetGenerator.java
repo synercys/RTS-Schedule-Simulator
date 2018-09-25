@@ -197,10 +197,10 @@ public class TaskSetGenerator {
 
             // Round to 0.1ms (100us).
             //task.setComputationTimeNs(tempComputationTime - tempComputationTime % 100_000);
-            task.setExecTime(tempComputationTime);
+            task.setWcet(tempComputationTime);
 
             last_total_util = total_util;
-            total_util += ( task.getExecTime() / (double)(task.getPeriod()));
+            total_util += ( task.getWcet() / (double)(task.getPeriod()));
 
             task.setTaskType(Task.TASK_TYPE_APP);
 
@@ -243,7 +243,7 @@ public class TaskSetGenerator {
             victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
             observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
             double gcd = Umath.gcd(victim.getPeriod(), observer.getPeriod());
-            observationRatio = observer.getExecTime()/gcd;
+            observationRatio = observer.getWcet()/gcd;
             if ((observationRatio<minObservationRatio) || (observationRatio>maxObservationRatio)) {
                 return null;
             }

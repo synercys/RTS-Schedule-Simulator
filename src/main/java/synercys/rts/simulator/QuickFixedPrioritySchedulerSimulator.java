@@ -24,18 +24,8 @@ import java.util.ArrayList;
  */
 public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
 
-    /* runTimeVariation:
-     * Runtime variation includes execution time and inter-arrival time variations.
-     * False value disables runtime variation: execution time will always be WCETs and inter-arrival time will be the task's periods.
-     */
-    protected boolean runTimeVariation = true;
-
-    public QuickFixedPrioritySchedulerSimulator(TaskSet inTaskSet) {
-        setTaskSet(inTaskSet);
-    }
-
-    public void setRunTimeVariation(boolean val) {
-        runTimeVariation = val;
+    public QuickFixedPrioritySchedulerSimulator(TaskSet taskSet) {
+        super(taskSet);
     }
 
     @Override
@@ -80,7 +70,7 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
                     if (runTimeVariation == true)
                         resultSimJobs.add(new Job(thisTask, tick, getVariedExecutionTime(thisTask)));
                     else
-                        resultSimJobs.add(new Job(thisTask, tick, thisTask.getExecTime()));
+                        resultSimJobs.add(new Job(thisTask, tick, thisTask.getWcet()));
                 }
             } else {
                 long thisPeriod = thisTask.getPeriod();
@@ -89,7 +79,7 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
                     if (runTimeVariation == true)
                         resultSimJobs.add(new Job(thisTask, tick, getVariedExecutionTime(thisTask)));
                     else
-                        resultSimJobs.add(new Job(thisTask, tick, thisTask.getExecTime()));
+                        resultSimJobs.add(new Job(thisTask, tick, thisTask.getWcet()));
                 }
             }
         }
