@@ -3,6 +3,7 @@ package synercys.rts.util;
 import cy.utility.file.FileHandler;
 import synercys.rts.event.BusyIntervalEvent;
 import synercys.rts.event.BusyIntervalEventContainer;
+import synercys.rts.event.EventContainer;
 
 import java.io.IOException;
 
@@ -15,5 +16,12 @@ public class LogExporter extends FileHandler {
             return false;
 
        return writeString(inBis.toBinaryString());
+    }
+
+    public boolean exportRawScheduleString(EventContainer inEventContainer) {
+        if (!isFileWriterOpened())
+            return false;
+
+        return writeString(inEventContainer.toRawScheduleString());
     }
 }

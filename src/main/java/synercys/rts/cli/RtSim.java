@@ -7,11 +7,12 @@ import synercys.rts.event.BusyIntervalEventContainer;
 import synercys.rts.event.EventContainer;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.simulator.EdfSchedulerSimulator;
-import synercys.rts.simulator.QuickFPSchedulerJobContainer;
 import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
+import synercys.rts.util.ExcelLogHandler;
 import synercys.rts.util.LogExporter;
 import synercys.rts.util.LogLoader;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -24,8 +25,8 @@ public class RtSim implements Callable {
     @CommandLine.Option(names = {"-i", "--in"}, required = true, description = "A file that contains task configurations.")
     String taskInputFile = "";
 
-    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "A file for storing schedule simulation output.")
-    String outputFilePrefix = "";
+    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\".")
+    List<String> outputFilePathAndFormat;
 
     @CommandLine.Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\" or \"RM\".")
     String schedulingPolicy = "";
@@ -43,7 +44,7 @@ public class RtSim implements Callable {
     public static void main(String... args) {
         //String[] testArgs = { "-n", "1"};
         //String[] testArgs = {"-i", "D:\\myProgram\\Java\\RTS-Schedule-Simulator\\sampleLogs\\tasks.txt", "-d", "1000"};
-        String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-d", "10000", "-p", "EDF"};
+        String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-o", "sampleLogs/output.xlsx", "-d", "10000", "-p", "EDF"};
         args = testArgs;
 
         CommandLine.call(new RtSim(), System.err, args);
@@ -96,11 +97,35 @@ public class RtSim implements Callable {
 //            e.printStackTrace();
 //        }
 
-        if (!outputFilePrefix.equalsIgnoreCase("")) {
-            LogExporter logExporter = new LogExporter();
-            logExporter.openToWriteFile(outputFilePrefix);
-            logExporter.exportBusyIntervalsBinaryString(biEvents);
+        /* Output generation */
+        for (int i=0; i<outputFilePathAndFormat.size(); i++) {
+            String thisOutputFileName = outputFilePathAndFormat.get(i);
+
+            /* Extract the extension name. */
+            String outputExtension = "";
+            int extensionNameIndex = thisOutputFileName.lastIndexOf('.');
+            if (extensionNameIndex > 0)
+                outputExtension = thisOutputFileName.substring(extensionNameIndex+1);
+
+            if (outputExtension.equalsIgnoreCase("txt")) {
+                loggerConsole.info("Generate output in txt format.");
+                LogExporter logExporter = new LogExporter();
+                logExporter.openToWriteFile(thisOutputFileName);
+                if (optionGenBisBinaryString == true)
+                    logExporter.exportBusyIntervalsBinaryString(biEvents);
+                else
+                    logExporter.exportRawScheduleString(eventContainer);
+            } else if (outputExtension.equalsIgnoreCase("xlsx")) {
+                loggerConsole.info("Generate output in xlsx format.");
+                // Create Excel file
+                ExcelLogHandler excelLogHandler = new ExcelLogHandler();
+                excelLogHandler.genRowSchedulerIntervalEvents(eventContainer);
+                excelLogHandler.saveAndClose(thisOutputFileName);
+            } else {
+                loggerConsole.info("Invalid output extension.");
+            }
         }
+
 
         // Create Excel file
         //ExcelLogHandler excelLogHandler = new ExcelLogHandler();

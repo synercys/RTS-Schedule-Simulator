@@ -64,4 +64,15 @@ public class SchedulerIntervalEvent extends IntervalEvent {
     public String toString() {
         return orgBeginTimestamp + "-" + orgEndTimestamp + ", " + task.getId() + ", " + "\"" + note + "\"";
     }
+
+    public String toRawScheduleString() {
+        String outStr = "";
+        for (long i=orgBeginTimestamp; i<getOrgEndTimestamp(); i++) {
+            outStr += String.valueOf(task.getId()) + ", ";
+        }
+        if (outStr.length() != 0)
+            outStr = outStr.substring(0, outStr.length()-2);
+
+        return outStr;
+    }
 }

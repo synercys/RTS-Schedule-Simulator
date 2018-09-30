@@ -1,14 +1,11 @@
 package synercys.rts.util;
 
+import org.apache.poi.ss.usermodel.*;
 import synercys.rts.event.BusyIntervalEvent;
 import synercys.rts.event.BusyIntervalEventContainer;
 import synercys.rts.event.EventContainer;
 import synercys.rts.event.SchedulerIntervalEvent;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
-
-//import javafx.scene.paint.Color;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -46,13 +43,26 @@ public class ExcelLogHandler {
         // Set title column.
         row.createCell(0).setCellValue("Schedule");
 
+        /* Initialize all the cells with "0" */
+        long eventContainerEndTimestamp = inEvents.getEndTimeStamp();
+        for (long i=0; i<eventContainerEndTimestamp; i++) {
+            if (i+columnOffset > EXCEL_COLUMN_LIMIT) {
+                // Do nothing if it exceeds excel's display limit.
+            } else {
+                Cell cell = row.createCell((int) (i + columnOffset));
+                cell.setCellValue(0);
+            }
+        }
+
         for (SchedulerIntervalEvent thisScheduleEvent : inEvents.getSchedulerEvents()) {
             for (long i=thisScheduleEvent.getOrgBeginTimestamp(); i<thisScheduleEvent.getOrgEndTimestamp(); i++) {
                 if (i+columnOffset > EXCEL_COLUMN_LIMIT) {
                     // Display nothing as it exceeds excel's display limit.
                 } else {
-                    Cell cell = row.createCell((int) (i + columnOffset));
+                    //Cell cell = row.createCell((int) (i + columnOffset)); // Create a new cell
+                    Cell cell = row.getCell((int) (i + columnOffset));  // Obtain the existing cell
                     cell.setCellValue(thisScheduleEvent.getTask().getId());
+                    setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
                 }
             }
         }
@@ -91,14 +101,22 @@ public class ExcelLogHandler {
     }
 
 
-//    private void setCellColor(XSSFCell inCell) {
-//        XSSFCellStyle cellStyle = workbook.createCellStyle();
+    private void setCellColor(Cell inCell, short inColorIndex) {
+        XSSFCellStyle cellStyle = workbook.createCellStyle();
+
+        /* foreground color */
 //        cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-//        cellStyle.setFillForegroundColor(XSSFColor.toXSSFColor());
-//        //new XSSFColor()
-//        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//        inCell.setCellStyle(cellStyle);
-//    }
+        cellStyle.setFillForegroundColor(inColorIndex);
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        /* font color */
+        Font font = workbook.createFont();
+        font.setColor(IndexedColors.BLACK.getIndex());
+        cellStyle.setFont(font);
+
+        // Apply style to the cell
+        inCell.setCellStyle(cellStyle);
+    }
 
     public Boolean saveAndClose(String inFilePath) {
         String filePath;

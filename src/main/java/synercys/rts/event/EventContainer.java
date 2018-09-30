@@ -11,20 +11,11 @@ import java.util.ArrayList;
 public class EventContainer {
     public static final int SCHEDULER_EVENT = 0;
     public static final int INSTANT_EVENT = 1;
-    //public static final int HACKER_EVENT = 2;
-
-    //private static final int PAINT_OFFSET_X = 100;
-    //private static final int PAINT_OFFSET_Y = 150;//-75;//75;
-    private static final double SCALE_X = 1.0;
-    //private static final double SCALE_Y = 1.0;
 
     private ArrayList<SchedulerIntervalEvent> schedulerEvents = new ArrayList<SchedulerIntervalEvent>();
     private ArrayList<TaskInstantEvent> taskInstantEvents = new ArrayList<TaskInstantEvent>();
 
     private TaskSet taskSet = new TaskSet();
-
-    private long scaledEndTimestamp = 0;
-    private long orgEndTimestamp = 0;
 
     public EventContainer(){}
 
@@ -37,16 +28,7 @@ public class EventContainer {
             }
             schedulerEvents.add(new SchedulerIntervalEvent(inTimestamp, taskSet.getTaskById(inData), inEventString));
 
-            // Assume that the added scheduler event is in order, the latest one should be the latest.
-            // if (scaledEndTimestamp < inTimestampNs)
-            orgEndTimestamp = inTimestamp;
-            scaledEndTimestamp = inTimestamp;
-        }
-        //else if (inEventType == HACKER_EVENT)
-        //{
-        //    hackerEvents.addNextEvent(new HackerEvent(inTimestampNs, taskSet.getTaskById(inEventTaskId), inData, inEventString));
-        //}
-        else if (inEventType == INSTANT_EVENT)
+        } else if (inEventType == INSTANT_EVENT)
         {
             taskInstantEvents.add(new TaskInstantEvent(inTimestamp, taskSet.getTaskById(inEventTaskId), inData, inEventString));
         }
@@ -64,7 +46,6 @@ public class EventContainer {
     {
         schedulerEvents.clear();
         taskInstantEvents.clear();
-        //hackerEvents.clear();
         taskSet.clear();
     }
 
@@ -80,7 +61,6 @@ public class EventContainer {
 
     public ArrayList<SchedulerIntervalEvent> getSchedulerEvents() { return schedulerEvents; }
     public ArrayList<TaskInstantEvent> getTaskInstantEvents() { return taskInstantEvents; }
-    //public  ArrayList<HackerEvent> getHackerEvents() { return hackerEvents; }
 
     public ArrayList<SchedulerIntervalEvent> getSchedulerEventsOfATask(Task inTask)
     {
@@ -106,25 +86,11 @@ public class EventContainer {
         return resultArrayList;
     }
 
-//    public ArrayList<HackerEvent> getLowHackerEvents()
-//    {
-//        ArrayList resultArrayList = new ArrayList();
-//        for (HackerEvent currentEvent : hackerEvents)
-//        {
-//            if (currentEvent.getTaskId() == HackerEvent.lowHackerId)
-//            {
-//                resultArrayList.addNextEvent(currentEvent);
-//            }
-//        }
-//        return resultArrayList;
-//    }
-
     public ArrayList getAllEvents()
     {
         ArrayList resultArrayList = new ArrayList();
         resultArrayList.addAll(schedulerEvents);
         resultArrayList.addAll(taskInstantEvents);
-        //resultArrayList.addAll(hackerEvents);
         return resultArrayList;
     }
 
@@ -134,31 +100,6 @@ public class EventContainer {
         resultArrayList.addAll(schedulerEvents);
         resultArrayList.addAll(taskInstantEvents);
         return resultArrayList;
-    }
-
-    public long getScaledEndTimestamp()
-    {
-        return scaledEndTimestamp;
-    }
-    public long getOrgEndTimestamp() { return orgEndTimestamp; }
-
-    public void applyHorizontalScale(int inScale)
-    {
-        for (SchedulerIntervalEvent currentEvent : schedulerEvents) {
-            currentEvent.applyScaleX(inScale);
-        }
-
-        for (TaskInstantEvent currentEvent : taskInstantEvents)
-        {
-            currentEvent.applyScaleX(inScale);
-        }
-
-        //for (HackerEvent currentEvent : hackerEvents)
-        //{
-        //    currentEvent.applyScaleX(inScale);
-        //}
-
-        scaledEndTimestamp = orgEndTimestamp /inScale;
     }
 
     // This method returns the first matched event.
@@ -235,5 +176,40 @@ public class EventContainer {
         if (lastInterval.getOrgEndTimestamp() > timeLimit) {
             lastInterval.setOrgEndTimestamp(timeLimit);
         }
+    }
+
+    public String toRawScheduleString() {
+        String outStr = "";
+        long lastTimestamp = 0;
+        boolean firstPass = true;
+        for (SchedulerIntervalEvent thisEvent : schedulerEvents) {
+            if (firstPass) {
+                firstPass = false;
+                lastTimestamp = thisEvent.orgBeginTimestamp;
+            }
+
+            for (long i=lastTimestamp; i<thisEvent.getOrgBeginTimestamp(); i++) {
+                outStr += "0, ";
+            }
+
+            outStr += thisEvent.toRawScheduleString() + ", ";
+            lastTimestamp = thisEvent.orgEndTimestamp;
+        }
+
+        if (outStr.length() != 0) {
+            outStr = outStr.substring(0, outStr.length()-2);
+        }
+        return outStr;
+    }
+
+    public long getEndTimeStamp() {
+        long endTimestamp = 0;
+        for (SchedulerIntervalEvent event: schedulerEvents) {
+            endTimestamp = (event.getOrgEndTimestamp() > endTimestamp) ? event.getOrgEndTimestamp() : endTimestamp;
+        }
+        for (TaskInstantEvent event: taskInstantEvents) {
+            endTimestamp = (event.getOrgTimestamp() > endTimestamp) ? event.getOrgTimestamp() : endTimestamp;
+        }
+        return endTimestamp;
     }
 }
