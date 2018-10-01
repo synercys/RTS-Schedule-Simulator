@@ -24,7 +24,7 @@ public class ExcelLogHandler {
 
     public ExcelLogHandler() {
         workbook = new XSSFWorkbook();
-        createNewSheet();
+        createNewSheet("log");
 
         // Set default column width
         sheet.setDefaultColumnWidth(1);
@@ -33,8 +33,8 @@ public class ExcelLogHandler {
         sheet.setColumnWidth(0, 4000);
     }
 
-    public void createNewSheet() {
-        sheet = workbook.createSheet("log");
+    public void createNewSheet(String sheetName) {
+        sheet = workbook.createSheet(sheetName);
     }
 
     public void genRowSchedulerIntervalEvents(EventContainer inEvents) {
@@ -64,6 +64,44 @@ public class ExcelLogHandler {
                     cell.setCellValue(thisScheduleEvent.getTask().getId());
                     setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
                 }
+            }
+        }
+    }
+
+    public void genSchedulerIntervalEventsOnLadderDiagram(EventContainer eventContainer, long ladderWidth) {
+        if (ladderWidth+columnOffset > EXCEL_COLUMN_LIMIT)
+            return;
+
+        /* Fill the first row with width index (timestemp, rather). */
+        Row firstRow = sheet.createRow(rowIndex++);
+        firstRow.createCell(0).setCellValue("Timestamps");
+        for (long i=0; i<ladderWidth; i++) {
+            Cell cell = firstRow.createCell((int) i + columnOffset);
+            cell.setCellValue(i);
+        }
+
+        /* Set lastTimestamp to the first column of the first row where first schedule interval event appears. */
+        SchedulerIntervalEvent firstEvent = eventContainer.getSchedulerEvents().get(0);
+        long lastTimestamp = (firstEvent.getOrgBeginTimestamp()/ladderWidth)*ladderWidth;
+        Row currentRow = null;// = sheet.createRow(rowIndex++);
+        //currentRow.createCell(0).setCellValue(lastTimestamp);
+
+        for (SchedulerIntervalEvent thisScheduleEvent : eventContainer.getSchedulerEvents()) {
+            for (; lastTimestamp<thisScheduleEvent.getOrgEndTimestamp(); lastTimestamp++) {
+                if (lastTimestamp%ladderWidth == 0) {
+                    currentRow = sheet.createRow(rowIndex++);
+                    currentRow.createCell(0).setCellValue(lastTimestamp);
+                }
+
+                Cell cell = currentRow.createCell((int) (lastTimestamp % ladderWidth + columnOffset)); // Create a new cell
+                if (lastTimestamp<thisScheduleEvent.getOrgBeginTimestamp()) {
+                    /* Fill the gaps with idle task. */
+                    cell.setCellValue(0);
+                } else {
+                    cell.setCellValue(thisScheduleEvent.getTask().getId());
+                    setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
+                }
+
             }
         }
     }

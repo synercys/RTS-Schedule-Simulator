@@ -37,6 +37,9 @@ public class RtSim implements Callable {
     @CommandLine.Option(names = {"-b", "--bibs"}, required = false, description = "Output busy intervals as binary string.")
     boolean optionGenBisBinaryString = false;
 
+    @CommandLine.Option(names = {"-l", "--ladder"}, required = false, description = "Applicable for xlsx format. Width of a ladder diagram.")
+    long optionLadderDiagramWidth = 0;
+
     @CommandLine.Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     boolean optionExecutionVariation = false;
 
@@ -44,7 +47,7 @@ public class RtSim implements Callable {
     public static void main(String... args) {
         //String[] testArgs = { "-n", "1"};
         //String[] testArgs = {"-i", "D:\\myProgram\\Java\\RTS-Schedule-Simulator\\sampleLogs\\tasks.txt", "-d", "1000"};
-        String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-o", "sampleLogs/output.xlsx", "-d", "10000", "-p", "EDF"};
+        String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-o", "sampleLogs/output.xlsx", "-l", "320",  "-d", "10000", "-p", "EDF"};
         args = testArgs;
 
         CommandLine.call(new RtSim(), System.err, args);
@@ -119,7 +122,13 @@ public class RtSim implements Callable {
                 loggerConsole.info("Generate output in xlsx format.");
                 // Create Excel file
                 ExcelLogHandler excelLogHandler = new ExcelLogHandler();
-                excelLogHandler.genRowSchedulerIntervalEvents(eventContainer);
+                if (optionLadderDiagramWidth > 0) {
+                    // Width for the ladder diagram is specified, so output with a ladder diagram.
+                    excelLogHandler.genSchedulerIntervalEventsOnLadderDiagram(eventContainer, optionLadderDiagramWidth);
+                } else {
+                    // Output normal schedule format in a single row.
+                    excelLogHandler.genRowSchedulerIntervalEvents(eventContainer);
+                }
                 excelLogHandler.saveAndClose(thisOutputFileName);
             } else {
                 loggerConsole.info("Invalid output extension.");
