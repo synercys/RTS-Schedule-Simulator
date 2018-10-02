@@ -33,7 +33,7 @@ public class RtTaskGen implements Callable {
     public static void main(String... args) {
         /* If no argument is given, then use demo inputs. */
         if (args.length == 0) {
-            String[] testArgs = {"-n", "5", "-i", "\"sampleLogs\\\\task_config.txt\"", "-o", "\"sampleLogs\\\\jsontask_out.txt\""};
+            String[] testArgs = {"-n", "5", "-i", "sampleLogs/task_config.txt", "-o", "sampleLogs/5tasks.tasksets"};
             args = testArgs;
         }
         CommandLine.call(new RtTaskGen(), System.err, args);

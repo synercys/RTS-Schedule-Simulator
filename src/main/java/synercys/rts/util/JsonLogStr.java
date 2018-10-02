@@ -55,6 +55,7 @@ public class JsonLogStr {
     public static String SCHEDULE_INTERVAL_EVENT_END_TIME = "end";
     public static String SCHEDULE_INTERVAL_EVENT_BEGIN_STATE = "beginState";    // state defined below
     public static String SCHEDULE_INTERVAL_EVENT_END_STATE = "endState";    // state defined below
+    public static String SCHEDULE_INTERVAL_EVENT_NOTE = "note";
 
     /* beginState and endState (interval event state) */
     public static String SCHEDULE_INTERVAL_EVENT_STATE_UNKNOWN = "unknown";

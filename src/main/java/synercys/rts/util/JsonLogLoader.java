@@ -5,6 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import synercys.rts.event.EventContainer;
+import synercys.rts.event.SchedulerIntervalEvent;
+import synercys.rts.event.TaskInstantEvent;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.simulator.TaskSetContainer;
@@ -34,6 +36,15 @@ public class JsonLogLoader extends FileHandler implements LogParser{
         parseLog(fileReader);
     }
 
+    public JsonLogLoader(String filePath, TaskSet taskSet) {
+        eventContainer = new EventContainer();
+        taskSetContainer = new TaskSetContainer();
+        taskSetContainer.addTaskSet(taskSet);
+
+        openFile(filePath);
+        parseLog(fileReader);
+    }
+
     @Override
     public int getParserVersion() {
         return Integer.valueOf(PARSER_VERSION).intValue();
@@ -49,6 +60,8 @@ public class JsonLogLoader extends FileHandler implements LogParser{
             eventContainer.setTaskSet(taskSetContainer.getTaskSets().get(0));
         } else if (dataType.equalsIgnoreCase(JsonLogStr.DATA_TYPE_RT_TASK_GEN_SETTINGS)) {
             loadRtTaskGenSettings(jsonRoot.getJSONObject(JsonLogStr.ROOT_DATA));
+        } else if (dataType.equalsIgnoreCase(JsonLogStr.DATA_TYPE_RT_SIM_RAW_SCHEDULE)) {
+            loadRawSchedule(jsonRoot.getJSONObject(JsonLogStr.ROOT_DATA));
         } else {
             return false;
         }
@@ -103,6 +116,57 @@ public class JsonLogLoader extends FileHandler implements LogParser{
         return taskSet;
     }
 
+    protected SchedulerIntervalEvent jsonToScheduleIntervalEvent(JSONObject jsonEvent) {
+
+        // Task object (can be null if it's not given)
+        Task thisTask = null;
+        try {
+            TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
+            thisTask = taskSet.getTaskById(jsonEvent.getInt(JsonLogStr.SCHEDULE_INTERVAL_EVENT_TASK_ID));
+        } catch (Exception e) {}
+
+        // Note string (could be non-existed in the json object)
+        String eventNote = "";
+        try {
+            eventNote = jsonEvent.getString(JsonLogStr.SCHEDULE_INTERVAL_EVENT_NOTE);
+        } catch (JSONException e){}
+
+        return new SchedulerIntervalEvent(
+                jsonEvent.getLong(JsonLogStr.SCHEDULE_INTERVAL_EVENT_BEGIN_TIME),
+                jsonEvent.getLong(JsonLogStr.SCHEDULE_INTERVAL_EVENT_END_TIME),
+                thisTask,
+                eventNote
+        );
+    }
+
+    protected TaskInstantEvent jsonToTaskInstantEvent(JSONObject jsonEvent) {
+
+        // Task object (can be null if it's not given)
+        Task thisTask = null;
+        try {
+            TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
+            thisTask = taskSet.getTaskById(jsonEvent.getInt(JsonLogStr.TASK_INSTANT_EVENT_TASK_ID));
+        } catch (Exception e) {}
+
+        // Record could non-existed in the json object
+        int recordValue = 0;
+        try {
+            recordValue = jsonEvent.getInt(JsonLogStr.TASK_INSTANT_EVENT_RECORD);
+        } catch (JSONException e){}
+
+        // Note string could be non-existed in the json object)
+        String eventNote = "";
+        try {
+            eventNote = jsonEvent.getString(JsonLogStr.TASK_INSTANT_EVENT_NOTE);
+        } catch (JSONException e){}
+
+        return new TaskInstantEvent(
+                jsonEvent.getLong(JsonLogStr.TASK_INSTANT_EVENT_BEGIN),
+                thisTask,
+                recordValue,
+                eventNote
+        );
+    }
 
     /**
      * Load tasksets into taskContainer from given jsonData (in JsonLogStr.DATA_TYPE_TASKSETS type)
@@ -160,6 +224,28 @@ public class JsonLogLoader extends FileHandler implements LogParser{
         return taskSetGenerators;
     }
 
+    protected EventContainer loadRawSchedule(JSONObject jsonData) {
+
+        /* schedule interval events */
+        JSONArray jsonScheduleIntervalEventArray = jsonData.getJSONArray(JsonLogStr.DATA_RT_SIM_SCHEDULE_INTERVAL_EVENTS);
+        int scheduleIntervalEventSize = jsonScheduleIntervalEventArray.length();
+        for (int i = 0; i < scheduleIntervalEventSize; i++) {
+            JSONObject jsonEvent = jsonScheduleIntervalEventArray.getJSONObject(i);
+            eventContainer.add(jsonToScheduleIntervalEvent(jsonEvent));
+        }
+
+        /* task instant events */
+        JSONArray jsonTaskInstantEventArray = jsonData.getJSONArray(JsonLogStr.DATA_RT_SIM_TASK_INSTANT_EVENTS);
+        int taskInstantEventSize = jsonTaskInstantEventArray.length();
+        for (int i = 0; i < taskInstantEventSize; i++) {
+            JSONObject jsonEvent = jsonTaskInstantEventArray.getJSONObject(i);
+            eventContainer.add(jsonToTaskInstantEvent(jsonEvent));
+        }
+
+        result = eventContainer;
+        return eventContainer;
+    }
+
     public TaskSetContainer getTaskSetContainer() {
         return taskSetContainer;
     }
@@ -169,8 +255,11 @@ public class JsonLogLoader extends FileHandler implements LogParser{
     }
 
     public static void main(String[] args) {
-        JsonLogLoader jsonLogLoader = new JsonLogLoader("sampleLogs\\jsontask_out.txt");
-        TaskSetContainer taskSetContainer = (TaskSetContainer) jsonLogLoader.getResult();
-        System.out.println(taskSetContainer.getTaskSets().get(0).toString());
+        JsonLogLoader jsonLogLoader = new JsonLogLoader("sampleLogs/5tasks.tasksets");
+        TaskSet taskSet = ((TaskSetContainer) jsonLogLoader.getResult()).getTaskSets().get(0);
+        System.out.println(taskSet.toString());
+
+        JsonLogLoader rawScheduleLogLoader = new JsonLogLoader("sampleLogs/5tasks_out.rtschedule", taskSet);
+        System.out.println(rawScheduleLogLoader.eventContainer.getAllEvents());
     }
 }

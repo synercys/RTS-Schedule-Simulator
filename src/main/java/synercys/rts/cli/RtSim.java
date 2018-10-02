@@ -8,10 +8,8 @@ import synercys.rts.event.EventContainer;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.simulator.EdfSchedulerSimulator;
 import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
-import synercys.rts.util.ExcelLogHandler;
-import synercys.rts.util.JsonLogExporter;
-import synercys.rts.util.LogExporter;
-import synercys.rts.util.LogLoader;
+import synercys.rts.simulator.TaskSetContainer;
+import synercys.rts.util.*;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -46,10 +44,8 @@ public class RtSim implements Callable {
 
 
     public static void main(String... args) {
-        //String[] testArgs = { "-n", "1"};
-        //String[] testArgs = {"-i", "D:\\myProgram\\Java\\RTS-Schedule-Simulator\\sampleLogs\\tasks.txt", "-d", "1000"};
         if (args.length == 0) {
-            String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-o", "sampleLogs/output.xlsx", "-l", "200", "-o", "sampleLogs/output.rtschedule", "-d", "10000", "-p", "EDF"};
+            String[] testArgs = {"-i", "sampleLogs/5tasks.tasksets", "-o", "sampleLogs/5tasks_out.txt", "-o", "sampleLogs/5tasks_out.xlsx", "-l", "200", "-o", "sampleLogs/5tasks_out.rtschedule", "-d", "10000", "-p", "EDF"};
             args = testArgs;
         }
 
@@ -58,14 +54,16 @@ public class RtSim implements Callable {
 
     @Override
     public Object call() throws Exception {
-        //System.out.println("Hello, " + taskInputFile);
-        LogLoader logLoader = new LogLoader();
 
-        if (!logLoader.parseLog(taskInputFile)) {
+        TaskSet taskSet;
+        JsonLogLoader jsonLogLoader = new JsonLogLoader(taskInputFile);
+        try {
+            TaskSetContainer taskSetContainer = (TaskSetContainer) jsonLogLoader.getResult();
+            taskSet = taskSetContainer.getTaskSets().get(0);
+        } catch (Exception e) {
+            loggerConsole.error(e);
             return null;
         }
-
-        TaskSet taskSet = logLoader.getEventContainer().getTaskSet();
         loggerConsole.info(taskSet.toString());
 
         EventContainer eventContainer;
