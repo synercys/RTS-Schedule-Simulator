@@ -9,6 +9,7 @@ import synercys.rts.framework.TaskSet;
 import synercys.rts.simulator.EdfSchedulerSimulator;
 import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
 import synercys.rts.util.ExcelLogHandler;
+import synercys.rts.util.JsonLogExporter;
 import synercys.rts.util.LogExporter;
 import synercys.rts.util.LogLoader;
 
@@ -25,7 +26,7 @@ public class RtSim implements Callable {
     @CommandLine.Option(names = {"-i", "--in"}, required = true, description = "A file that contains task configurations.")
     String taskInputFile = "";
 
-    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\".")
+    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")
     List<String> outputFilePathAndFormat;
 
     @CommandLine.Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\" or \"RM\".")
@@ -47,8 +48,10 @@ public class RtSim implements Callable {
     public static void main(String... args) {
         //String[] testArgs = { "-n", "1"};
         //String[] testArgs = {"-i", "D:\\myProgram\\Java\\RTS-Schedule-Simulator\\sampleLogs\\tasks.txt", "-d", "1000"};
-        String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-o", "sampleLogs/output.xlsx", "-l", "320",  "-d", "10000", "-p", "EDF"};
-        args = testArgs;
+        if (args.length == 0) {
+            String[] testArgs = {"-i", "sampleLogs/tasks.txt", "-o", "sampleLogs/1task_out.txt", "-o", "sampleLogs/output.xlsx", "-l", "200", "-o", "sampleLogs/output.rtschedule", "-d", "10000", "-p", "EDF"};
+            args = testArgs;
+        }
 
         CommandLine.call(new RtSim(), System.err, args);
     }
@@ -130,6 +133,10 @@ public class RtSim implements Callable {
                     excelLogHandler.genRowSchedulerIntervalEvents(eventContainer);
                 }
                 excelLogHandler.saveAndClose(thisOutputFileName);
+            } else if (outputExtension.equalsIgnoreCase("rtschedule")) {
+                loggerConsole.info("Generate output in rtschedule (json) format.");
+                JsonLogExporter jsonLogExporter = new JsonLogExporter(thisOutputFileName);
+                jsonLogExporter.exportRawSchedule(eventContainer);
             } else {
                 loggerConsole.info("Invalid output extension.");
             }

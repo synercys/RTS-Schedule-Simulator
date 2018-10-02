@@ -22,6 +22,10 @@ public class TaskInstantEvent extends InstantEvent {
         return task.getId();
     }
 
+    public int getRecordData() {
+        return recordData;
+    }
+
     public Task getTask() { return task; }
 
     @Override
