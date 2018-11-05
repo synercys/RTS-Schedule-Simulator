@@ -37,11 +37,7 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
         simJobs(simJobContainer);
 
         // Trim the last interval events since it's possible that some events run over the tickLimit.
-        simEventContainer.removeEventsAfterButExcludeTimeStamp(tickLimit);
-        SchedulerIntervalEvent lastInterval = simEventContainer.getSchedulerEvents().get(simEventContainer.getSchedulerEvents().size()-1);
-        if (lastInterval.getOrgEndTimestamp() > tickLimit) {
-            lastInterval.setOrgEndTimestamp(tickLimit);
-        }
+        simEventContainer.trimEventsToTimeStamp(tickLimit);
 
         simEventContainer.setSchedulingPolicy(EventContainer.SCHEDULING_POLICY_FIXED_PRIORITY);
         return simEventContainer;
@@ -66,7 +62,7 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
             if (thisTask.isSporadicTask() == true) {
                 long thisOffset = thisTask.getInitialOffset();
                 long thisInterArrival = thisTask.getPeriod();
-                for (long tick = thisOffset; tick < tickLimit; tick += getVariedInterArrivalTime(thisInterArrival)) {
+                for (long tick = thisOffset; tick <= tickLimit; tick += getVariedInterArrivalTime(thisInterArrival)) {
                     //resultSimJobs.addNextEvent( new SimJob(thisTask, tick, thisTask.getComputationTimeNs()) );
                     if (runTimeVariation == true)
                         resultSimJobs.add(new Job(thisTask, tick, getVariedExecutionTime(thisTask)));
@@ -76,7 +72,7 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
             } else {
                 long thisPeriod = thisTask.getPeriod();
                 long thisOffset = thisTask.getInitialOffset();
-                for (long tick = thisOffset; tick < tickLimit; tick += thisPeriod) {
+                for (long tick = thisOffset; tick <= tickLimit; tick += thisPeriod) {
                     if (runTimeVariation == true)
                         resultSimJobs.add(new Job(thisTask, tick, getVariedExecutionTime(thisTask)));
                     else

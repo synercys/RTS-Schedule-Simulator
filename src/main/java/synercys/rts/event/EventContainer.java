@@ -158,7 +158,7 @@ public class EventContainer {
         taskInstantEvents.removeAll(taskInstantEventsToBeRemoved);
     }
 
-    public void removeEventsAfterButExcludeTimeStamp(long inTimeStamp) {
+    public void removeSchedulerIntervalEventsAfterButExcludeTimeStamp(long inTimeStamp) {
         ArrayList<SchedulerIntervalEvent> schedulerIntervalEventsToBeRemoved = new ArrayList<>();
         for (SchedulerIntervalEvent thisSchedulerEvent : schedulerEvents) {
             if (thisSchedulerEvent.getOrgBeginTimestamp() > inTimeStamp) {
@@ -166,10 +166,12 @@ public class EventContainer {
             }
         }
         schedulerEvents.removeAll(schedulerIntervalEventsToBeRemoved);
+    }
 
+    public void removeTaskInstantEventsAfterAndIncludeTimeStamp(long inTimeStamp) {
         ArrayList<TaskInstantEvent> taskInstantEventsToBeRemoved = new ArrayList<>();
         for (TaskInstantEvent thisInstantEvent : taskInstantEvents) {
-            if (thisInstantEvent.getOrgTimestamp() > inTimeStamp) {
+            if (thisInstantEvent.getOrgTimestamp() >= inTimeStamp) {
                 taskInstantEventsToBeRemoved.add(thisInstantEvent);
             }
         }
@@ -177,11 +179,21 @@ public class EventContainer {
     }
 
     public void trimEventsToTimeStamp(long timeLimit) {
-        removeEventsAfterButExcludeTimeStamp(timeLimit);
-        SchedulerIntervalEvent lastInterval = schedulerEvents.get(schedulerEvents.size()-1);
-        if (lastInterval.getOrgEndTimestamp() > timeLimit) {
-            lastInterval.setOrgEndTimestamp(timeLimit);
+        /* Scheduler interval events */
+        removeSchedulerIntervalEventsAfterButExcludeTimeStamp(timeLimit);
+        if (schedulerEvents.size() > 0) {
+            SchedulerIntervalEvent lastInterval = schedulerEvents.get(schedulerEvents.size() - 1);
+            if (lastInterval.getOrgBeginTimestamp() == timeLimit) {
+                // This means the last interval is [timeLimit, timeLimit) which corresponds to an empty interval,
+                // so it doesn't make sense to keep it.
+                schedulerEvents.remove(lastInterval);
+            } else if (lastInterval.getOrgEndTimestamp() > timeLimit) {
+                lastInterval.setOrgEndTimestamp(timeLimit);
+            }
         }
+
+        /* Task instant events */
+        removeTaskInstantEventsAfterAndIncludeTimeStamp(timeLimit);
     }
 
     public String toRawScheduleString() {
