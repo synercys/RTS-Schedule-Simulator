@@ -109,9 +109,8 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
                     break;
                 } else if (currentJob == null) {
                     currentJob = jobContainer.popNextEarliestHighestPriorityJob();
-//                        simEventContainer.addNextEvent(EventContainer.SCHEDULER_EVENT, (int) tick, 0, Task.IDLE_TASK_ID, "IDLE");
                     SchedulerIntervalEvent currentIdleEvent = new SchedulerIntervalEvent(currentTimeStamp, (int)currentJob.releaseTime, idleTask, "");
-                    simEventContainer.add(currentIdleEvent);
+                    //simEventContainer.add(currentIdleEvent); // TODO: do we include the idle intervals?
 
                     currentTimeStamp = (int)currentJob.releaseTime;
                 }
@@ -121,15 +120,6 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
                 if (currentTimeStamp > (int)currentJob.releaseTime) {
                     currentJob.releaseTime = (long)currentTimeStamp;
                 }
-
-                //if ( (int)currentJob.remainingExecTime == currentRunTask.getComputationTimeNs() ) {
-//                if ( currentJob.hasStarted == false ) {
-//                    currentJob.hasStarted = true;
-//                    TaskInstantEvent thisReleaseEvent = new TaskInstantEvent((int) currentJob.releaseTime, currentRunTask, 0, "BEGIN");
-//                    simEventContainer.add(thisReleaseEvent);
-//                    //resultSchedulingEvents.addNextEvent(thisReleaseEvent);
-//                    //bi.startTimesInference.addNextEvent(thisReleaseEvent);
-//                }
 
                 continue;
             }
