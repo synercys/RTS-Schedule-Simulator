@@ -3,6 +3,7 @@ package synercys.rts.cli;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
+import picocli.CommandLine.*;
 import synercys.rts.event.BusyIntervalEventContainer;
 import synercys.rts.event.EventContainer;
 import synercys.rts.framework.TaskSet;
@@ -11,44 +12,66 @@ import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
 import synercys.rts.simulator.TaskSetContainer;
 import synercys.rts.util.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
  * Created by cy on 2/19/2018.
  */
-@CommandLine.Command(name = "rtsim", header = "%n@|Simulate RT schedule|@")
+@Command(name = "rtsim", versionProvider = synercys.rts.RtsConfig.class, header = "@|blue | RT Schedule Simulator | |@")
 public class RtSim implements Callable {
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
-    @CommandLine.Option(names = {"-i", "--in"}, required = true, description = "A file that contains task configurations.")
+    @Option(names = {"-V", "--version"}, versionHelp = true, description = "Display version info.")
+    boolean versionInfoRequested;
+
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message.")
+    boolean usageHelpRequested;
+
+    @Option(names = {"-i", "--in"}, required = true, description = "A file that contains task configurations.")
     String taskInputFile = "";
 
-    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")
-    List<String> outputFilePathAndFormat;
+    @Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")
+    List<String> outputFilePathAndFormat = new ArrayList<>();
 
-    @CommandLine.Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\" or \"RM\".")
+    @Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\" or \"RM\").")
     String schedulingPolicy = "";
 
-    @CommandLine.Option(names = {"-d", "--duration"}, required = true, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
+    @Option(names = {"-d", "--duration"}, required = true, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
     long simDuration = 0;
 
-    @CommandLine.Option(names = {"-b", "--bibs"}, required = false, description = "Output busy intervals as binary string.")
+    @Option(names = {"-b", "--bibs"}, required = false, description = "Output busy intervals as binary string.")
     boolean optionGenBisBinaryString = false;
 
-    @CommandLine.Option(names = {"-l", "--ladder"}, required = false, description = "Applicable for xlsx format. Width of a ladder diagram.")
+    @Option(names = {"-l", "--ladder"}, required = false, description = "Applicable for xlsx format. Width of a ladder diagram.")
     long optionLadderDiagramWidth = 0;
 
-    @CommandLine.Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
+    @Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     boolean optionExecutionVariation = false;
 
 
     public static void main(String... args) {
-        if (args.length == 0) {
-            String[] testArgs = {"-i", "sampleLogs/5tasks.tasksets", "-o", "sampleLogs/5tasks_out.txt", "-o", "sampleLogs/5tasks_out.xlsx", "-l", "200", "-o", "sampleLogs/5tasks_out.rtschedule", "-d", "10000", "-p", "EDF"};
-            args = testArgs;
-        }
+        /* A few test command and parameters. Uncomment one to test it. */
+        // args = String[]{"-h"};
+        // args = String[]{"-i", "sampleLogs/5tasks.tasksets", "-o", "sampleLogs/5tasks_out.txt", "-o", "sampleLogs/5tasks_out.xlsx", "-l", "200", "-o", "sampleLogs/5tasks_out.rtschedule", "-d", "10000", "-p", "EDF"};
+        // args = String[]{"-i", "sampleLogs/5tasks.tasksets", "-d", "100", "-p", "EDF"};
 
+        CommandLine commandLine = new CommandLine(new RtSim());
+        try {
+            commandLine.parse(args);
+        } catch (MissingParameterException ex) {
+            System.err.println(ex.getMessage());
+            System.err.println("Use -h to see required options.");
+            return;
+        }
+        if (commandLine.isUsageHelpRequested()) {
+            commandLine.usage(System.out);
+            return;
+        } else if (commandLine.isVersionHelpRequested()) {
+            commandLine.printVersionHelp(System.out);
+            return;
+        }
         CommandLine.call(new RtSim(), System.err, args);
     }
 

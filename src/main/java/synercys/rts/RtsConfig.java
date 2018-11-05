@@ -1,11 +1,15 @@
 package synercys.rts;
 
+import picocli.CommandLine;
+
 /**
  * Created by cy on 3/14/2017.
  */
-public class RtsConfig {
+public class RtsConfig implements CommandLine.IVersionProvider {
     static void RtsConfig() {
     }
+
+    public static String VERSION = "0.3.0";
 
     /* Configuration from log */
     public static double LOG_TIMESTAMP_UNIT_NS = 1; // 1 tick represents 1ns in log
@@ -30,5 +34,10 @@ public class RtsConfig {
         TIMESTAMP_UNIT_NS = val;
         TIMESTAMP_MS_TO_UNIT_MULTIPLIER = 1_000_000.0 / (double) TIMESTAMP_UNIT_NS;
         TIMESTAMP_UNIT_TO_MS_MULTIPLIER = (double) TIMESTAMP_UNIT_NS / 1_000_000.0;
+    }
+
+    @Override
+    public String[] getVersion() throws Exception {
+        return new String[]{VERSION};
     }
 }

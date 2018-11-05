@@ -17,6 +17,7 @@
         </Root>
         <Logger name="console" level="TRACE">
             <AppenderRef ref="Console" />
+            <AppenderRef ref="MainLogFile"/>
         </Logger>
     </Loggers>
 </Configuration>
