@@ -30,6 +30,6 @@ public class TaskInstantEvent extends InstantEvent {
 
     @Override
     public String toString() {
-        return orgTimestamp + ", " + task.getId() + ", " + note;
+        return "(" + orgTimestamp + ", " + task.getId() + ", " + note + ")";
     }
 }

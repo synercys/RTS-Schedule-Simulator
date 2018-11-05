@@ -62,7 +62,7 @@ public class SchedulerIntervalEvent extends IntervalEvent {
 
     @Override
     public String toString() {
-        return orgBeginTimestamp + "-" + orgEndTimestamp + ", " + task.getId() + ", " + "\"" + note + "\"";
+        return "(" + orgBeginTimestamp + "-" + orgEndTimestamp + ", " + task.getId() + ", " + "\"" + note + "\")";
     }
 
     public String toRawScheduleString() {
