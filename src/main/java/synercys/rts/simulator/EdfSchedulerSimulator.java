@@ -24,6 +24,7 @@ public class EdfSchedulerSimulator extends SchedulerSimulator {
     @Override
     public EventContainer runSim(long tickLimit) {
         sim(tickLimit);
+        simEventContainer.setSchedulingPolicy(EventContainer.SCHEDULING_POLICY_EDF);
         return simEventContainer;
     }
 

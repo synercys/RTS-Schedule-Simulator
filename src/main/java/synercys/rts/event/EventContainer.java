@@ -9,6 +9,10 @@ import java.util.ArrayList;
  * Created by jjs on 2/13/17.
  */
 public class EventContainer {
+    public static String SCHEDULING_POLICY_UNKNOWN = "unknown";
+    public static String SCHEDULING_POLICY_FIXED_PRIORITY = "fixedPriority";
+    public static String SCHEDULING_POLICY_EDF = "edf";
+
     public static final int SCHEDULER_EVENT = 0;
     public static final int INSTANT_EVENT = 1;
 
@@ -16,6 +20,8 @@ public class EventContainer {
     private ArrayList<TaskInstantEvent> taskInstantEvents = new ArrayList<TaskInstantEvent>();
 
     private TaskSet taskSet = new TaskSet();
+
+    private String schedulingPolicy = SCHEDULING_POLICY_UNKNOWN;   // It is optional and does not affect any data in this class.
 
     public EventContainer(){}
 
@@ -211,5 +217,13 @@ public class EventContainer {
             endTimestamp = (event.getOrgTimestamp() > endTimestamp) ? event.getOrgTimestamp() : endTimestamp;
         }
         return endTimestamp;
+    }
+
+    public String getSchedulingPolicy() {
+        return schedulingPolicy;
+    }
+
+    public void setSchedulingPolicy(String schedulingPolicy) {
+        this.schedulingPolicy = schedulingPolicy;
     }
 }

@@ -43,6 +43,7 @@ public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
             lastInterval.setOrgEndTimestamp(tickLimit);
         }
 
+        simEventContainer.setSchedulingPolicy(EventContainer.SCHEDULING_POLICY_FIXED_PRIORITY);
         return simEventContainer;
     }
 

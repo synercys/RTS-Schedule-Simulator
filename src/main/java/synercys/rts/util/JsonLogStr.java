@@ -46,6 +46,11 @@ public class JsonLogStr {
     public static String DATA_TASK_GEN_SETTINGS = "configs";
 
     /* rtSim */
+    public static String DATA_RT_SIM_SCHEDULING_POLICY = "schedulingPolicy";
+    public static String SCHEDULING_POLICY_UNKNOWN = "unknown";
+    public static String SCHEDULING_POLICY_FIXED_PRIORITY = "fixedPriority";
+    public static String SCHEDULING_POLICY_EDF = "edf";
+
     public static String DATA_RT_SIM_SCHEDULE_INTERVAL_EVENTS = "scheduleIntervalEvents";
     public static String DATA_RT_SIM_TASK_INSTANT_EVENTS = "taskInstantEvents";
 

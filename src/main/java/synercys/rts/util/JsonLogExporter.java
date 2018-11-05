@@ -85,6 +85,20 @@ public class JsonLogExporter extends FileHandler {
         // root - data - tickUnitNs
         jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
 
+
+        // root - data - schedulingPolicy
+        String schedulingPolicy = eventContainer.getSchedulingPolicy();
+        if (schedulingPolicy == null) {
+            schedulingPolicy = "";
+        }
+        if (schedulingPolicy.equalsIgnoreCase(EventContainer.SCHEDULING_POLICY_FIXED_PRIORITY)) {   // RM
+            jsonData.put(JsonLogStr.DATA_RT_SIM_SCHEDULING_POLICY, JsonLogStr.SCHEDULING_POLICY_FIXED_PRIORITY);
+        } else if (schedulingPolicy.equalsIgnoreCase(EventContainer.SCHEDULING_POLICY_EDF)){    // EDF
+            jsonData.put(JsonLogStr.DATA_RT_SIM_SCHEDULING_POLICY, JsonLogStr.SCHEDULING_POLICY_EDF);
+        } else {    // Unknown/Undefined
+            jsonData.put(JsonLogStr.DATA_RT_SIM_SCHEDULING_POLICY, JsonLogStr.SCHEDULING_POLICY_UNKNOWN);
+        }
+
         // root - data - scheduleIntervalEvents
         jsonData.put(JsonLogStr.DATA_RT_SIM_SCHEDULE_INTERVAL_EVENTS, getJsonScheduleIntervalEvents(eventContainer.getSchedulerEvents()));
         // root - data - taskInstantEvents
