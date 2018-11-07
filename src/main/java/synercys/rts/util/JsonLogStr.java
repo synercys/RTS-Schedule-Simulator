@@ -53,6 +53,7 @@ public class JsonLogStr {
 
     public static String DATA_RT_SIM_SCHEDULE_INTERVAL_EVENTS = "scheduleIntervalEvents";
     public static String DATA_RT_SIM_TASK_INSTANT_EVENTS = "taskInstantEvents";
+    public static String DATA_RT_SIM_TASKSET = "taskSet";
 
     /* scheduleIntervalEvents (interval events) */
     public static String SCHEDULE_INTERVAL_EVENT_TASK_ID = "taskId";

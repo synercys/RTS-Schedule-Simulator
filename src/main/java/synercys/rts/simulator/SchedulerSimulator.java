@@ -49,6 +49,7 @@ abstract class SchedulerSimulator {
 
     public SchedulerSimulator(TaskSet taskSet) {
         this.taskSet = taskSet;
+        simEventContainer.setTaskSet(taskSet);
     }
 
     public void setTaskSet(TaskSet inTaskSet)

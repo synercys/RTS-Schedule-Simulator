@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Created by cy on 3/28/2018.
  */
 public class JsonLogExporter extends FileHandler {
-    public static final String WRITER_VERSION = "13";
+    public static final String WRITER_VERSION = "14";
 
     public JsonLogExporter(String filePath) {
         openToWriteFile(filePath);
@@ -85,6 +85,8 @@ public class JsonLogExporter extends FileHandler {
         // root - data - tickUnitNs
         jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
 
+        // root - data - taskset
+        jsonData.put(JsonLogStr.DATA_RT_SIM_TASKSET, getJsonTaskSet(eventContainer.getTaskSet()));
 
         // root - data - schedulingPolicy
         String schedulingPolicy = eventContainer.getSchedulingPolicy();

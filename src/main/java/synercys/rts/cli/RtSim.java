@@ -53,9 +53,9 @@ public class RtSim implements Callable {
 
     public static void main(String... args) {
         /* A few test command and parameters. Uncomment one to test it. */
-        // args = String[]{"-h"};
-        // args = String[]{"-i", "sampleLogs/5tasks.tasksets", "-o", "sampleLogs/5tasks_out.txt", "-o", "sampleLogs/5tasks_out.xlsx", "-l", "200", "-o", "sampleLogs/5tasks_out.rtschedule", "-d", "10000", "-p", "EDF"};
-        // args = String[]{"-i", "sampleLogs/5tasks.tasksets", "-d", "100", "-p", "EDF"};
+        // args = new String[]{"-h"};
+        // args = new String[]{"-i", "sampleLogs/5tasks.tasksets", "-o", "sampleLogs/5tasks_out.txt", "-o", "sampleLogs/5tasks_out.xlsx", "-l", "200", "-o", "sampleLogs/5tasks_out.rtschedule", "-d", "10000", "-p", "EDF"};
+        // args = new String[]{"-i", "sampleLogs/5tasks.tasksets", "-d", "100", "-p", "EDF"};
 
         CommandLine commandLine = new CommandLine(new RtSim());
         try {
