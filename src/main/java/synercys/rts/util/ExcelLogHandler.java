@@ -98,7 +98,13 @@ public class ExcelLogHandler {
                     /* Fill the gaps with idle task. */
                     cell.setCellValue(0);
                 } else {
-                    cell.setCellValue(thisScheduleEvent.getTask().getId());
+                    if (thisScheduleEvent.getBeginTimeScheduleState()==SchedulerIntervalEvent.SCHEDULE_STATE_START
+                            && lastTimestamp==thisScheduleEvent.getOrgBeginTimestamp()) {
+                        cell.setCellValue(thisScheduleEvent.getTask().getId() + "*");
+                    } else {
+                        cell.setCellValue(thisScheduleEvent.getTask().getId());
+                    }
+
                     setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
                 }
 
