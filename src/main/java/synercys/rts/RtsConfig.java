@@ -9,13 +9,14 @@ public class RtsConfig implements CommandLine.IVersionProvider {
     static void RtsConfig() {
     }
 
-    public static String VERSION = "0.3.1";
+    public static String VERSION = "0.3.2";
 
     /* Configuration from log */
-    public static double LOG_TIMESTAMP_UNIT_NS = 1; // 1 tick represents 1ns in log
+    //public static double LOG_TIMESTAMP_UNIT_NS = 1; // 1 tick represents 1ns in log
     public static int TIMESTAMP_UNIT_NS = 100_000; // 1 tick is 100 us
     public static double TIMESTAMP_MS_TO_UNIT_MULTIPLIER = 1_000_000.0 / (double) TIMESTAMP_UNIT_NS;
     public static double TIMESTAMP_UNIT_TO_MS_MULTIPLIER = (double) TIMESTAMP_UNIT_NS / 1_000_000.0;
+    public static double TIMESTAMP_UNIT_TO_S_MULTIPLIER = (double) TIMESTAMP_UNIT_NS / 1_000_000_000.0;
 
 //    public static Boolean assignValueByVariableName(String varName, String valString) {
 //        if (varName.equalsIgnoreCase("TIMESTAMP_UNIT_NS")) {

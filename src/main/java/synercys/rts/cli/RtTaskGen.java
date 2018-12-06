@@ -33,8 +33,11 @@ public class RtTaskGen implements Callable {
     @CommandLine.Option(names = {"-i", "--in"}, required = false, description = "A file that contains task configurations.")
     String taskInputFile = "";
 
-    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "A file for storing schedule simulation output.")
+    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "A file for storing generated task sets.")
     String outputFilePrefix = "";
+
+    @CommandLine.Option(names = {"-r", "--read"}, required = false, description = "A taskset file to be read and printed. This option ignores other options.")
+    String tasksetFileToBeReadAndPrinted = "";
 
     public static void main(String... args) {
         /* A few test command and parameters. Uncomment one to test it. */
@@ -61,6 +64,26 @@ public class RtTaskGen implements Callable {
 
     @Override
     public Object call() throws Exception {
+
+        /* If reading and printing a taskset file is requested, then we'll ignore all other requests. */
+        if (!tasksetFileToBeReadAndPrinted.equalsIgnoreCase("")) {
+            JsonLogLoader jsonLogLoader = new JsonLogLoader(tasksetFileToBeReadAndPrinted);
+            try {
+                TaskSetContainer taskSetContainer = (TaskSetContainer) jsonLogLoader.getResult();
+                int taskSetCount = 1;
+                for (TaskSet taskSet : taskSetContainer.getTaskSets()) {
+                    loggerConsole.info("#TaskSet {}:", String.valueOf(taskSetCount));
+                    loggerConsole.info(taskSet.toString());
+                    loggerConsole.info(" ");
+                    taskSetCount++;
+                }
+            } catch (Exception e) {
+                loggerConsole.error(e);
+                return null;
+            }
+            return null;
+        }
+
         TaskSetContainer taskSetContainer = new TaskSetContainer();
         if (taskInputFile.equalsIgnoreCase("")) {
             // Generate a task set using default values.

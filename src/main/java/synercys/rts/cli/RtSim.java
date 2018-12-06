@@ -29,7 +29,7 @@ public class RtSim implements Callable {
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message.")
     boolean usageHelpRequested;
 
-    @Option(names = {"-i", "--in"}, required = true, description = "A file that contains task configurations.")
+    @Option(names = {"-i", "--in"}, required = true, description = "A file that contains taskset parameters.")
     String taskInputFile = "";
 
     @Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")

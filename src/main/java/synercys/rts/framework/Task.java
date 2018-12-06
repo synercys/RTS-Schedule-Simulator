@@ -1,5 +1,8 @@
 package synercys.rts.framework;
 
+import synercys.rts.RtsConfig;
+import java.util.Formatter; // for formatting String
+
 /**
  * Created by CY on 2/13/17.
  */
@@ -151,6 +154,8 @@ public class Task {
                 ": p=" + period +
                 ", c=" + wcet +
                 ", pri=" + priority +
-                ", offset=" + initialOffset;
+                ", offset=" + initialOffset +
+                //", f=" + 1 / ((double)period*RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER);
+                (new Formatter()).format(", f=%.2f", 1 / ((double)period*RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER)).toString();
     }
 }
