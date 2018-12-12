@@ -30,14 +30,17 @@ public class RtTaskGen implements Callable {
     @Option(names = {"-n", "--size"}, required = false, description = "The number of tasks in a task set. It is ignored when a configuration file is specified (-i).")
     int taskSize = 5;
 
-    @CommandLine.Option(names = {"-i", "--in"}, required = false, description = "A file that contains task configurations.")
+    @Option(names = {"-i", "--in"}, required = false, description = "A file that contains task configurations.")
     String taskInputFile = "";
 
-    @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "A file for storing generated task sets.")
+    @Option(names = {"-o", "--out"}, required = false, description = "A file for storing generated task sets.")
     String outputFilePrefix = "";
 
-    @CommandLine.Option(names = {"-r", "--read"}, required = false, description = "A taskset file to be read and printed. This option ignores other options.")
+    @Option(names = {"-r", "--read"}, required = false, description = "A taskset file to be read and printed. This option ignores other options.")
     String tasksetFileToBeReadAndPrinted = "";
+
+    @Option(names = {"-c", "--config"}, required = false, description = "Create a configuration file with default configuration.")
+    String generateDefaultConfigFile = "";
 
     public static void main(String... args) {
         /* A few test command and parameters. Uncomment one to test it. */
@@ -81,6 +84,14 @@ public class RtTaskGen implements Callable {
                 loggerConsole.error(e);
                 return null;
             }
+            return null;
+        }
+
+        /* If generating default configuration file is requested, then we'll ignore other options. */
+        if (!generateDefaultConfigFile.equalsIgnoreCase("")) {
+            JsonLogExporter taskGenConfigExporter = new JsonLogExporter(generateDefaultConfigFile);
+            taskGenConfigExporter.exportRtTaskGenDefaultSettings();
+            loggerConsole.info("Default configuration is exported.");
             return null;
         }
 

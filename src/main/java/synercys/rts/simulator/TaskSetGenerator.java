@@ -67,7 +67,7 @@ public class TaskSetGenerator {
         minUtil = 0.9;
 
         numTaskPerSet = 5;
-        numTaskSet = 10;
+        numTaskSet = 1;
 
         generateFromHpDivisors = false;
 

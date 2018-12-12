@@ -2,6 +2,7 @@ package synercys.rts.util;
 
 import cy.utility.file.FileHandler;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import synercys.rts.RtsConfig;
 import synercys.rts.event.EventContainer;
@@ -10,6 +11,7 @@ import synercys.rts.event.TaskInstantEvent;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.simulator.TaskSetContainer;
+import synercys.rts.simulator.TaskSetGenerator;
 
 import java.util.ArrayList;
 
@@ -257,5 +259,55 @@ public class JsonLogExporter extends FileHandler {
         else //if (SchedulerIntervalEvent.SCHEDULE_STATE_UNKNOWN == inScheduleStateIndex)
             return JsonLogStr.SCHEDULE_INTERVAL_EVENT_STATE_UNKNOWN;
 
+    }
+
+
+    public void exportRtTaskGenDefaultSettings() {
+        TaskSetGenerator taskSetGenerator = new TaskSetGenerator();
+
+        JSONObject jsonRoot = new JSONObject();
+
+        /* Basics */
+        // root - formatVersion
+        putVersion(jsonRoot);
+        // root - dataType
+        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_RT_TASK_GEN_SETTINGS);
+
+        /* root - data */
+        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
+
+        // root - data - tickUnitNs
+        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
+
+        // root - data - configs
+        JSONArray jsonConfigArrary = new JSONArray();
+
+        JSONObject jsonConfig = new JSONObject();
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_NUM_TASK_PER_TASKSET, taskSetGenerator.getNumTaskPerSet());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_NUM_TASKSET, taskSetGenerator.getNumTaskSet());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MAX_HP, taskSetGenerator.getMaxHyperPeriod());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MIN_PERIOD, taskSetGenerator.getMinPeriod());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MAX_PERIOD, taskSetGenerator.getMaxPeriod());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MIN_WCET, taskSetGenerator.getMinWcet());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MAX_WCET, taskSetGenerator.getMaxWcet());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MIN_OFFSET, taskSetGenerator.getMinInitOffset());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MAX_OFFSET, taskSetGenerator.getMaxInitOffset());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MIN_UTIL, taskSetGenerator.getMinUtil());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_MAX_UTIL, taskSetGenerator.getMaxUtil());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_FROM_HP_DIVISORS, taskSetGenerator.getGenerateFromHpDivisors());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_NON_HARMONIC_ONLY, taskSetGenerator.getNonHarmonicOnly());
+        /* ScheduLeak */
+        // jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER, taskSetGenerator.getNeedGenObserverTask());
+        // jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_SCHEDULEAK_MAX_OB_RATIO, taskSetGenerator.getMaxObservationRatio());
+        // jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_SCHEDULEAK_MIN_OB_RATIO, taskSetGenerator.getMinObservationRatio());
+        // jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER_PRIORITY, taskSetGenerator.getObserverTaskPriority());
+        // jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_SCHEDULEAK_VICTIM_PRIORITY, taskSetGenerator.getVictimTaskPriority());
+
+        jsonConfigArrary.put(jsonConfig);
+        jsonData.put(JsonLogStr.DATA_TASK_GEN_SETTINGS, jsonConfigArrary);
+
+        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
+
+        writeString(jsonRoot.toString());
     }
 }

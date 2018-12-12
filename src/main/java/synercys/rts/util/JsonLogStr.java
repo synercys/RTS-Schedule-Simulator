@@ -76,5 +76,25 @@ public class JsonLogStr {
     public static String TASK_INSTANT_EVENT_RECORD = "record";
     public static String TASK_INSTANT_EVENT_NOTE = "note";
 
+    /* rtTaskGen settings (DATA_TYPE_RT_TASK_GEN_SETTINGS) */
+    public static String TASK_GEN_SETTINGS_NUM_TASK_PER_TASKSET = "numTaskPerSet";
+    public static String TASK_GEN_SETTINGS_NUM_TASKSET = "numTaskSet";
+    public static String TASK_GEN_SETTINGS_MAX_HP = "maxHyperPeriod";
+    public static String TASK_GEN_SETTINGS_MIN_PERIOD = "minPeriod";
+    public static String TASK_GEN_SETTINGS_MAX_PERIOD = "maxPeriod";
+    public static String TASK_GEN_SETTINGS_MIN_WCET = "minWcet";
+    public static String TASK_GEN_SETTINGS_MAX_WCET = "maxWcet";
+    public static String TASK_GEN_SETTINGS_MIN_OFFSET = "minInitOffset";
+    public static String TASK_GEN_SETTINGS_MAX_OFFSET = "maxInitOffset";
+    public static String TASK_GEN_SETTINGS_MIN_UTIL = "minUtil";
+    public static String TASK_GEN_SETTINGS_MAX_UTIL = "maxUtil";
+    public static String TASK_GEN_SETTINGS_FROM_HP_DIVISORS = "generateFromHpDivisors";
+    public static String TASK_GEN_SETTINGS_NON_HARMONIC_ONLY = "nonHarmonicOnly";
+    /* ScheduLeak related options */
+    public static String TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER = "needGenObserverTask";
+    public static String TASK_GEN_SETTINGS_SCHEDULEAK_MAX_OB_RATIO = "maxObservationRatio";
+    public static String TASK_GEN_SETTINGS_SCHEDULEAK_MIN_OB_RATIO = "minObservationRatio";
+    public static String TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER_PRIORITY = "observerTaskPriority";
+    public static String TASK_GEN_SETTINGS_SCHEDULEAK_VICTIM_PRIORITY = "victimTaskPriority";
 
 }
