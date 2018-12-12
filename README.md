@@ -1,4 +1,4 @@
-# Real-time Task Generator and Schedule Simulator
+# Real-time Task Generator and Schedule Simulator (RT-TGSS Suite)
 
 ## Command - _rtaskgen_
 - Usage
@@ -40,6 +40,10 @@ out/bin/rtaskgen -i sampleLogs/100tasks_per_condition.rttaskgen -o sampleLogs/ou
 3. Read and print a taskset in a readable way:
 ```
 out/bin/rtaskgen -r sampleLogs/5tasks.tasksets
+```
+4. Create a configuration file based on default settings:
+```
+out/bin/rtaskgen -c sampleLogs/default.rttaskgen
 ```
 
 - Configuration File (*.rttaskgen)
