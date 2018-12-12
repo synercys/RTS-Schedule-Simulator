@@ -67,12 +67,7 @@ out/bin/rtaskgen -c sampleLogs/default.rttaskgen
                 "minUtil":0.1,
                 "maxUtil":1,
                 "generateFromHpDivisors":false,
-                "nonHarmonicOnly":true,
-                "needGenObserverTask":false,
-                "maxObservationRatio":999,
-                "minObservationRatio":1,
-                "observerTaskPriority":1,
-                "victimTaskPriority":2
+                "nonHarmonicOnly":true
             }
         ]
     }
