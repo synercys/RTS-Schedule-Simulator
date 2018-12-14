@@ -8,7 +8,7 @@ import synercys.rts.event.BusyIntervalEventContainer;
 import synercys.rts.event.EventContainer;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.simulator.EdfSchedulerSimulator;
-import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
+import synercys.rts.simulator.FixedPrioritySchedulerSimulator;
 import synercys.rts.simulator.TaskSetContainer;
 import synercys.rts.util.*;
 
@@ -92,15 +92,7 @@ public class RtSim implements Callable {
         EventContainer eventContainer;
         if (schedulingPolicy.equalsIgnoreCase("RM")) {
             loggerConsole.info("RM selected.");
-
-            // New and configure a RM scheduling simulator.
-            QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet, optionExecutionVariation);
-
-            //for (int i=1; i<=3; i++) {
-            //    taskSet.getOneTaskByPriority(2+i).setSporadicTask(true);
-            //}
-
-            // Run simulation.
+            FixedPrioritySchedulerSimulator rmSimulator = new FixedPrioritySchedulerSimulator(taskSet, optionExecutionVariation);
             eventContainer = rmSimulator.runSim(simDuration);
         } else { // EDF
             loggerConsole.info("EDF selected.");

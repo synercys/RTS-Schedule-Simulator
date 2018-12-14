@@ -138,11 +138,7 @@ public class EdfSchedulerSimulator extends SchedulerSimulator implements Advance
     }
 
     private long runJobToNextSchedulingPoint(long tick, Job runJob) {
-        //long virtualTick = tick;
-
-        /* Find if there is any job preempting the runJob.
-         * Meaning, a job
-         */
+        /* Find if there is any job preempting the runJob. */
         long earliestPreemptingJobReleaseTime = Long.MAX_VALUE;
         Job earliestPreemptingJob = null;
         long runJobFinishTime = tick + runJob.remainingExecTime;
