@@ -24,8 +24,8 @@ import java.util.ArrayList;
  */
 public class QuickFixedPrioritySchedulerSimulator extends SchedulerSimulator {
 
-    public QuickFixedPrioritySchedulerSimulator(TaskSet taskSet) {
-        super(taskSet);
+    public QuickFixedPrioritySchedulerSimulator(TaskSet taskSet, boolean runTimeVariation) {
+        super(taskSet, runTimeVariation);
     }
 
     @Override

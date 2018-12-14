@@ -11,19 +11,28 @@ import java.util.HashMap;
 /**
  * Created by jjs on 2/13/17.
  */
-public class EdfSchedulerSimulator extends SchedulerSimulator {
+public class EdfSchedulerSimulator extends SchedulerSimulator implements Advanceable{
 
     // This map stores each task's next job instance, no matter it's arrived or not.
     HashMap<Task, Job> nextJobOfATask = new HashMap<>();
 
-    public EdfSchedulerSimulator(TaskSet taskSet) {
-        super(taskSet);
+    public EdfSchedulerSimulator(TaskSet taskSet, boolean runTimeVariation) {
+        super(taskSet, runTimeVariation);
+
+        /* Initialize the first job of each task. */
+        initializeFirstTaskJobs();
     }
 
 
     @Override
     public EventContainer runSim(long tickLimit) {
-        sim(tickLimit);
+        tick = 0;
+
+        while (tick <= tickLimit) {
+            advance();
+        }
+        simEventContainer.trimEventsToTimeStamp(tickLimit);
+
         simEventContainer.setSchedulingPolicy(EventContainer.SCHEDULING_POLICY_EDF);
         return simEventContainer;
     }
@@ -31,26 +40,6 @@ public class EdfSchedulerSimulator extends SchedulerSimulator {
     @Override
     protected void setTaskSetHook() {
 
-    }
-
-    private void sim(long tickLimit) {
-        long tick = 0;
-
-        /* Initialize the first job of each task. */
-        initializeFirstTaskJobs();
-
-
-        while (tick <= tickLimit) {
-            Job currentJob = getNextJob(tick);
-
-            // If it is a future job, then jump the tick first.
-            if (currentJob.releaseTime > tick)
-                tick = currentJob.releaseTime;
-
-            // Run the job (and log the execution interval).
-            tick = runJobToNextSchedulingPoint(tick, currentJob);
-        }
-        simEventContainer.trimEventsToTimeStamp(tickLimit);
     }
 
     private void initializeFirstTaskJobs() {
@@ -97,6 +86,21 @@ public class EdfSchedulerSimulator extends SchedulerSimulator {
 //        }
 //
 //    }
+
+    /**
+     * Run simulation and advance to next scheduling point.
+     */
+    @Override
+    public void advance() {
+        Job currentJob = getNextJob(tick);
+
+        // If it is a future job, then jump the tick first.
+        if (currentJob.releaseTime > tick)
+            tick = currentJob.releaseTime;
+
+        // Run the job (and log the execution interval).
+        tick = runJobToNextSchedulingPoint(tick, currentJob);
+    }
 
     /**
      * This function returns the earliest due job in the run queue or the next future released job if no job

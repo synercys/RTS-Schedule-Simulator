@@ -94,8 +94,7 @@ public class RtSim implements Callable {
             loggerConsole.info("RM selected.");
 
             // New and configure a RM scheduling simulator.
-            QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet);
-            rmSimulator.setRunTimeVariation(optionExecutionVariation); // it is by default ON.
+            QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet, optionExecutionVariation);
 
             //for (int i=1; i<=3; i++) {
             //    taskSet.getOneTaskByPriority(2+i).setSporadicTask(true);
@@ -105,8 +104,7 @@ public class RtSim implements Callable {
             eventContainer = rmSimulator.runSim(simDuration);
         } else { // EDF
             loggerConsole.info("EDF selected.");
-            EdfSchedulerSimulator edfSimulator = new EdfSchedulerSimulator(taskSet);
-            edfSimulator.setRunTimeVariation(optionExecutionVariation); // it is by default ON.
+            EdfSchedulerSimulator edfSimulator = new EdfSchedulerSimulator(taskSet, optionExecutionVariation);
             eventContainer = edfSimulator.runSim(simDuration);
         }
 

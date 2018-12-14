@@ -72,7 +72,7 @@ public class MainSingleTaskSetTest {
         loggerConsole.info("Task Hyper-period: " + taskSetHyperPeriod);
 
         // New and configure a RM scheduling simulator.
-        QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet);
+        QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet, true);
 
         //for (int i=1; i<=3; i++) {
         //    taskSet.getOneTaskByPriority(2+i).setSporadicTask(true);

@@ -42,13 +42,14 @@ abstract class SchedulerSimulator {
      * Runtime variation includes execution time and inter-arrival time variations.
      * False value disables runtime variation: execution time will always be WCETs and inter-arrival time will be the task's periods.
      */
-    boolean runTimeVariation = true;
+    protected boolean runTimeVariation = true;
 
     abstract public EventContainer runSim(long tickLimit);
     abstract protected void setTaskSetHook();
 
-    public SchedulerSimulator(TaskSet taskSet) {
+    public SchedulerSimulator(TaskSet taskSet, boolean runTimeVariation) {
         this.taskSet = taskSet;
+        this.runTimeVariation = runTimeVariation;
         simEventContainer.setTaskSet(taskSet);
     }
 
