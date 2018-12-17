@@ -63,8 +63,8 @@ public class TaskSetGenerator {
         maxInitOffset = maxHyperPeriod; // 0ms //10_000_000; // 10 ms
         minInitOffset = 0; // 0 ms
 
-        maxUtil = 1;
-        minUtil = 0.9;
+        maxUtil = 0.9;
+        minUtil = 0.1;
 
         numTaskPerSet = 5;
         numTaskSet = 1;
