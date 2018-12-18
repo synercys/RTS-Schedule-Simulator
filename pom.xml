@@ -20,6 +20,15 @@
         </plugins>
     </build>
     <dependencies>
+        <!-- Local jar -->
+        <dependency>
+            <groupId>cy.util</groupId>
+            <artifactId>util</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/dep/CY-Utility-Library-Java_v0.1.jar</systemPath>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
