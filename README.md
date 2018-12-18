@@ -1,9 +1,9 @@
 # Real-time Task Generator and Schedule Simulator (RT-TGSS Suite)
 
-## Command - _rtaskgen_
+## Command - _rttaskgen_
 - Usage
 ```
-Usage: rtaskgen [-hV] [-i=<taskInputFile>] [-n=<taskSize>]
+Usage: rttaskgen [-hV] [-i=<taskInputFile>] [-n=<taskSize>]
                 [-o=<outputFilePrefix>] [-r=<tasksetFileToBeReadAndPrinted>]
   -h, --help                  Display this help message.
   -i, --in=<taskInputFile>    A file that contains task configurations.
@@ -19,7 +19,7 @@ Usage: rtaskgen [-hV] [-i=<taskInputFile>] [-n=<taskSize>]
 - Example
 1. A minimal use (which generates a taskset of 5 tasks):
 ```
-out/bin/rtaskgen 
+out/bin/rttaskgen 
 ```
 _Example output:_
 ```
@@ -34,16 +34,16 @@ TaskSet(0.5110049327562939):
 
 2. Use an existing configuration file to generate tasksets:
 ```
-out/bin/rtaskgen -i sampleLogs/100tasks_per_condition.rttaskgen -o sampleLogs/output.tasksets
+out/bin/rttaskgen -i sampleLogs/100tasks_per_condition.rttaskgen -o sampleLogs/output.tasksets
 ```
 
 3. Read and print a taskset in a readable way:
 ```
-out/bin/rtaskgen -r sampleLogs/5tasks.tasksets
+out/bin/rttaskgen -r sampleLogs/5tasks.tasksets
 ```
 4. Create a configuration file based on default settings:
 ```
-out/bin/rtaskgen -c sampleLogs/default.rttaskgen
+out/bin/rttaskgen -c sampleLogs/default.rttaskgen
 ```
 
 - Configuration File (*.rttaskgen)
