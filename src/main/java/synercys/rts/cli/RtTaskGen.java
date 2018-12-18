@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  * Created by cy on 1/6/2018.
  */
 
-@CommandLine.Command(name = "rtaskgen", versionProvider = synercys.rts.RtsConfig.class,  header = "@|blue | Real-time Task Generator | |@")
+@CommandLine.Command(name = "rttaskgen", versionProvider = synercys.rts.RtsConfig.class,  header = "@|blue | Real-time Task Generator | |@")
 public class RtTaskGen implements Callable {
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
