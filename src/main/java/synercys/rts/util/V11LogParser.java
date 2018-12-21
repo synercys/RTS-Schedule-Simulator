@@ -1,7 +1,7 @@
 package synercys.rts.util;
 
-import synercys.rts.event.EventContainer;
-import synercys.rts.event.TaskInstantEvent;
+import synercys.rts.framework.event.EventContainer;
+import synercys.rts.framework.event.TaskInstantEvent;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
 //import synercys.util.ProgMsg;

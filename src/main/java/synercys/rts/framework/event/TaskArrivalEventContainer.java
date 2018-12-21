@@ -1,4 +1,4 @@
-package synercys.rts.event;
+package synercys.rts.framework.event;
 
 import java.util.Collections;
 

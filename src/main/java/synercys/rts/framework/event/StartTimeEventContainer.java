@@ -1,4 +1,4 @@
-package synercys.rts.event;
+package synercys.rts.framework.event;
 
 import synercys.rts.framework.Task;
 

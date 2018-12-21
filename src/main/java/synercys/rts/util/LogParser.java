@@ -1,6 +1,6 @@
 package synercys.rts.util;
 
-import synercys.rts.event.EventContainer;
+import synercys.rts.framework.event.EventContainer;
 
 import java.io.BufferedReader;
 

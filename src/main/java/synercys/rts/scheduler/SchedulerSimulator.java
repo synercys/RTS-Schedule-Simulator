@@ -1,7 +1,7 @@
 package synercys.rts.scheduler;
 
 import cy.utility.Umath;    // for poisson distributed randomization
-import synercys.rts.event.EventContainer;
+import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
@@ -102,13 +102,15 @@ abstract class SchedulerSimulator {
         return Long.min(deviatedExecutionTime, task_i.getWcet());
     }
 
-    long getVariedInterArrivalTime(long minInterArrival) {
+    long getVariedInterArrivalTime(Task task) {
+        long minInterArrival = task.getPeriod();
+
         // Poisson Distribution
-        long result = 0;
-        while (result < minInterArrival) {
-            result = Umath.getPoisson((minInterArrival/10)*1.2)*10;
+        long variedInterArrivalTime = 0;
+        while (variedInterArrivalTime < minInterArrival) {
+            variedInterArrivalTime = Umath.getPoisson((minInterArrival/10)*1.2)*10;
         }
-        return result;
+        return variedInterArrivalTime;
         /* For reference: case of uniform distribution
          * double ScaleFactor = 0.2;
          * return (long)( ((Math.random()-0.5)*2) * (ScaleFactor*task_i.period) + task_i.period);

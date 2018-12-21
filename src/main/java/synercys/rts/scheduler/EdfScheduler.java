@@ -1,7 +1,7 @@
 package synercys.rts.scheduler;
 
-import synercys.rts.event.EventContainer;
-import synercys.rts.event.SchedulerIntervalEvent;
+import synercys.rts.framework.event.EventContainer;
+import synercys.rts.framework.event.SchedulerIntervalEvent;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
@@ -195,13 +195,25 @@ public class EdfScheduler extends SchedulerSimulator implements Advanceable{
     }
 
     private Job advanceToNextJob(Task task) {
-        long nextReleaseTime = nextJobOfATask.get(task).releaseTime + task.getPeriod();
-        Job newJob;
-        if (runTimeVariation == true)
-            newJob = new Job(task, nextReleaseTime, getVariedExecutionTime(task));
-        else
-            newJob = new Job(task, nextReleaseTime, task.getWcet());
+        /* Determine next arrival time. */
+        long nextArrivalTime;
+        if (task.isSporadicTask()) {
+            nextArrivalTime = nextJobOfATask.get(task).releaseTime + getVariedInterArrivalTime(task);
+        } else {
+            nextArrivalTime = nextJobOfATask.get(task).releaseTime + task.getPeriod();
+        }
+
+        /* Determine the execution time. */
+        long executionTime;
+        if (runTimeVariation == true) {
+            executionTime = getVariedExecutionTime(task);
+        } else {
+            executionTime = task.getWcet();
+        }
+
+        Job newJob = new Job(task, nextArrivalTime, executionTime);
         nextJobOfATask.put(task, newJob);
+
         return newJob;
     }
 }
