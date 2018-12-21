@@ -1,19 +1,17 @@
-package synercys.rts.cli;
+package synercys.rts.scheduler.cli;
 
 import synercys.rts.event.BusyIntervalEventContainer;
 import synercys.rts.event.EventContainer;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.simulator.QuickFPSchedulerJobContainer;
-import synercys.rts.simulator.QuickFixedPrioritySchedulerSimulator;
-import synercys.rts.simulator.TaskSetContainer;
-import synercys.rts.simulator.TaskSetGenerator;
+import synercys.rts.scheduler.QuickFPSchedulerJobContainer;
+import synercys.rts.scheduler.QuickFixedPrioritySchedulerSimulator;
+import synercys.rts.scheduler.TaskSetContainer;
+import synercys.rts.scheduler.TaskSetGenerator;
 import synercys.rts.util.ExcelLogHandler;
 import cy.utility.Umath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.*;
 
 /**
  * Created by cy on 3/28/2017.
@@ -71,7 +69,7 @@ public class MainSingleTaskSetTest {
         long taskSetHyperPeriod = taskSet.calHyperPeriod();
         loggerConsole.info("Task Hyper-period: " + taskSetHyperPeriod);
 
-        // New and configure a RM scheduling simulator.
+        // New and configure a RM scheduling scheduler.
         QuickFixedPrioritySchedulerSimulator rmSimulator = new QuickFixedPrioritySchedulerSimulator(taskSet, true);
 
         //for (int i=1; i<=3; i++) {

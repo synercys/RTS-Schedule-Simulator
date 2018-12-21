@@ -1,4 +1,4 @@
-package synercys.rts.simulator;
+package synercys.rts.scheduler;
 
 public interface Advanceable {
     /**

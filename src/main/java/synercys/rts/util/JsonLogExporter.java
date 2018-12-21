@@ -2,7 +2,6 @@ package synercys.rts.util;
 
 import cy.utility.file.FileHandler;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import synercys.rts.RtsConfig;
 import synercys.rts.event.EventContainer;
@@ -10,8 +9,8 @@ import synercys.rts.event.SchedulerIntervalEvent;
 import synercys.rts.event.TaskInstantEvent;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.simulator.TaskSetContainer;
-import synercys.rts.simulator.TaskSetGenerator;
+import synercys.rts.scheduler.TaskSetContainer;
+import synercys.rts.scheduler.TaskSetGenerator;
 
 import java.util.ArrayList;
 

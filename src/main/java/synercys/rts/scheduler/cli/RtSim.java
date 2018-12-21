@@ -1,4 +1,4 @@
-package synercys.rts.cli;
+package synercys.rts.scheduler.cli;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,9 +7,9 @@ import picocli.CommandLine.*;
 import synercys.rts.event.BusyIntervalEventContainer;
 import synercys.rts.event.EventContainer;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.simulator.EdfSchedulerSimulator;
-import synercys.rts.simulator.FixedPrioritySchedulerSimulator;
-import synercys.rts.simulator.TaskSetContainer;
+import synercys.rts.scheduler.EdfScheduler;
+import synercys.rts.scheduler.FixedPriorityScheduler;
+import synercys.rts.scheduler.TaskSetContainer;
 import synercys.rts.util.*;
 
 import java.util.ArrayList;
@@ -92,11 +92,11 @@ public class RtSim implements Callable {
         EventContainer eventContainer;
         if (schedulingPolicy.equalsIgnoreCase("RM")) {
             loggerConsole.info("RM selected.");
-            FixedPrioritySchedulerSimulator rmSimulator = new FixedPrioritySchedulerSimulator(taskSet, optionExecutionVariation);
+            FixedPriorityScheduler rmSimulator = new FixedPriorityScheduler(taskSet, optionExecutionVariation);
             eventContainer = rmSimulator.runSim(simDuration);
         } else { // EDF
             loggerConsole.info("EDF selected.");
-            EdfSchedulerSimulator edfSimulator = new EdfSchedulerSimulator(taskSet, optionExecutionVariation);
+            EdfScheduler edfSimulator = new EdfScheduler(taskSet, optionExecutionVariation);
             eventContainer = edfSimulator.runSim(simDuration);
         }
 

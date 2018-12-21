@@ -1,4 +1,4 @@
-package synercys.rts.simulator;
+package synercys.rts.scheduler;
 
 import cy.utility.Umath;    // for poisson distributed randomization
 import synercys.rts.event.EventContainer;
@@ -57,7 +57,7 @@ abstract class SchedulerSimulator {
     {
         taskSet = inTaskSet;
 
-        // Remove current idle task if there is any because the simulator will create one later.
+        // Remove current idle task if there is any because the scheduler will create one later.
         //taskSet.removeIdleTask();
         //taskSet.clearSimData();
 

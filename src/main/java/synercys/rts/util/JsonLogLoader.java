@@ -9,8 +9,8 @@ import synercys.rts.event.SchedulerIntervalEvent;
 import synercys.rts.event.TaskInstantEvent;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.simulator.TaskSetContainer;
-import synercys.rts.simulator.TaskSetGenerator;
+import synercys.rts.scheduler.TaskSetContainer;
+import synercys.rts.scheduler.TaskSetGenerator;
 
 import java.io.BufferedReader;
 import java.io.IOException;

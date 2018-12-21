@@ -1,12 +1,12 @@
-package synercys.rts.cli;
+package synercys.rts.scheduler.cli;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.simulator.TaskSetContainer;
-import synercys.rts.simulator.TaskSetGenerator;
+import synercys.rts.scheduler.TaskSetContainer;
+import synercys.rts.scheduler.TaskSetGenerator;
 import synercys.rts.util.JsonLogExporter;
 import synercys.rts.util.JsonLogLoader;
 

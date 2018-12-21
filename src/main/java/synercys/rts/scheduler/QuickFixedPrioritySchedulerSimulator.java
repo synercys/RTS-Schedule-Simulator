@@ -1,4 +1,4 @@
-package synercys.rts.simulator;
+package synercys.rts.scheduler;
 
 import synercys.rts.event.EventContainer;
 import synercys.rts.event.SchedulerIntervalEvent;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 /**
  * Created by cy on 3/13/2017.
- * This fixed priority scheduler simulator is intended to improve the simulation performance by skipping unnecessary tick times.
+ * This fixed priority scheduler scheduler is intended to improve the simulation performance by skipping unnecessary tick times.
  * Usage:
  *  OptionA:
  *  1. new QuickFixedPrioritySchedulerSimulator(YOUR_TASKSET);

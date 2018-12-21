@@ -1,4 +1,4 @@
-package synercys.rts.simulator;
+package synercys.rts.scheduler;
 
 import synercys.rts.RtsConfig;
 import synercys.rts.framework.Task;
