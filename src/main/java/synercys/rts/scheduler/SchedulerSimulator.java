@@ -47,10 +47,10 @@ abstract class SchedulerSimulator {
     abstract public EventContainer runSim(long tickLimit);
     abstract protected void setTaskSetHook();
 
-    public SchedulerSimulator(TaskSet taskSet, boolean runTimeVariation) {
-        this.taskSet = taskSet;
+    public SchedulerSimulator(TaskSet taskSet, boolean runTimeVariation, String schedulingPolicy) {
+        setTaskSet(taskSet);
+        simEventContainer.setSchedulingPolicy(schedulingPolicy);
         this.runTimeVariation = runTimeVariation;
-        simEventContainer.setTaskSet(taskSet);
     }
 
     public void setTaskSet(TaskSet inTaskSet)

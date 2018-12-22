@@ -44,8 +44,8 @@ public class RtTaskGen implements Callable {
 
     public static void main(String... args) {
         /* A few test command and parameters. Uncomment one to test it. */
-        // args = String[]{"-h"};
-        // args = String[]{"-n", "5", "-i", "sampleLogs/task_config.txt", "-o", "sampleLogs/5tasks.tasksets"};
+        // args = new String[]{"-h"};
+        // args = new String[]{"-n", "5", "-i", "sampleLogs/task_config.txt", "-o", "sampleLogs/5tasks.tasksets"};
 
         CommandLine commandLine = new CommandLine(new RtTaskGen());
         try {
