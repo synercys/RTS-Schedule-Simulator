@@ -10,7 +10,12 @@ import cy.utility.ProgressUpdater;
 import java.util.*;
 
 /**
- * Created by jjs on 2/13/17.
+ * SchedulerSimulator.java
+ * Purpose: A abstract class for schedulers.
+ *
+ * @author CY Chen (cchen140@illinois.edu)
+ * @version 1.1 - 2018, 12/22
+ * @version 1.0 - 2017, 2/13
  */
 abstract class SchedulerSimulator {
     public static int DISTRIBUTION_MODE_FIXED = 0;
@@ -21,20 +26,13 @@ abstract class SchedulerSimulator {
 
     protected TaskSet taskSet = null;
 
-    double totalUtil = 0;
-    ArrayList<Job> readyQueue = new ArrayList<>();
-    ArrayList<Job> activeQueue = new ArrayList<>();
-    // jobs that were released but haven't finished.
-    long LCM = 1;
-    int maximumInitialOffset = Integer.MIN_VALUE;
-    long tick = 0;
-    Job currentJob = null;
-    Job lastJob = null;
-    String inputFileName = null;
-    long NUM_INVOC = 0;
-    static boolean DEBUG = false; // ////////////////////////////////////////////////////////////////////////
-    static boolean DEBUG_SCHLOG = false;// Added by CY
-    static Random random = new Random();
+    protected ArrayList<Job> readyQueue = new ArrayList<>();
+    protected ArrayList<Job> activeQueue = new ArrayList<>();
+    protected long tick = 0;
+    protected Job currentJob = null;
+    protected Job lastJob = null;
+    protected static boolean DEBUG = false;
+    protected static Random random = new Random();
 
     protected EventContainer simEventContainer = new EventContainer();
 
@@ -93,7 +91,7 @@ abstract class SchedulerSimulator {
         runTimeVariation = val;
     }
 
-    long getVariedExecutionTime(Task task_i) {
+    protected long getVariedExecutionTime(Task task_i) {
         // Gaussian Distribution
         double stddev = 0.2;    // added by CY
         double gaussianFactor = random.nextGaussian();
@@ -102,7 +100,7 @@ abstract class SchedulerSimulator {
         return Long.min(deviatedExecutionTime, task_i.getWcet());
     }
 
-    long getVariedInterArrivalTime(Task task) {
+    protected long getVariedInterArrivalTime(Task task) {
         long minInterArrival = task.getPeriod();
 
         // Poisson Distribution
@@ -118,7 +116,7 @@ abstract class SchedulerSimulator {
     }
 
     // Insert the job to ready queue according to the priority. (the bigger the higher)
-    void insertToReadyQueue(Job job_i) {
+    protected void insertToReadyQueue(Job job_i) {
         int idxToInsert = -1;
         for (int j = 0; j < readyQueue.size(); j++) {
             Job job_j = readyQueue.get(j);
@@ -132,99 +130,6 @@ abstract class SchedulerSimulator {
             readyQueue.add(idxToInsert, job_i);
         else
             readyQueue.add(job_i);
-    }
-
-    public static int[][] multiply(int a[][], int b[][]) {
-        int aRows = a.length, aColumns = a[0].length, bRows = b.length, bColumns = b[0].length;
-
-        if (aColumns != bRows) {
-            throw new IllegalArgumentException("A:Rows: " + aColumns
-                    + " did not match B:Columns " + bRows + ".");
-        }
-
-        int[][] resultant = new int[aRows][bColumns];
-
-        for (int i = 0; i < aRows; i++) { // aRow
-            for (int j = 0; j < bColumns; j++) { // bColumn
-                for (int k = 0; k < aColumns; k++) { // aColumn
-                    resultant[i][j] += a[i][k] * b[k][j];
-                }
-            }
-        }
-
-        return resultant;
-    }
-
-    double calc_WCRT(Task task_i) {
-        int numItr = 0;
-        double Wi = task_i.getWcet();
-        double prev_Wi = 0;
-
-        ArrayList<Task> allTasks = taskSet.getAppTasksAsArray();
-        int numTasks = allTasks.size();
-
-        while (true) {
-            double interference = 0;
-            for (int i = 0; i < numTasks; i++) {
-                Task task_hp = allTasks.get(i);
-                if (task_hp.getPriority() >= task_i.getPriority())
-                    continue;
-
-                double Tj = task_hp.getPeriod();
-                double Cj = task_hp.getWcet();
-
-                interference += myCeil(Wi / Tj) * Cj;
-            }
-
-            Wi = task_i.getWcet() + interference;
-
-            if (Double.compare(Wi, prev_Wi) == 0)
-                return Wi;
-
-            prev_Wi = Wi;
-
-            numItr++;
-            if (numItr > 1000 || Double.isInfinite(Wi) || Wi < 0)
-                return Double.MAX_VALUE;
-        }
-    }
-
-    static double myCeil(double val) {
-        double diff = Math.ceil(val) - val;
-        if (diff > 0.99999) {
-            System.out.println("###" + (val) + "###\t\t " + Math.ceil(val));
-            System.exit(-1);
-        }
-        return Math.ceil(val);
-    }
-
-
-    static double[][] getDistribution(LinkedList<Long> list) {
-        double[][] distribution = null;
-        Collections.sort(list);
-
-        long lowest = list.get(0);
-        long highest = list.get(list.size()-1);
-        int numDistinct = (int) (highest - lowest + 1);
-        int numAll = list.size();
-
-        distribution = new double[numDistinct][numAll];
-        for (int i=0; i<distribution.length; i++) {
-            distribution[i][0] = lowest + i;
-            distribution[i][1] = 0;
-        }
-        Iterator<Long> itr = list.iterator();
-        while(itr.hasNext()) {
-            long number = itr.next();
-            int idx = (int)(number - lowest);
-            distribution[idx][1]++;
-        }
-
-        for (int i=0; i<distribution.length; i++) {
-            distribution[i][1] /= (double)numAll;
-        }
-
-        return distribution;
     }
 
     public EventContainer getSimEventContainer()
