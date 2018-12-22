@@ -506,8 +506,9 @@ public class TaskSet {
     public String toString() {
         String outStr = "TaskSet(" + getUtilization() + "):\r\n";
         for (int i=getLowestPriorityTask().getPriority(); i<=getHighestPriorityTask().getPriority(); i++) {
-        //for (Task thisTask : tasks.values()) {
-            outStr += "\t" + getOneTaskByPriority(i).toString() + "\r\n";
+            if (getOneTaskByPriority(i) != null) {
+                outStr += "\t" + getOneTaskByPriority(i).toString() + "\r\n";
+            }
         }
         return outStr;
     }
