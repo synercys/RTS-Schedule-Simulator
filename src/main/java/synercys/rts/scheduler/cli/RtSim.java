@@ -26,34 +26,34 @@ import java.util.concurrent.Callable;
  */
 @Command(name = "rtsim", versionProvider = synercys.rts.RtsConfig.class, header = "@|blue | RT Schedule Simulator | |@")
 public class RtSim implements Callable {
-    private static final Logger loggerConsole = LogManager.getLogger("console");
+    protected static final Logger loggerConsole = LogManager.getLogger("console");
 
     @Option(names = {"-V", "--version"}, versionHelp = true, description = "Display version info.")
-    boolean versionInfoRequested;
+    protected boolean versionInfoRequested;
 
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message.")
-    boolean usageHelpRequested;
+    protected boolean usageHelpRequested;
 
     @Option(names = {"-i", "--in"}, required = true, description = "A file that contains taskset parameters.")
-    String taskInputFile = "";
+    protected String taskInputFile = "";
 
     @Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")
-    List<String> outputFilePathAndFormat = new ArrayList<>();
+    protected List<String> outputFilePathAndFormat = new ArrayList<>();
 
     @Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\" or \"RM\").")
-    String schedulingPolicy = "";
+    protected String schedulingPolicy = "";
 
     @Option(names = {"-d", "--duration"}, required = true, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
-    long simDuration = 0;
+    protected long simDuration = 0;
 
     @Option(names = {"-b", "--bibs"}, required = false, description = "Output busy intervals as binary string.")
-    boolean optionGenBisBinaryString = false;
+    protected boolean optionGenBisBinaryString = false;
 
     @Option(names = {"-l", "--ladder"}, required = false, description = "Applicable for xlsx format. Width of a ladder diagram.")
-    long optionLadderDiagramWidth = 0;
+    protected long optionLadderDiagramWidth = 0;
 
     @Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
-    boolean optionExecutionVariation = false;
+    protected boolean optionExecutionVariation = false;
 
     protected TaskSet taskSet = null;
     protected EventContainer eventContainer = null;
