@@ -17,7 +17,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * Created by cy on 2/19/2018.
+ * RtSim.java
+ * Purpose: A command to run real-time schedule simulation. Currently it supports the EDF and RM schedulers.
+ *
+ * @author CY Chen (cchen140@illinois.edu)
+ * @version 1.1 - 2018, 12/23
+ * @version 1.0 - 2018, 2/19
  */
 @Command(name = "rtsim", versionProvider = synercys.rts.RtsConfig.class, header = "@|blue | RT Schedule Simulator | |@")
 public class RtSim implements Callable {
@@ -50,6 +55,8 @@ public class RtSim implements Callable {
     @Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     boolean optionExecutionVariation = false;
 
+    protected TaskSet taskSet = null;
+    protected EventContainer eventContainer = null;
 
     public static void main(String... args) {
         /* A few test command and parameters. Uncomment one to test it. */
@@ -78,26 +85,15 @@ public class RtSim implements Callable {
     @Override
     public Object call() throws Exception {
 
-        TaskSet taskSet;
-        JsonLogLoader jsonLogLoader = new JsonLogLoader(taskInputFile);
-        try {
-            TaskSetContainer taskSetContainer = (TaskSetContainer) jsonLogLoader.getResult();
-            taskSet = taskSetContainer.getTaskSets().get(0);
-        } catch (Exception e) {
-            loggerConsole.error(e);
+
+        if (importTaskSet() == false) {
+            loggerConsole.error("Failed to import the taskset.");
             return null;
         }
-        loggerConsole.info(taskSet.toString());
 
-        EventContainer eventContainer;
-        if (schedulingPolicy.equalsIgnoreCase("RM")) {
-            loggerConsole.info("RM selected.");
-            FixedPriorityScheduler rmSimulator = new FixedPriorityScheduler(taskSet, optionExecutionVariation);
-            eventContainer = rmSimulator.runSim(simDuration);
-        } else { // EDF
-            loggerConsole.info("EDF selected.");
-            EdfScheduler edfSimulator = new EdfScheduler(taskSet, optionExecutionVariation);
-            eventContainer = edfSimulator.runSim(simDuration);
+        if (runScheduleSimulation() == false) {
+            loggerConsole.error("Unknown scheduler: \"{}\"", schedulingPolicy);
+            return null;
         }
 
         // Build busy intervals for ScheduLeak
@@ -105,14 +101,6 @@ public class RtSim implements Callable {
         biEvents.createBusyIntervalsFromEvents(eventContainer);
         //biEvents.removeBusyIntervalsBeforeButExcludeTimeStamp(victimTask.getInitialOffset());
 
-        // Get only observable busy intervals
-//        BusyIntervalEventContainer observedBiEvents =
-//                null;
-//        try {
-//            observedBiEvents = new BusyIntervalEventContainer( biEvents.getObservableBusyIntervalsByTask(observerTask) );
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
         /* Output generation */
         for (int i=0; i<outputFilePathAndFormat.size(); i++) {
@@ -153,30 +141,40 @@ public class RtSim implements Callable {
             }
         }
 
-
-        // Create Excel file
-        //ExcelLogHandler excelLogHandler = new ExcelLogHandler();
-
-        //excelLogHandler.genRowSchedulerIntervalEvents(eventContainer);
-        //excelLogHandler.genRowBusyIntervals(biEvents);
-        //excelLogHandler.genRowBusyIntervals(observedBiEvents);
-        //excelLogHandler.genRowSchedulerIntervalEvents(decomposedEvents);
-
-        // Output inferred arrival window
-        /*
-        EventContainer arrivalWindowEventContainer = new EventContainer();
-        for (SchedulerIntervalEvent thisEvent : arrivalWindow.getArrivalWindowEventByTime(0)) {
-            arrivalWindowEventContainer.add(thisEvent);
-        }
-        excelLogHandler.genRowSchedulerIntervalEvents(arrivalWindowEventContainer);
-        */
-
-        //excelLogHandler.saveAndClose(null);
-
-        //loggerConsole.info("The number of observed BIs: " + observedBiEvents.size());
-
         loggerConsole.info(eventContainer.getAllEvents());
 
         return null;
+    }
+
+    protected boolean importTaskSet() {
+        JsonLogLoader jsonLogLoader = new JsonLogLoader(taskInputFile);
+        try {
+            TaskSetContainer taskSetContainer = (TaskSetContainer) jsonLogLoader.getResult();
+            taskSet = taskSetContainer.getTaskSets().get(0);
+        } catch (Exception e) {
+            //loggerConsole.error(e);
+            return false;
+        }
+        loggerConsole.info(taskSet.toString());
+        return true;
+    }
+
+    protected boolean runScheduleSimulation() {
+        if (schedulingPolicy.equalsIgnoreCase("RM")) {
+            loggerConsole.info("RM selected.");
+            FixedPriorityScheduler rmSimulator = new FixedPriorityScheduler(taskSet, optionExecutionVariation);
+            eventContainer = rmSimulator.runSim(simDuration);
+        } else if (schedulingPolicy.equalsIgnoreCase("EDF")) { // EDF
+            loggerConsole.info("EDF selected.");
+            EdfScheduler edfSimulator = new EdfScheduler(taskSet, optionExecutionVariation);
+            eventContainer = edfSimulator.runSim(simDuration);
+        } else {
+            eventContainer = null;
+        }
+
+        if (eventContainer != null)
+            return true;
+        else
+            return false;
     }
 }
