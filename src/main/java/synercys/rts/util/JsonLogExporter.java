@@ -48,7 +48,7 @@ public class JsonLogExporter extends FileHandler {
 
         jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
 
-        writeString(jsonRoot.toString());
+        writeString(jsonRoot.toString(4));
     }
 
     public void exportTaskSets(TaskSetContainer taskSetContainer) {
@@ -69,7 +69,7 @@ public class JsonLogExporter extends FileHandler {
 
         jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
 
-        writeString(jsonRoot.toString());
+        writeString(jsonRoot.toString(4));
     }
 
     public void exportRawSchedule(EventContainer eventContainer) {
@@ -109,7 +109,7 @@ public class JsonLogExporter extends FileHandler {
 
         jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
 
-        writeString(jsonRoot.toString());
+        writeString(jsonRoot.toString(4));
     }
 
     protected void putVersion(JSONObject inJson) {
@@ -306,7 +306,6 @@ public class JsonLogExporter extends FileHandler {
         jsonData.put(JsonLogStr.DATA_TASK_GEN_SETTINGS, jsonConfigArrary);
 
         jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
-
-        writeString(jsonRoot.toString());
+        writeString(jsonRoot.toString(4) + "\n");
     }
 }
