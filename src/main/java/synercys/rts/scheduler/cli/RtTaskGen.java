@@ -1,5 +1,6 @@
 package synercys.rts.scheduler.cli;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
@@ -10,6 +11,9 @@ import synercys.rts.scheduler.TaskSetGenerator;
 import synercys.rts.util.JsonLogExporter;
 import synercys.rts.util.JsonLogLoader;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
@@ -89,9 +93,13 @@ public class RtTaskGen implements Callable {
 
         /* If generating default configuration file is requested, then we'll ignore other options. */
         if (!generateDefaultConfigFile.equalsIgnoreCase("")) {
+            // If the given config file path string is in fact a folder's path, then use the default file name.
+            if (Files.isDirectory(Paths.get(generateDefaultConfigFile))) {
+                generateDefaultConfigFile = Paths.get(generateDefaultConfigFile, "default.rttaskgen").toString();
+            }
             JsonLogExporter taskGenConfigExporter = new JsonLogExporter(generateDefaultConfigFile);
             taskGenConfigExporter.exportRtTaskGenDefaultSettings();
-            loggerConsole.info("Default configuration is exported.");
+            loggerConsole.info("Default configuration is exported to \"{}\".", (new File(generateDefaultConfigFile)).getName());
             return null;
         }
 
@@ -112,7 +120,12 @@ public class RtTaskGen implements Callable {
         }
 
         if (!outputFilePrefix.equalsIgnoreCase("")) {
-            JsonLogExporter logExporter = new JsonLogExporter(outputFilePrefix);
+            String outputFilePath = outputFilePrefix;
+            if (!FilenameUtils.getExtension(outputFilePrefix).equalsIgnoreCase("tasksets")) {
+                outputFilePath += ".tasksets";
+            }
+
+            JsonLogExporter logExporter = new JsonLogExporter(outputFilePath);
 
             if (taskSetContainer.size() == 1) {
                 logExporter.exportSingleTaskSet(taskSetContainer.getTaskSets().get(0));
