@@ -37,7 +37,7 @@ public class RtTaskGen implements Callable {
     @Option(names = {"-i", "--in"}, required = false, description = "A file that contains task configurations.")
     String taskInputFile = "";
 
-    @Option(names = {"-o", "--out"}, required = false, description = "A file for storing generated task sets.")
+    @Option(names = {"-o", "--out"}, required = false, description = "A file path a prefix name for storing generated task sets (the file extension is ignored).")
     String outputFilePrefix = "";
 
     @Option(names = {"-r", "--read"}, required = false, description = "A taskset file to be read and printed. This option ignores other options.")
@@ -103,11 +103,15 @@ public class RtTaskGen implements Callable {
             return null;
         }
 
-        TaskSetContainer taskSetContainer = new TaskSetContainer();
+//        TaskSetContainer taskSetContainer = new TaskSetContainer();
+        ArrayList<TaskSetContainer> taskSetContainerArrayList = new ArrayList<>();
         if (taskInputFile.equalsIgnoreCase("")) {
             // Generate a task set using default values.
             TaskSetGenerator taskSetGenerator = new TaskSetGenerator();
+            TaskSetContainer taskSetContainer = new TaskSetContainer();
+
             taskSetContainer.addTaskSet(taskSetGenerator.generate(taskSize, 1).getTaskSets().get(0));
+            taskSetContainerArrayList.add(taskSetContainer);
         } else {
             // Generate task sets using settings from the input file.
             JsonLogLoader jsonLogLoader = new JsonLogLoader(taskInputFile);
@@ -115,33 +119,46 @@ public class RtTaskGen implements Callable {
 
             for (TaskSetGenerator taskSetGenerator : taskSetGenerators) {
                 TaskSetContainer thisTaskSetContainer = taskSetGenerator.generate();
+                TaskSetContainer taskSetContainer = new TaskSetContainer();
+
                 taskSetContainer.addTaskSets(thisTaskSetContainer.getTaskSets());
+                taskSetContainerArrayList.add(taskSetContainer);
             }
         }
 
         if (!outputFilePrefix.equalsIgnoreCase("")) {
-            String outputFilePath = outputFilePrefix;
-            if (!FilenameUtils.getExtension(outputFilePrefix).equalsIgnoreCase("tasksets")) {
-                outputFilePath += ".tasksets";
-            }
+            String outputFilePath = FilenameUtils.getFullPath(outputFilePrefix);
+            String outputFileBaseName = FilenameUtils.getBaseName(outputFilePrefix);
 
-            JsonLogExporter logExporter = new JsonLogExporter(outputFilePath);
+            int outputFileIndex = 0;
+            for (TaskSetContainer taskSetContainer : taskSetContainerArrayList) {
+                String outputFilePathName;
+                if (taskSetContainerArrayList.size() == 1) {
+                    outputFilePathName = Paths.get(outputFilePath, outputFileBaseName + ".tasksets").toString();
+                } else {
+                    outputFilePathName = Paths.get(outputFilePath, outputFileBaseName + String.valueOf(outputFileIndex) + ".tasksets").toString();
+                }
 
-            if (taskSetContainer.size() == 1) {
-                logExporter.exportSingleTaskSet(taskSetContainer.getTaskSets().get(0));
-            } else {
-                logExporter.exportTaskSets(taskSetContainer);
+                JsonLogExporter logExporter = new JsonLogExporter(outputFilePathName);
+
+                if (taskSetContainer.size() == 1) {
+                    logExporter.exportSingleTaskSet(taskSetContainer.getTaskSets().get(0));
+                } else {
+                    logExporter.exportTaskSets(taskSetContainer);
+                }
+
+                outputFileIndex++;
             }
         }
 
         int taskSetId = 0;
-        for (TaskSet taskSet : taskSetContainer.getTaskSets()) {
+        for (TaskSet taskSet : taskSetContainerArrayList.get(0).getTaskSets()) {
             taskSet.setId(taskSetId);
             loggerConsole.info(taskSet.toString());
             taskSetId++;
         }
 
-        loggerConsole.info("{} {} generated.", String.valueOf(taskSetContainer.size()), taskSetContainer.size()==1?"task set is":"task sets are");
+        loggerConsole.info("{} {} generated.", String.valueOf(taskSetContainerArrayList.get(0).size()), taskSetContainerArrayList.get(0).size()==1?"task set is":"task sets are");
 
         return null;
     }
