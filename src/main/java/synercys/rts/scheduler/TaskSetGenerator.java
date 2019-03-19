@@ -41,6 +41,7 @@ public class TaskSetGenerator {
 
     /*==== Dedicated to the research for schedule-based side-channel =====*/
     Boolean needGenObserverTask;
+    Boolean edfScheduleakObservationRatio;  // When enabled, observer/victim priorities are ignored.
     double maxObservationRatio;
     double minObservationRatio;
     int observerTaskPriority;
@@ -75,6 +76,7 @@ public class TaskSetGenerator {
 
         /*==== Dedicated to the research for schedule-based side-channel =====*/
         needGenObserverTask = false;
+        edfScheduleakObservationRatio = false;
         maxObservationRatio = 999;
         minObservationRatio = 1.0;
         observerTaskPriority = 1;
@@ -240,12 +242,51 @@ public class TaskSetGenerator {
         double observationRatio = 0;
         if (needGenObserverTask == true) {
             Task victim, observer;
-            victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
-            observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
-            double gcd = Umath.gcd(victim.getPeriod(), observer.getPeriod());
-            observationRatio = observer.getWcet()/gcd;
-            if ((observationRatio<minObservationRatio) || (observationRatio>maxObservationRatio)) {
-                return null;
+            //int observerTaskPriority, victimTaskPriority;
+
+            if (edfScheduleakObservationRatio) {
+                /* enforce coverage ratio for EDF */
+
+                /*
+                 * Task priority starts from 1. A small number represents a low priority.
+                 * observerTaskPriority = floor(numOfTasks/3) + 1
+                 * victimTaskPriority = numOfTasks - floor(numOfTasks/3)
+                 * */
+                switch (numTasks) {
+                    case 3:
+                        observerTaskPriority = 1;
+                        victimTaskPriority = 3;
+                        break;
+                    default:
+                        observerTaskPriority = (int) Math.floor((double) numTasks / 3.0) + 1;
+                        victimTaskPriority = numTasks - (int) Math.floor((double) numTasks / 3);
+                        break;
+                    //case 5: observerTaskPriority = 2; victimTaskPriority = 4; break;
+                    //case 7: observerTaskPriority = 3; victimTaskPriority = 5; break;
+                    //case 9: observerTaskPriority = 4; victimTaskPriority = 6; break;
+                    //case 11: observerTaskPriority = 4; victimTaskPriority = 8; break;
+                }
+
+                victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
+                observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
+
+                /* Coverage ratio for EDF */
+                long po = observer.getPeriod();
+                long pv = victim.getPeriod();
+                double gcd = Umath.gcd(victim.getPeriod(), observer.getPeriod());
+                observationRatio = (double) Math.min((po - pv), observer.getWcet()) / gcd;
+                if ((observationRatio < minObservationRatio) || (observationRatio > maxObservationRatio)) {
+                    return null;
+                }
+            } else {
+                /* enforce coverage ratio for RM */
+                observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
+                victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
+                double gcd = Umath.gcd(victim.getPeriod(), observer.getPeriod());
+                observationRatio = observer.getWcet() / gcd;
+                if ((observationRatio < minObservationRatio) || (observationRatio > maxObservationRatio)) {
+                    return null;
+                }
             }
         }
         /*===== end =====*/
@@ -467,6 +508,14 @@ public class TaskSetGenerator {
 
     public void setVictimTaskPriority(int victimTaskPriority) {
         this.victimTaskPriority = victimTaskPriority;
+    }
+
+    public Boolean getEdfScheduleakObservationRatio() {
+        return edfScheduleakObservationRatio;
+    }
+
+    public void setEdfScheduleakObservationRatio(Boolean edfScheduleakObservationRatio) {
+        this.edfScheduleakObservationRatio = edfScheduleakObservationRatio;
     }
 
     public String toCommentString() {
