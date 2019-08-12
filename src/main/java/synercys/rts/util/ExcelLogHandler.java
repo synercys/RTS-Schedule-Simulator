@@ -1,15 +1,20 @@
 package synercys.rts.util;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.*;
+
+import synercys.rts.framework.Histogram;
+import synercys.rts.framework.Interval;
 import synercys.rts.framework.event.BusyIntervalEvent;
 import synercys.rts.framework.event.BusyIntervalEventContainer;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.event.SchedulerIntervalEvent;
-import org.apache.poi.xssf.usermodel.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by cy on 3/25/2017.
@@ -102,14 +107,32 @@ public class ExcelLogHandler {
                             && lastTimestamp==thisScheduleEvent.getOrgBeginTimestamp()) {
                         cell.setCellValue(thisScheduleEvent.getTask().getId() + "*");
                     } else {
-                        cell.setCellValue(thisScheduleEvent.getTask().getId());
+                        if (thisScheduleEvent.getTask() != null)
+                            cell.setCellValue(thisScheduleEvent.getTask().getId());
                     }
 
-                    setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
+                    if (thisScheduleEvent.getTask() != null)
+                        setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
+                    else
+                        setCellColor(cell, (short)99);
+
                 }
 
             }
         }
+    }
+
+
+    public void genIntervalsOnLadderDiagram(ArrayList<Interval> intervals, long ladderWidth) {
+        if (ladderWidth+columnOffset > EXCEL_COLUMN_LIMIT)
+            return;
+
+        EventContainer eventContainer = new EventContainer();
+        for (Interval thisInterval : intervals) {
+            eventContainer.add(new SchedulerIntervalEvent(thisInterval.getBegin(), thisInterval.getEnd(), null, ""));
+        }
+
+        genSchedulerIntervalEventsOnLadderDiagram(eventContainer, ladderWidth);
     }
 
     public void genRowBusyIntervals(BusyIntervalEventContainer inBis) {
@@ -136,6 +159,43 @@ public class ExcelLogHandler {
                 }
             }
         }
+    }
+
+    public void genHistogramRow(Histogram inHistogram) {
+        Row row = sheet.createRow(rowIndex++);
+
+        for (long i=0; i<=inHistogram.getEnd(); i++) {
+            Cell cell = row.createCell((int) (i + columnOffset));
+            cell.setCellValue(Double.valueOf(inHistogram.getValue(i)));
+        }
+
+        SheetConditionalFormatting sheetCF = sheet.getSheetConditionalFormatting();
+        ConditionalFormattingRule rule1 = sheetCF.createConditionalFormattingColorScaleRule();
+        ColorScaleFormatting clrFmt = rule1.getColorScaleFormatting();
+
+        /* Setting upper and lower threshold of the color scale.
+         * Configuring [0] and [1] for 2-color scale and [0],[2] and [3] for 3-color scale. */
+        clrFmt.getThresholds()[0].setRangeType(ConditionalFormattingThreshold.RangeType.MIN);
+        clrFmt.getThresholds()[1].setRangeType(ConditionalFormattingThreshold.RangeType.MAX);
+
+        /* Colors of the color-scale.
+         * [2] for 2-color scale. [3] for 3-color scale. */
+        Color[] colors = new Color[2];
+        colors[0] = new XSSFColor(java.awt.Color.WHITE, null);
+        colors[1] = new XSSFColor(java.awt.Color.RED, null);
+        clrFmt.setColors(colors);
+
+        /* Select range. */
+        Cell firstCell = row.getCell(columnOffset);
+        String rangeString = firstCell.getAddress().formatAsString() + ":" + row.getCell((int)inHistogram.getEnd()+columnOffset).getAddress().formatAsString();
+        CellRangeAddress[] regions = { CellRangeAddress.valueOf(rangeString) };
+
+        sheetCF.addConditionalFormatting(regions, rule1);
+
+    }
+
+    public void genEmptyRow() {
+        sheet.createRow(rowIndex++);
     }
 
     private void setColumnWidthRange(int inIndexBegin, int inIndexEnd, int inWidth) {
