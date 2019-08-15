@@ -132,8 +132,11 @@ public class TaskSetGenerator {
             //ProgMsg.debugPutline(hyperPeriodFactors.toString());
         }
 
-        double randomUtil = getRandom((int)(minUtil*100), (int)(maxUtil*100))/100.0;
-        ArrayList<Double> utilDistribution = getRandomUtilDistribution(numTasks, randomUtil);
+        double randomUtil;
+        do {
+            randomUtil = getRandom((int) (minUtil * 100), (int) (maxUtil * 100)) / 100.0;
+        } while (randomUtil == 0);
+        ArrayList<Double> utilDistribution = getRandomUtilDistributionByUUniFast(numTasks, randomUtil);
 
         double total_util = 0;
         double last_total_util = 0;
@@ -337,30 +340,21 @@ public class TaskSetGenerator {
     }
 
 
-    /* Divide inMaxUtil into inMaxTaskNum pieces evenly, and then mess them up. */
-    ArrayList<Double> getRandomUtilDistribution(int inMaxTaskNum, double inMaxUtil) {
+    ArrayList<Double> getRandomUtilDistributionByUUniFast(int inMaxTaskNum, double inMaxUtil) {
         ArrayList<Double> resultUtilArray = new ArrayList<>();
-
-        // Initialize the array with evenly dividing utilization.
-        for (int i=0; i<inMaxTaskNum; i++) {
-            resultUtilArray.add(inMaxUtil/(double)inMaxTaskNum);
+        double sum = inMaxUtil;
+        double nextSum;
+        for (int i=1; i<=inMaxTaskNum-1; i++)
+        {
+            double thisTaskUtil;
+            do {
+                nextSum = sum * Math.pow(Math.random(), 1.0/(inMaxTaskNum-i));
+                thisTaskUtil = sum - nextSum;
+            } while (thisTaskUtil==0.0 || nextSum==0.0);
+            resultUtilArray.add(thisTaskUtil);
+            sum = nextSum;
         }
-
-        /* Randomize the distribution. */
-        double randUnit = inMaxUtil/100.0;
-        for (int i=0; i<100; i++) {
-            int indexA, indexB;
-            indexA = getRandom(0, inMaxTaskNum-1);
-            indexB = getRandom(0, inMaxTaskNum-1);
-
-            if (indexA==indexB || resultUtilArray.get(indexB)<0.001) {
-                //i--;
-                continue;
-            } else {
-                resultUtilArray.set(indexA, resultUtilArray.get(indexA) + randUnit);
-                resultUtilArray.set(indexB, resultUtilArray.get(indexB) - randUnit);
-            }
-        }
+        resultUtilArray.add(sum);
 
         return  resultUtilArray;
     }
