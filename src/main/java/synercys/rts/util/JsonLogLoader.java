@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * Created by cy on 3/29/2018.
  */
 public class JsonLogLoader extends FileHandler implements LogParser{
-    final static String PARSER_VERSION = "12";
+    final static String PARSER_VERSION = "13";
 
     Object result = null;   // An abstract object that supports all types of results.
 
@@ -213,6 +213,7 @@ public class JsonLogLoader extends FileHandler implements LogParser{
             try{taskSetGenerator.setNumTaskSet(jsonGenConfig.getInt("numTaskSet"));}  catch (JSONException e){}
             try{taskSetGenerator.setGenerateFromHpDivisors(jsonGenConfig.getBoolean("generateFromHpDivisors"));}  catch (JSONException e){}
             try{taskSetGenerator.setNonHarmonicOnly(jsonGenConfig.getBoolean("nonHarmonicOnly"));}  catch (JSONException e){}
+            try{taskSetGenerator.setDistinctPeriodOnly(jsonGenConfig.getBoolean("distinctPeriodOnly"));}  catch (JSONException e){}
             try{taskSetGenerator.setNeedGenObserverTask(jsonGenConfig.getBoolean("needGenObserverTask"));}  catch (JSONException e){}
             try{taskSetGenerator.setEdfScheduleakObservationRatio(jsonGenConfig.getBoolean("edfScheduleakObservationRatio"));}  catch (JSONException e){}
             try{taskSetGenerator.setMaxObservationRatio(jsonGenConfig.getDouble("maxObservationRatio"));}  catch (JSONException e){}

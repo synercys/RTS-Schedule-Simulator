@@ -38,6 +38,7 @@ public class TaskSetGenerator {
     int numTaskSet;
 
     Boolean nonHarmonicOnly;
+    Boolean distinctPeriodOnly;
 
     /*==== Dedicated to the research for schedule-based side-channel =====*/
     Boolean needGenObserverTask;
@@ -73,6 +74,8 @@ public class TaskSetGenerator {
         generateFromHpDivisors = false;
 
         nonHarmonicOnly = false;
+
+        distinctPeriodOnly = true;
 
         /*==== Dedicated to the research for schedule-based side-channel =====*/
         needGenObserverTask = false;
@@ -175,6 +178,20 @@ public class TaskSetGenerator {
                 task.setDeadline(task.getPeriod());
             }
 
+            if (distinctPeriodOnly) {
+                boolean invalidTask = false;
+                for (Task addedTask : taskContainer.getTasksAsArray()) {
+                    if (addedTask.getPeriod() == task.getPeriod()) {
+                        invalidTask = true;
+                        break;
+                    }
+                }
+                if (invalidTask) {
+                    i--;
+                    continue;
+                }
+            }
+
             long tempComputationTime;
             tempComputationTime = task.getPeriod();
             tempComputationTime  = (long)(((double)tempComputationTime)*utilDistribution.get(i));
@@ -252,6 +269,7 @@ public class TaskSetGenerator {
                  * observerTaskPriority = floor(numOfTasks/3) + 1
                  * victimTaskPriority = numOfTasks - floor(numOfTasks/3)
                  * */
+                // TODO: Make it a function so that the ScheduLeak program can use it to ensure consistency.
                 switch (numTasks) {
                     case 3:
                         observerTaskPriority = 1;
@@ -516,6 +534,14 @@ public class TaskSetGenerator {
 
     public void setEdfScheduleakObservationRatio(Boolean edfScheduleakObservationRatio) {
         this.edfScheduleakObservationRatio = edfScheduleakObservationRatio;
+    }
+
+    public Boolean getDistinctPeriodOnly() {
+        return distinctPeriodOnly;
+    }
+
+    public void setDistinctPeriodOnly(Boolean distinctPeriodOnly) {
+        this.distinctPeriodOnly = distinctPeriodOnly;
     }
 
     public String toCommentString() {

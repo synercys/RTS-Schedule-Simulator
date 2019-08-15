@@ -90,6 +90,7 @@ public class JsonLogStr {
     public static String TASK_GEN_SETTINGS_MAX_UTIL = "maxUtil";
     public static String TASK_GEN_SETTINGS_FROM_HP_DIVISORS = "generateFromHpDivisors";
     public static String TASK_GEN_SETTINGS_NON_HARMONIC_ONLY = "nonHarmonicOnly";
+    public static String TASK_GEN_SETTINGS_DISTINCT_PERIOD_ONLY = "distinctPeriodOnly";
     /* ScheduLeak related options */
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER = "needGenObserverTask";
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_MAX_OB_RATIO = "maxObservationRatio";
