@@ -82,8 +82,8 @@ public class TaskSetGenerator {
         edfScheduleakObservationRatio = false;
         maxObservationRatio = 999;
         minObservationRatio = 1.0;
-        observerTaskPriority = 1;
-        victimTaskPriority = 2;
+        observerTaskPriority = -1;  // -1 indicates that it's not being set
+        victimTaskPriority = -1;    // -1 indicates that it's not being set
         /*===== end =====*/
     }
 
@@ -195,10 +195,7 @@ public class TaskSetGenerator {
                 }
             }
 
-            long tempComputationTime;
-            tempComputationTime = task.getPeriod();
-            tempComputationTime  = (long)(((double)tempComputationTime)*utilDistribution.get(i));
-            //tempComputationTime = (int)(utilDistribution.get(i)*((double)task.getPeriodNs()));
+            long tempComputationTime = (long)(((double)task.getPeriod())*utilDistribution.get(i));
             if (tempComputationTime< minWcet || tempComputationTime> maxWcet) {
                 failureCount++;
                 if (failureCount > 10) {
@@ -211,14 +208,6 @@ public class TaskSetGenerator {
                 failureCount = 0;
             }
 
-//            if (minWcet>task.getPeriodNs()) {
-//                return null;
-//            } else {
-//                tempComputationTime = (int) getRandom(minWcet, Math.min(task.getPeriodNs(), maxWcet));
-//            }
-
-            // Round to 0.1ms (100us).
-            //task.setComputationTimeNs(tempComputationTime - tempComputationTime % 100_000);
             task.setWcet(tempComputationTime);
 
             last_total_util = total_util;
@@ -258,53 +247,30 @@ public class TaskSetGenerator {
             return null;
 
 
-        /*==== Dedicated to the research for schedule-based side-channel =====*/
-        double observationRatio = 0;
+        /*==== Dedicated to the research for scheduler-based side-channel =====*/
         if (needGenObserverTask == true) {
             Task victim, observer;
-            //int observerTaskPriority, victimTaskPriority;
 
+            if (observerTaskPriority==-1 || victimTaskPriority==-1) {
+                int observerVictimTaskPriorities[] = computeDefaultObserverAndVictimTaskPriorities(numTasks);
+                observerTaskPriority = observerVictimTaskPriorities[0];
+                victimTaskPriority = observerVictimTaskPriorities[1];
+            }
+            observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
+            victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
+
+            long po = observer.getPeriod();
+            long pv = victim.getPeriod();
+            double gcd = Umath.gcd(pv, po);
             if (edfScheduleakObservationRatio) {
-                /* enforce coverage ratio for EDF */
-
-                /*
-                 * Task priority starts from 1. A small number represents a low priority.
-                 * observerTaskPriority = floor(numOfTasks/3) + 1
-                 * victimTaskPriority = numOfTasks - floor(numOfTasks/3)
-                 * */
-                // TODO: Make it a function so that the ScheduLeak program can use it to ensure consistency.
-                switch (numTasks) {
-                    case 3:
-                        observerTaskPriority = 1;
-                        victimTaskPriority = 3;
-                        break;
-                    default:
-                        observerTaskPriority = (int) Math.floor((double) numTasks / 3.0) + 1;
-                        victimTaskPriority = numTasks - (int) Math.floor((double) numTasks / 3);
-                        break;
-                    //case 5: observerTaskPriority = 2; victimTaskPriority = 4; break;
-                    //case 7: observerTaskPriority = 3; victimTaskPriority = 5; break;
-                    //case 9: observerTaskPriority = 4; victimTaskPriority = 6; break;
-                    //case 11: observerTaskPriority = 4; victimTaskPriority = 8; break;
-                }
-
-                victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
-                observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
-
-                /* Coverage ratio for EDF */
-                long po = observer.getPeriod();
-                long pv = victim.getPeriod();
-                double gcd = Umath.gcd(victim.getPeriod(), observer.getPeriod());
-                observationRatio = (double) Math.min((po - pv), observer.getWcet()) / gcd;
+                /* Enforce coverage ratio for EDF */
+                double observationRatio = (double) Math.min((po - pv), observer.getWcet()) / gcd;
                 if ((observationRatio < minObservationRatio) || (observationRatio > maxObservationRatio)) {
                     return null;
                 }
             } else {
-                /* enforce coverage ratio for RM */
-                observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
-                victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
-                double gcd = Umath.gcd(victim.getPeriod(), observer.getPeriod());
-                observationRatio = observer.getWcet() / gcd;
+                /* Enforce coverage ratio for RM */
+                double observationRatio = observer.getWcet() / gcd;
                 if ((observationRatio < minObservationRatio) || (observationRatio > maxObservationRatio)) {
                     return null;
                 }
@@ -314,6 +280,36 @@ public class TaskSetGenerator {
 
         taskContainer.addIdleTask();
         return taskContainer;
+    }
+
+
+    /**
+     * Compute the priorities of the observer and the victim tasks in a task set with numTasks tasks.
+     * @param numTasks the number of tasks in a task set to be considered.
+     * @return an int array storing the priorities for the observer (the first element) and victim (the second element).
+     */
+    static public int[] computeDefaultObserverAndVictimTaskPriorities(int numTasks) {
+        int result[] = new int[2];
+        /*
+         * Task priority starts from 1. A small number represents a low priority.
+         * observerTaskPriority = floor(numOfTasks/3) + 1
+         * victimTaskPriority = numOfTasks - floor(numOfTasks/3)
+         * */
+        switch (numTasks) {
+            case 3:
+                result[0] = 1; //observerTaskPriority = 1;
+                result[1] = 3; //victimTaskPriority = 3;
+                break;
+            default:
+                result[0] = (int) Math.floor((double) numTasks / 3.0) + 1; //observerTaskPriority = (int) Math.floor((double) numTasks / 3.0) + 1;
+                result[1] = numTasks - (int) Math.floor((double) numTasks / 3); //victimTaskPriority = numTasks - (int) Math.floor((double) numTasks / 3);
+                break;
+            //case 5: observerTaskPriority = 2; victimTaskPriority = 4; break;
+            //case 7: observerTaskPriority = 3; victimTaskPriority = 5; break;
+            //case 9: observerTaskPriority = 4; victimTaskPriority = 6; break;
+            //case 11: observerTaskPriority = 4; victimTaskPriority = 8; break;
+        }
+        return result;
     }
 
     int getRandomDivisor(ArrayList<Long> inFactors, int numOfChosenFactors) {
