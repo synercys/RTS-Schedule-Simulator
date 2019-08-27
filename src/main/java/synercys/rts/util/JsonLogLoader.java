@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * Created by cy on 3/29/2018.
  */
 public class JsonLogLoader extends FileHandler implements LogParser{
-    final static String PARSER_VERSION = "13";
+    final static String PARSER_VERSION = "16";
 
     Object result = null;   // An abstract object that supports all types of results.
 
@@ -214,7 +214,9 @@ public class JsonLogLoader extends FileHandler implements LogParser{
             try{taskSetGenerator.setGenerateFromHpDivisors(jsonGenConfig.getBoolean("generateFromHpDivisors"));}  catch (JSONException e){}
             try{taskSetGenerator.setNonHarmonicOnly(jsonGenConfig.getBoolean("nonHarmonicOnly"));}  catch (JSONException e){}
             try{taskSetGenerator.setDistinctPeriodOnly(jsonGenConfig.getBoolean("distinctPeriodOnly"));}  catch (JSONException e){}
+            /* configurations for ScheduLeak */
             try{taskSetGenerator.setNeedGenObserverTask(jsonGenConfig.getBoolean("needGenObserverTask"));}  catch (JSONException e){}
+            try{taskSetGenerator.setNeedGenHarmonicObserverTask(jsonGenConfig.getBoolean("needGenHarmonicObserverTask"));}  catch (JSONException e){}
             try{taskSetGenerator.setEdfScheduleakObservationRatio(jsonGenConfig.getBoolean("edfScheduleakObservationRatio"));}  catch (JSONException e){}
             try{taskSetGenerator.setMaxObservationRatio(jsonGenConfig.getDouble("maxObservationRatio"));}  catch (JSONException e){}
             try{taskSetGenerator.setMinObservationRatio(jsonGenConfig.getDouble("minObservationRatio"));}  catch (JSONException e){}

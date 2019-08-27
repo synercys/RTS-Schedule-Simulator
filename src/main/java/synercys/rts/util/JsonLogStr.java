@@ -93,6 +93,7 @@ public class JsonLogStr {
     public static String TASK_GEN_SETTINGS_DISTINCT_PERIOD_ONLY = "distinctPeriodOnly";
     /* ScheduLeak related options */
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER = "needGenObserverTask";
+    public static String TASK_GEN_SETTINGS_SCHEDULEAK_HARMONIC_OBSERVER = "needGenHarmonicObserverTask";
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_MAX_OB_RATIO = "maxObservationRatio";
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_MIN_OB_RATIO = "minObservationRatio";
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER_PRIORITY = "observerTaskPriority";

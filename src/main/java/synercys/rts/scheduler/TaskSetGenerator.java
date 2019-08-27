@@ -47,6 +47,7 @@ public class TaskSetGenerator {
     double minObservationRatio;
     int observerTaskPriority;
     int victimTaskPriority;
+    boolean needGenHarmonicObserverTask;    // If it's true, at least one task having harmonic period with the observer will be generated.
     /*===== end =====*/
 
     Random rand = new Random();
@@ -79,6 +80,7 @@ public class TaskSetGenerator {
 
         /*==== Dedicated to the research for schedule-based side-channel =====*/
         needGenObserverTask = false;
+        needGenHarmonicObserverTask = false;
         edfScheduleakObservationRatio = false;
         maxObservationRatio = 999;
         minObservationRatio = 1.0;
@@ -112,8 +114,15 @@ public class TaskSetGenerator {
         return resultTaskSetContainer;
     }
 
-    public int getRandom(int min, int max) {
-        return rand.nextInt(max - min + 1) + min;
+    /**
+     * generate a random integer between inclusiveMin and inclusiveMax, both bounds are inclusive.
+     * @param inclusiveMin  the smallest possible number
+     * @param inclusiveMax  the largest possible number
+     * @return an integer between inclusiveMin and inclusiveMax, both bounds are inclusive
+     */
+    public int getRandom(int inclusiveMin, int inclusiveMax) {
+        // nextInt generates a number between 0 (inclusive) and the given number (exclusive).
+        return rand.nextInt(inclusiveMax - inclusiveMin + 1) + inclusiveMin;
     }
 
     /* The configurations are passed by global variables. */
@@ -256,8 +265,88 @@ public class TaskSetGenerator {
                 observerTaskPriority = observerVictimTaskPriorities[0];
                 victimTaskPriority = observerVictimTaskPriorities[1];
             }
+
             observer = taskContainer.getOneTaskByPriority(observerTaskPriority);
+            //victim = taskContainer.getOneTaskByPriority(victimTaskPriority); // Victim will be assigned later
+
+            /* Need at least a harmonic task with the observer? */
+            // We say at least one because there might be other harmonic tasks existed but we don't know.
+            if (needGenHarmonicObserverTask == true) {
+
+                /* Get and check the observer's period's factors first. */
+                ArrayList<Long> observerPeriodFactors = Umath.integerFactorization(observer.getPeriod());
+                if (observerPeriodFactors.size() == 1) {
+                    // The observer's period is a prime number.
+                    // We'll skip this task set as no smaller harmonic period can be generated.
+                    return null;
+                }
+
+                int genHarmonicObserverTaskFailureCount = 0;
+                while (true) {
+
+                    if (genHarmonicObserverTaskFailureCount > 10) {
+                        // This might be too hard to generate one that fulfills the task generation requirements, so we quit.
+                        return null;
+                    }
+
+                    // Randomly pick one task that has period smaller than the observer.
+                    int chosenHarmonicTaskPriority = getRandom(observerTaskPriority + 1, numTasks);
+                    Task harmonicTask = taskContainer.getOneTaskByPriority(chosenHarmonicTaskPriority);
+
+                    // period
+                    long newHarmonicPeriod = getRandomDivisor(observerPeriodFactors);
+
+                    if (newHarmonicPeriod<minPeriod || newHarmonicPeriod>maxPeriod) {
+                        genHarmonicObserverTaskFailureCount++;
+                        continue;
+                    }
+
+                    if (distinctPeriodOnly) {
+                        boolean invalidHarmonicTask = false;
+                        for (Task thisTask : taskContainer.getTasksAsArray()) {
+                            if (thisTask == harmonicTask)
+                                continue;
+
+                            if (thisTask.getPeriod() == newHarmonicPeriod) {
+                                invalidHarmonicTask = true;
+                                break;
+                            }
+                        }
+                        if (invalidHarmonicTask == true) {
+                            genHarmonicObserverTaskFailureCount++;
+                            continue;
+                        }
+                    }
+
+                    // Wcet
+                    double thisTaskUtil = (double) harmonicTask.getWcet() / harmonicTask.getPeriod();
+                    long newWcet = (long) ((double) newHarmonicPeriod * thisTaskUtil);
+                    if (newWcet < minWcet || newWcet > maxWcet) {
+                        genHarmonicObserverTaskFailureCount++;
+                        continue;
+                    }
+
+                    // task phase
+                    long newTaskPhase = getRandom((int) minInitOffset, (int) Math.min(newHarmonicPeriod, maxInitOffset));
+
+                    harmonicTask.setPeriod(newHarmonicPeriod);
+                    harmonicTask.setDeadline(newHarmonicPeriod);
+                    harmonicTask.setWcet(newWcet);
+                    harmonicTask.setInitialOffset(newTaskPhase);
+
+                    /* Reassign task priorities and do schedulability test. */
+                    taskContainer.assignPriorityRm();
+
+                    if (taskContainer.schedulabilityTest() == false)
+                        return null;
+
+                    break;
+                }
+
+            }
+
             victim = taskContainer.getOneTaskByPriority(victimTaskPriority);
+
 
             long po = observer.getPeriod();
             long pv = victim.getPeriod();
@@ -276,7 +365,9 @@ public class TaskSetGenerator {
                 }
             }
         }
-        /*===== end =====*/
+        /*===== end of needGenObserverTask =====*/
+
+        reassignedTaskIdsBasedOnPriorities(taskContainer);
 
         taskContainer.addIdleTask();
         return taskContainer;
@@ -353,6 +444,19 @@ public class TaskSetGenerator {
         resultUtilArray.add(sum);
 
         return  resultUtilArray;
+    }
+
+    public void reassignedTaskIdsBasedOnPriorities(TaskSet taskSet) {
+        int maxPriority = taskSet.getHighestPriorityTask().getPriority();
+        int minPriority = taskSet.getLowestPriorityTask().getPriority();
+        int idCounter = 1;
+        for (int priority=minPriority; priority<=maxPriority; priority++) {
+            ArrayList<Task> thisPriorityTasks = taskSet.getTasksByPriority(priority);
+            for (Task thisTask : thisPriorityTasks) {
+                thisTask.setId(idCounter);
+                idCounter++;
+            }
+        }
     }
 
 
@@ -532,6 +636,14 @@ public class TaskSetGenerator {
 
     public void setDistinctPeriodOnly(Boolean distinctPeriodOnly) {
         this.distinctPeriodOnly = distinctPeriodOnly;
+    }
+
+    public boolean isNeedGenHarmonicObserverTask() {
+        return needGenHarmonicObserverTask;
+    }
+
+    public void setNeedGenHarmonicObserverTask(boolean needGenHarmonicObserverTask) {
+        this.needGenHarmonicObserverTask = needGenHarmonicObserverTask;
     }
 
     public String toCommentString() {
