@@ -494,6 +494,16 @@ public class TaskSet {
         return null;
     }
 
+    public ArrayList<Task> getTasksByPriority(int inPriority) {
+        ArrayList<Task> result = new ArrayList<>();
+        for (Task thisTask : tasks.values()) {
+            if (thisTask.getPriority() == inPriority) {
+                result.add(thisTask);
+            }
+        }
+        return result;
+    }
+
     public int getId() {
         return id;
     }
