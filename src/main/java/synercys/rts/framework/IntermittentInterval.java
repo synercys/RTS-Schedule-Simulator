@@ -194,8 +194,32 @@ public class IntermittentInterval {
         return null;
     }
 
+    /**
+     * Add the given interval into the existing interval set. The overlap is pushed back.
+     * @param inInterval
+     */
+    public void cascadeInterval(Interval inInterval) {
+        Interval inIntervalCloned = new Interval(inInterval);
+        IntermittentInterval intersectedIntervals;
+        long lastTotalLength;
+        do {
+            lastTotalLength = inIntervalCloned.getLength();
+            intersectedIntervals = getIntersection(inIntervalCloned);
+            inIntervalCloned.setEnd(inInterval.getEnd()+intersectedIntervals.getTotalLength());
+        } while (inIntervalCloned.getLength() != lastTotalLength);
+        union(inIntervalCloned);
+    }
+
     public ArrayList<Interval> getIntervals() {
         return intervals;
+    }
+
+    public long getTotalLength() {
+        long totalLength = 0;
+        for (Interval thisInterval : intervals) {
+            totalLength += thisInterval.getLength();
+        }
+        return totalLength;
     }
 
     @Override
