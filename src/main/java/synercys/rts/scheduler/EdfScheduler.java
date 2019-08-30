@@ -37,9 +37,12 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
             if (job.releaseTime > tick)
                 continue;
 
-            // TODO: Here, we don't explicitly deal with the case where two jobs have the same absolute deadline.
             if (job.absoluteDeadline < earliestDeadline) {
                 earliestDeadline = job.absoluteDeadline;
+                targetJob = job;
+            } else if ((job.absoluteDeadline == earliestDeadline) && (job.task.getPeriod() < targetJob.task.getPeriod())) {
+                // When two jobs have the same absolute deadline, we choose the one with the smallest period
+                // (to make the behavior consistent.)
                 targetJob = job;
             }
         }
@@ -48,7 +51,7 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
             return targetJob;
 
         /* No job is active at this given tick point, so let's check who is the first job in the future. */
-        return getEarliestArrivedJob();
+        return getEarliestArrivedJobWithCloserDeadline();
     }
 
     @Override
@@ -71,6 +74,21 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
             }
         }
         return earliestPreemptingJob;
+    }
+
+
+    protected Job getEarliestArrivedJobWithCloserDeadline() {
+        Job targetJob = null;
+        long earliestNextReleaseTime = Long.MAX_VALUE;
+        for (Job job: nextJobOfATask.values()) {
+            if (job.releaseTime < earliestNextReleaseTime) {
+                earliestNextReleaseTime = job.releaseTime;
+                targetJob = job;
+            } else if ((job.releaseTime == earliestNextReleaseTime) && (job.absoluteDeadline < targetJob.absoluteDeadline)) {
+                targetJob = job;
+            }
+        }
+        return targetJob;
     }
 
 }

@@ -95,17 +95,6 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
         }
     }
 
-    protected Job getEarliestArrivedJob() {
-        Job targetJob = null;
-        long earliestNextReleaseTime = Long.MAX_VALUE;
-        for (Job job: nextJobOfATask.values()) {
-            if (job.releaseTime < earliestNextReleaseTime) {
-                earliestNextReleaseTime = job.releaseTime;
-                targetJob = job;
-            }
-        }
-        return targetJob;
-    }
 
     protected long runJobToNextSchedulingPoint(long tick, Job runJob) {
         /* Find if there is any job preempting the runJob. */
@@ -134,6 +123,11 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
         } else {
             /* This job is preempted. */
             long earliestPreemptingJobReleaseTime = earliestPreemptingJob.releaseTime;
+
+            if (earliestPreemptingJobReleaseTime == tick) {
+                throw new AssertionError("A job gets preempted at the same tick when it's being selected to execute.");
+                //return earliestPreemptingJobReleaseTime;
+            }
 
             // runJob will be preempted before it's finished, so update runJob's remaining execution time.
             runJob.remainingExecTime -= (earliestPreemptingJobReleaseTime - tick);

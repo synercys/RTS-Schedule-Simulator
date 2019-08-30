@@ -42,7 +42,7 @@ public class FixedPriorityScheduler extends AdvanceableSchedulerSimulator {
             return targetJob;
 
         /* No job is active at this given tick point, so let's check who is the first job in the future. */
-        return getEarliestArrivedJob();
+        return getEarliestArrivedHigherPriorityJob();
     }
 
     @Override
@@ -65,6 +65,20 @@ public class FixedPriorityScheduler extends AdvanceableSchedulerSimulator {
             }
         }
         return earliestPreemptingJob;
+    }
+
+    protected Job getEarliestArrivedHigherPriorityJob() {
+        Job targetJob = null;
+        long earliestNextReleaseTime = Long.MAX_VALUE;
+        for (Job job: nextJobOfATask.values()) {
+            if (job.releaseTime < earliestNextReleaseTime) {
+                earliestNextReleaseTime = job.releaseTime;
+                targetJob = job;
+            } else if ((job.releaseTime == earliestNextReleaseTime) && (job.task.getPriority() > targetJob.task.getPriority())) {
+                targetJob = job;
+            }
+        }
+        return targetJob;
     }
 
 }
