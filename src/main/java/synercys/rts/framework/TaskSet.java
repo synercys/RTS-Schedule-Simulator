@@ -433,6 +433,20 @@ public class TaskSet {
         return largestPeriod;
     }
 
+    public Task getLargestPeriodTask() {
+        Task largestPeriodTask = null;
+        boolean firstLoop = true;
+        for (Task thisTask : getAppTasksAsArray()) {
+            if (firstLoop) {
+                largestPeriodTask = thisTask;
+                firstLoop = false;
+                continue;
+            }
+            largestPeriodTask = (thisTask.getPeriod()>largestPeriodTask.getPeriod()) ? thisTask : largestPeriodTask;
+        }
+        return largestPeriodTask;
+    }
+
     public Boolean hasHarmonicPeriods() {
         for (Task taskA: getAppTasksAsArray()) {
             for (Task taskB: getAppTasksAsArray()) {
