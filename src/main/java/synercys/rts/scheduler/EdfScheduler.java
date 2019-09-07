@@ -22,7 +22,9 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
     }
 
     @Override
-    protected void setTaskSetHook() {}
+    protected void setTaskSetHook() {
+        calculateAndSetWCRT(taskSet);
+    }
 
     /**
      * This function returns the earliest due job in the run queue or the next future released job if no job
