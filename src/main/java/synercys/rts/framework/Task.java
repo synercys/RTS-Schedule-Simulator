@@ -4,7 +4,11 @@ import synercys.rts.RtsConfig;
 import java.util.Formatter; // for formatting String
 
 /**
- * Created by CY on 2/13/17.
+ * Task.java
+ *
+ * @author CY Chen (cchen140@illinois.edu)
+ * @version 1.1 - 2019, 9/7
+ * @version 1.0 - 2017, 2/13
  */
 public class Task {
     public static String TASK_TYPE_UNKNOWN = "UNKNOWN";
@@ -23,7 +27,8 @@ public class Task {
     protected long period = 0;
     protected long deadline = 0;
 
-    protected long wcet = 0;
+    protected long wcet = 0;    // the worst case execution time
+    protected long wcrt = 0;    // the worst case response time
 
     //protected long execTime = 0;
 
@@ -146,6 +151,14 @@ public class Task {
 
     public void setWcet(long wcet) {
         this.wcet = wcet;
+    }
+
+    public long getWcrt() {
+        return wcrt;
+    }
+
+    public void setWcrt(long wcrt) {
+        this.wcrt = wcrt;
     }
 
     @Override
