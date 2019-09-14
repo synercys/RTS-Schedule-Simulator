@@ -129,7 +129,7 @@ public class RtSim implements Callable {
                     excelLogHandler.genSchedulerIntervalEventsOnLadderDiagram(eventContainer, optionLadderDiagramWidth);
                 } else {
                     // Output normal schedule format in a single row.
-                    excelLogHandler.genRowSchedulerIntervalEvents(eventContainer);
+                    excelLogHandler.genRowSchedulerIntervalEvents(eventContainer, true);
                 }
                 excelLogHandler.saveAndClose(thisOutputFileName);
             } else if (outputExtension.equalsIgnoreCase("rtschedule")) {

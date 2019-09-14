@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.*;
 
 import synercys.rts.framework.Histogram;
 import synercys.rts.framework.Interval;
+import synercys.rts.framework.Task;
 import synercys.rts.framework.event.BusyIntervalEvent;
 import synercys.rts.framework.event.BusyIntervalEventContainer;
 import synercys.rts.framework.event.EventContainer;
@@ -42,7 +43,7 @@ public class ExcelLogHandler {
         sheet = workbook.createSheet(sheetName);
     }
 
-    public void genRowSchedulerIntervalEvents(EventContainer inEvents) {
+    public void genRowSchedulerIntervalEvents(EventContainer inEvents, boolean showIndependentTaskSchedule) {
         Row row = sheet.createRow(rowIndex++);
 
         // Set title column.
@@ -50,14 +51,7 @@ public class ExcelLogHandler {
 
         /* Initialize all the cells with "0" */
         long eventContainerEndTimestamp = inEvents.getEndTimeStamp();
-        for (long i=0; i<eventContainerEndTimestamp; i++) {
-            if (i+columnOffset > EXCEL_COLUMN_LIMIT) {
-                // Do nothing if it exceeds excel's display limit.
-            } else {
-                Cell cell = row.createCell((int) (i + columnOffset));
-                cell.setCellValue(0);
-            }
-        }
+        createCellsAndSetValues(row, eventContainerEndTimestamp, 0);
 
         for (SchedulerIntervalEvent thisScheduleEvent : inEvents.getSchedulerEvents()) {
             for (long i=thisScheduleEvent.getOrgBeginTimestamp(); i<thisScheduleEvent.getOrgEndTimestamp(); i++) {
@@ -71,6 +65,69 @@ public class ExcelLogHandler {
                 }
             }
         }
+
+        /* display schedules for different tasks in separate rows */
+        if (showIndependentTaskSchedule) {
+            for (Task task : inEvents.getTaskSet().getAppTaskAsArraySortedByPeriod()) {
+                genRowTaskSchedule(inEvents, task);
+            }
+        }
+
+    }
+
+    public void genRowTaskSchedule(EventContainer eventContainer, Task task) {
+        Row row = sheet.createRow(rowIndex++);
+
+        // Set title column.
+        row.createCell(0).setCellValue(task.getTitle() + " (ID=" + task.getId() + ", T=" + task.getPeriod() + ")");
+
+        /* Initialize all the cells with "0" */
+        long eventContainerEndTimestamp = eventContainer.getEndTimeStamp();
+        createCellsAndSetValues(row, eventContainerEndTimestamp, null);
+
+        /* execution intervals */
+        for (SchedulerIntervalEvent thisScheduleEvent : eventContainer.getSchedulerEvents()) {
+            if (thisScheduleEvent.getTask() != task)
+                continue;
+
+            for (long i=thisScheduleEvent.getOrgBeginTimestamp(); i<thisScheduleEvent.getOrgEndTimestamp(); i++) {
+                if (i+columnOffset > EXCEL_COLUMN_LIMIT) {
+                    // Display nothing as it exceeds excel's display limit.
+                } else {
+                    //Cell cell = row.createCell((int) (i + columnOffset)); // Create a new cell
+                    Cell cell = row.getCell((int) (i + columnOffset));  // Obtain the existing cell
+
+                    if (thisScheduleEvent.getBeginTimeScheduleState()==SchedulerIntervalEvent.SCHEDULE_STATE_START && i==thisScheduleEvent.getOrgBeginTimestamp()) {
+                        cell.setCellValue(thisScheduleEvent.getTask().getId() + "*");
+                    } else {
+                        cell.setCellValue(thisScheduleEvent.getTask().getId());
+                    }
+
+                    setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
+                }
+            }
+        }
+
+        /* mark arrival time points (with using left boarders) */
+        long taskPhase = task.getInitialOffset();
+        long taskPeriod = task.getPeriod();
+        for (long i=taskPhase; i<eventContainerEndTimestamp && (i+columnOffset<EXCEL_COLUMN_LIMIT); i+=taskPeriod) {
+            Cell cell = row.getCell((int) (i + columnOffset));  // Obtain the existing cell
+
+            CellStyle style = cell.getCellStyle();
+
+            /* If the cell style is not set before, create a new instance.
+               Note that default cell style has zero index value.
+            */
+            if (style.getIndex() == 0) {
+                style = workbook.createCellStyle();
+            }
+
+            style.setBorderLeft(BorderStyle.THICK);
+            style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+            cell.setCellStyle(style);
+        }
+
     }
 
     public void genSchedulerIntervalEventsOnLadderDiagram(EventContainer eventContainer, long ladderWidth) {
@@ -204,6 +261,21 @@ public class ExcelLogHandler {
         }
     }
 
+    protected void createCellsAndSetValues(Row row, long length, Integer value) {
+        if (row == null)
+            return;
+
+        /* Initialize all the cells with "0" */
+        for (long i=0; i<length; i++) {
+            if (i+columnOffset > EXCEL_COLUMN_LIMIT) {
+                // Do nothing if it exceeds excel's display limit.
+            } else {
+                Cell cell = row.createCell((int) (i + columnOffset));
+                if (value != null)
+                    cell.setCellValue(value);
+            }
+        }
+    }
 
     private void setCellColor(Cell inCell, short inColorIndex) {
         XSSFCellStyle cellStyle = workbook.createCellStyle();
