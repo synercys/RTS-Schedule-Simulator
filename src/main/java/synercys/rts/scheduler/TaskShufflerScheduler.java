@@ -12,11 +12,9 @@ import java.util.Random;
 import static synercys.rts.framework.TaskSet.myCeil;
 
 public class TaskShufflerScheduler extends FixedPriorityScheduler {
-    protected static String SHUFFLE_MODE_NORMAL = "normal";
-    protected static String SHUFFLE_MODE_WITH_IDLE = "withIdle";
-    protected static String SHUFFLE_MODE_FINE_GRAINED = "fineGrained";
 
-    protected String shuffleMode = SHUFFLE_MODE_WITH_IDLE;
+    protected boolean idleTimeShuffleEnabled = true;
+    protected boolean fineGrainedShuffleEnabled = true;
 
     protected HashMap<Task, Long> taskWCIB = new HashMap<>(); // each task's worst case maximum inversion budget
     protected HashMap<Task, Long> jobRIB = new HashMap<>(); // each task's current job's remaining inversion budget
@@ -43,65 +41,64 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
     protected Job getNextJob(long tick) {
         ArrayList<Job> candidateJobs = new ArrayList<>();
         Job nextJob = null;
-        if ((shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) || (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_WITH_IDLE))) {
 
-            /* Step 1: get the highest priority task and check */
-            Job topPriorityJob = getNextJobInReadyQueue(tick);
-            if (topPriorityJob == null) {
-                /* No job is active at this given tick point, so let's move to the first arrived job in the future. */
-                topPriorityJob = getEarliestArrivedHigherPriorityJob();
-                tick = topPriorityJob.releaseTime;
-            }
+        /* Step 1: get the highest priority task and check */
+        Job topPriorityJob = getNextJobInReadyQueue(tick);
+        if (topPriorityJob == null) {
+            /* No job is active at this given tick point, so let's move to the first arrived job in the future. */
+            topPriorityJob = getEarliestArrivedHigherPriorityJob();
+            tick = topPriorityJob.releaseTime;
+        }
 
-            if (getJobRIB(topPriorityJob) <= 0) {
-                /* No priority inversion is allowed. */
+        if (getJobRIB(topPriorityJob) <= 0) {
+            /* No priority inversion is allowed. */
+            return topPriorityJob;
+        }
+
+        /* Step 1-a and 1-b: construct candidate list */
+        ArrayList<Job> readyJobs = getAllReadyJobs(tick);
+        if (idleTimeShuffleEnabled == false) {
+            if (readyJobs.size() == 1) {
+                // There is only one job (the highest priority job) in the ready queue.
                 return topPriorityJob;
             }
-
-            /* Step 1-a and 1-b: construct candidate list */
-            ArrayList<Job> readyJobs = getAllReadyJobs(tick);
-            if (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) {
-                if (readyJobs.size() == 1) {
-                    // There is only one job (the highest priority job) in the ready queue.
-                    return topPriorityJob;
-                }
-            }
-
-            int topPriorityWithZeroRIB = 0;
-            Job topPriorityJobWithZeroRIB = findTopPriorityJobWithZeroRIB(readyJobs);
-            if (topPriorityJobWithZeroRIB != null)
-                topPriorityWithZeroRIB = topPriorityJobWithZeroRIB.task.getPriority();
-
-            int topPriorityJobM = taskM.get(topPriorityJob.task);
-
-            for (Job job : readyJobs) {
-                int thisJobPriority = job.task.getPriority();
-                if ((thisJobPriority>=topPriorityWithZeroRIB) && (thisJobPriority>=topPriorityJobM)) {
-                    candidateJobs.add(job);
-                }
-            }
-
-            if (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_WITH_IDLE)) {
-                if ((readyJobs.size()==candidateJobs.size()) && (topPriorityWithZeroRIB==0)) {
-                    /* All jobs in the ready queue are open to priority inversion, so let's add the idle job to the candidate list. */
-                    long smallestRIB = -1;
-                    for (Job job : readyJobs) {
-                        if (smallestRIB == -1)
-                            smallestRIB = jobRIB.get(job.task);
-                        else
-                            smallestRIB = smallestRIB<jobRIB.get(job.task) ? smallestRIB : jobRIB.get(job.task);
-                    }
-                    // Making the remaining execution time as smallestRIB+1 ensures that the idle job will be preempted.
-                    Job dummyIdleTaskJob = new Job(taskSet.getIdleTask(), tick, smallestRIB+1);
-                    dummyIdleTaskJob.hasStarted = true;
-                    candidateJobs.add(dummyIdleTaskJob);
-                }
-            }
-
-            /* Step 2: randomly pick one job from the list */
-            int randomSelectionIndex = getRandomInt(0, candidateJobs.size()-1);
-            nextJob = candidateJobs.get(randomSelectionIndex);
         }
+
+        int topPriorityWithZeroRIB = 0;
+        Job topPriorityJobWithZeroRIB = findTopPriorityJobWithZeroRIB(readyJobs);
+        if (topPriorityJobWithZeroRIB != null)
+            topPriorityWithZeroRIB = topPriorityJobWithZeroRIB.task.getPriority();
+
+        int topPriorityJobM = taskM.get(topPriorityJob.task);
+
+        for (Job job : readyJobs) {
+            int thisJobPriority = job.task.getPriority();
+            if ((thisJobPriority>=topPriorityWithZeroRIB) && (thisJobPriority>=topPriorityJobM)) {
+                candidateJobs.add(job);
+            }
+        }
+
+        if (idleTimeShuffleEnabled) {
+            if ((readyJobs.size()==candidateJobs.size()) && (topPriorityWithZeroRIB==0)) {
+                /* All jobs in the ready queue are open to priority inversion, so let's add the idle job to the candidate list. */
+                long smallestRIB = -1;
+                for (Job job : readyJobs) {
+                    if (smallestRIB == -1)
+                        smallestRIB = jobRIB.get(job.task);
+                    else
+                        smallestRIB = smallestRIB<jobRIB.get(job.task) ? smallestRIB : jobRIB.get(job.task);
+                }
+                // Making the remaining execution time as smallestRIB+1 ensures that the idle job will be preempted.
+                Job dummyIdleTaskJob = new Job(taskSet.getIdleTask(), tick, smallestRIB+1);
+                dummyIdleTaskJob.hasStarted = true;
+                candidateJobs.add(dummyIdleTaskJob);
+            }
+        }
+
+        /* Step 2: randomly pick one job from the list */
+        int randomSelectionIndex = getRandomInt(0, candidateJobs.size()-1);
+        nextJob = candidateJobs.get(randomSelectionIndex);
+
         return nextJob;
     }
 
@@ -134,44 +131,57 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
     @Override
     protected long getPreemptingTick(Job runJob, long tick) {
         long preemptingTick = -1;
-        if ((shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) || (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_WITH_IDLE))) {
-            /* a preempting point (or say scheduling point) occurs when:
-             *  1. RIB of any job in current ready queue being priority-inversed becomes 0.
-             *  2. Literally some higher priority jobs arrive (as the original FP scheduling)
-             *  (3. when runJob itself is finished -- this is not preempting, thus is not handled here)
-             */
 
-            /* Check condition 1 -- RIB of jobs in the ready queue. */
-            for (Job job : getAllReadyJobs(tick)) {
-                if (job.task.getPriority()>runJob.task.getPriority()) {
-                    if (getJobRIB(job) < runJob.remainingExecTime) {
-                        if (preemptingTick == -1)
-                            preemptingTick = tick + getJobRIB(job);
-                        else
-                            preemptingTick = preemptingTick<(tick+getJobRIB(job)) ? preemptingTick : (tick+getJobRIB(job));
+        /* a preempting point (or say scheduling point) occurs when:
+         *  1. RIB of any job in current ready queue being priority-inversed becomes 0.
+         *  2. Literally some higher priority jobs arrive (as the original FP scheduling)
+         *  (3. when runJob itself is finished -- this is not preempting, thus is not handled here)
+         */
+
+        /* Check condition 1 -- RIB of jobs in the ready queue. */
+        for (Job job : getAllReadyJobs(tick)) {
+            if (job.task.getPriority()>runJob.task.getPriority()) {
+                if (getJobRIB(job) < runJob.remainingExecTime) {
+                    if (preemptingTick == -1)
+                        preemptingTick = tick + getJobRIB(job);
+                    else
+                        preemptingTick = preemptingTick<(tick+getJobRIB(job)) ? preemptingTick : (tick+getJobRIB(job));
+                }
+            }
+        }
+
+        /* Now check if any job arrives before that RIB becomes 0 (if any) and after present tick.
+         * Note that the jobs arrived before present tick do not preempt (except for RIB==0) the current job
+         * as thy were chosen to be priority-inversed when the current job was selected to run.
+         */
+        long maxPreemptingTick = preemptingTick!=-1 ? preemptingTick : (tick+runJob.remainingExecTime);
+        for (Job job: nextJobOfATask.values()) {
+            if (job == runJob)
+                continue;
+
+            if ((job.releaseTime>tick) && (job.releaseTime<maxPreemptingTick)) {
+                /* Here is a new arrival! */
+                if (preemptingTick==-1)
+                    preemptingTick = job.releaseTime;
+                else
+                    preemptingTick = preemptingTick<job.releaseTime ? preemptingTick : job.releaseTime;
+            }
+        }
+
+        if (fineGrainedShuffleEnabled) {
+            if (preemptingTick == -1) {
+                //TODO: Check if the dummy idle job would reach here.
+                if (runJob.remainingExecTime > 1) {
+                    preemptingTick = tick + getRandomInt(1, (int)runJob.remainingExecTime);
+                    if (preemptingTick == (tick+runJob.remainingExecTime)) {
+                        preemptingTick = -1;
                     }
                 }
+            } else {
+                preemptingTick = tick + getRandomInt(1, (int)(preemptingTick-tick));
             }
-
-            /* Now check if any job arrives before that RIB becomes 0 (if any) and after present tick.
-             * Note that the jobs arrived before present tick do not preempt (except for RIB==0) the current job
-             * as thy were chosen to be priority-inversed when the current job was selected to run.
-             */
-            long maxPreemptingTick = preemptingTick!=-1 ? preemptingTick : (tick+runJob.remainingExecTime);
-            for (Job job: nextJobOfATask.values()) {
-                if (job == runJob)
-                    continue;
-
-                if ((job.releaseTime>tick) && (job.releaseTime<maxPreemptingTick)) {
-                    /* Here is a new arrival! */
-                    if (preemptingTick==-1)
-                        preemptingTick = job.releaseTime;
-                    else
-                        preemptingTick = preemptingTick<job.releaseTime ? preemptingTick : job.releaseTime;
-                }
-            }
-
         }
+
         return preemptingTick;
     }
 
