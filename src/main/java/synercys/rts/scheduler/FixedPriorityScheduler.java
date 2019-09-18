@@ -2,9 +2,7 @@ package synercys.rts.scheduler;
 
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.Job;
-import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import java.util.HashMap;
 
 /**
  * FixedPriorityScheduler.java
@@ -27,6 +25,20 @@ public class FixedPriorityScheduler extends AdvanceableSchedulerSimulator {
 
     @Override
     protected Job getNextJob(long tick) {
+        Job nextJob = getNextJobInReadyQueue(tick);
+        if (nextJob == null) {
+            /* No job is active at this given tick point, so let's check who is the first job in the future. */
+            nextJob = getEarliestArrivedHigherPriorityJob();
+        }
+        return nextJob;
+    }
+
+    /**
+     * Get the highest priority job in the ready queue. Return null if the ready queue is empty.
+     * @param tick current tick
+     * @return the highest priority job in the ready queue or null if the ready queue is empty
+     */
+    protected Job getNextJobInReadyQueue(long tick) {
         Job targetJob = null;
         int highestActivePriority = 0;
 
@@ -38,15 +50,19 @@ public class FixedPriorityScheduler extends AdvanceableSchedulerSimulator {
                 targetJob = job;
             }
         }
-        if (targetJob != null)
-            return targetJob;
-
-        /* No job is active at this given tick point, so let's check who is the first job in the future. */
-        return getEarliestArrivedHigherPriorityJob();
+        return targetJob;
     }
 
     @Override
-    protected Job getPreemptingJob(Job runJob) {
+    protected long getPreemptingTick(Job runJob, long tick) {
+        Job preemptingJob = getPreemptingJob(runJob, tick);
+        if (preemptingJob == null)
+            return -1;
+        else
+            return preemptingJob.releaseTime;
+    }
+
+    protected Job getPreemptingJob(Job runJob, long tick) {
         /* Find if there is any job preempting the runJob. */
         long earliestPreemptingJobReleaseTime = Long.MAX_VALUE;
         Job earliestPreemptingJob = null;
@@ -65,6 +81,11 @@ public class FixedPriorityScheduler extends AdvanceableSchedulerSimulator {
             }
         }
         return earliestPreemptingJob;
+    }
+
+    @Override
+    protected void runJobExecutedHook(Job job, long tick, long executedTime) {
+
     }
 
     protected Job getEarliestArrivedHigherPriorityJob() {

@@ -30,7 +30,9 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
     }
 
     abstract protected Job getNextJob(long tick);
-    abstract protected Job getPreemptingJob(Job runJob);
+    abstract protected long getPreemptingTick(Job runJob, long tick);
+    abstract protected void runJobExecutedHook(Job runJob, long tick, long executedTime);
+
 
     @Override
     public EventContainer runSim(long tickLimit) {
@@ -98,13 +100,14 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
 
     protected long runJobToNextSchedulingPoint(long tick, Job runJob) {
         /* Find if there is any job preempting the runJob. */
-        Job earliestPreemptingJob = getPreemptingJob(runJob);
+        long earliestPreemptingTick = getPreemptingTick(runJob, tick);
 
         // Check if any new job will preempt runJob.
-        if (earliestPreemptingJob == null) {
+        if (earliestPreemptingTick == -1) { // -1 indicates that the current job will not be preempted
             /* This job is finished. */
             long runJobFinishTime = tick + runJob.remainingExecTime;
             runJob.remainingExecTime = 0;
+            runJobExecutedHook(runJob, runJobFinishTime,runJobFinishTime - tick);
 
             /* Log the job interval. */
             SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, runJobFinishTime, runJob.task, "");
@@ -122,18 +125,20 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
             return runJobFinishTime;
         } else {
             /* This job is preempted. */
-            long earliestPreemptingJobReleaseTime = earliestPreemptingJob.releaseTime;
 
-            if (earliestPreemptingJobReleaseTime == tick) {
+            if (earliestPreemptingTick == tick) {
                 throw new AssertionError("A job gets preempted at the same tick when it's being selected to execute.");
                 //return earliestPreemptingJobReleaseTime;
+            } else if (earliestPreemptingTick < tick) {
+                throw new AssertionError("Next preempting tick is smaller than the present tick.");
             }
 
             // runJob will be preempted before it's finished, so update runJob's remaining execution time.
-            runJob.remainingExecTime -= (earliestPreemptingJobReleaseTime - tick);
+            runJob.remainingExecTime -= (earliestPreemptingTick - tick);
+            runJobExecutedHook(runJob, earliestPreemptingTick, earliestPreemptingTick - tick);
 
             /* Log the job interval. */
-            SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, earliestPreemptingJobReleaseTime, runJob.task, "");
+            SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, earliestPreemptingTick, runJob.task, "");
             if ( runJob.hasStarted == false ) { // Check this job's starting state.
                 runJob.hasStarted = true;
                 currentJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_START, SchedulerIntervalEvent.SCHEDULE_STATE_SUSPEND);
@@ -142,7 +147,8 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
             }
             simEventContainer.add(currentJobEvent);
 
-            return earliestPreemptingJobReleaseTime;
+            return earliestPreemptingTick;
         }
     }
+
 }

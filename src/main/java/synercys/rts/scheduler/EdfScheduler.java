@@ -58,7 +58,15 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
     }
 
     @Override
-    protected Job getPreemptingJob(Job runJob) {
+    protected long getPreemptingTick(Job runJob, long tick) {
+        Job preemptingJob = getPreemptingJob(runJob, tick);
+        if (preemptingJob == null)
+            return -1;
+        else
+            return preemptingJob.releaseTime;
+    }
+
+    protected Job getPreemptingJob(Job runJob, long tick) {
         /* Find if there is any job preempting the runJob. */
         long earliestPreemptingJobReleaseTime = Long.MAX_VALUE;
         Job earliestPreemptingJob = null;
@@ -77,6 +85,11 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
             }
         }
         return earliestPreemptingJob;
+    }
+
+    @Override
+    protected void runJobExecutedHook(Job job, long tick, long executedTime) {
+
     }
 
 

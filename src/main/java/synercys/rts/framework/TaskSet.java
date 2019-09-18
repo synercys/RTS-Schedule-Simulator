@@ -381,7 +381,7 @@ public class TaskSet {
 
 
     // Code from Man-Ki
-    double myCeil(double val) {
+    public static double myCeil(double val) {
         double diff = Math.ceil(val) - val;
         if (diff > 0.99999) {
             //ProgMsg.errPutline("###" + (val) + "###\t\t " + Math.ceil(val));

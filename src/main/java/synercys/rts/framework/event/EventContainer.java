@@ -11,7 +11,9 @@ import java.util.ArrayList;
 public class EventContainer {
     public static String SCHEDULING_POLICY_UNKNOWN = "unknown";
     public static String SCHEDULING_POLICY_FIXED_PRIORITY = "fixedPriority";
+    public static String SCHEDULING_POLICY_TASKSHUFFLER = "taskShuffler";   // Randomization protocol for FP
     public static String SCHEDULING_POLICY_EDF = "edf";
+    public static String SCHEDULING_POLICY_REORDER = "reorder"; // Randomization protocol for EDF
 
     public static final int SCHEDULER_EVENT = 0;
     public static final int INSTANT_EVENT = 1;
