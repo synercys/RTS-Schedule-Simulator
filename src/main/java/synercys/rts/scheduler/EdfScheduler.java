@@ -265,37 +265,4 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
         }
     }
 
-
-    /* CAUTION: This is implemented based on REORDER for study only.
-     * W_i(t) = [floor(t/Ti) + 1]*Ci + I_i(t)
-     * Note: It is to compute the $L_i(a)$ term in Spuri's paper.
-     */
-    @Deprecated
-    private static long REORDER_calculateWorkloadUpToGivenInclusiveArrivalInstance(TaskSet taskSet, Task task, long t) {
-        return (long)(Math.floor((double)t/task.getPeriod())+1)*task.getWcet() + REORDER_calculateInterferenceForTaskAtGivenTimePoint(taskSet, task, t);
-    }
-
-
-    /* CAUTION: This is implemented based on REORDER for study only.
-     * Given task i (task_index), compute the upper bound of the experienced interference:
-     * I_i(t) = sum{ min[ceil(Di/Tj)+1, 1+floor[(t+Di-Dj)/Tj]+1] * Cj} | j~=i, Dj <= t+Di
-     */
-    @Deprecated
-    private static long REORDER_calculateInterferenceForTaskAtGivenTimePoint(TaskSet taskSet, Task task, long t) {
-        long Di = task.getDeadline();
-        long interference = 0;
-        for (Task jTask : taskSet.getAppTasksAsArray()) {
-            long Dj = jTask.getDeadline();
-            long Tj = jTask.getPeriod();
-            long Cj = jTask.getWcet();
-            if ( (jTask==task) || (Dj>(t+Di)))
-                continue;
-
-            interference += Cj*Math.min(
-                    Math.ceil((double)Di/Tj)+1,
-                    1+Math.floor((t+Di-Dj)/Tj)+1);
-        }
-        return interference;
-    }
-
 }
