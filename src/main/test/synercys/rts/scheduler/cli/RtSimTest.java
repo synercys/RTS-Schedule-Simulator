@@ -11,4 +11,10 @@ class RtSimTest {
         String argString = "-i sampleLogs/5tasks.tasksets -d 10000 -p RM";
         RtSim.main(argString.split(" "));
     }
+
+    @Test
+    void testTaskShuffler() {
+        String argString = "-i sampleLogs/5tasks.tasksets -d 10000 -p taskshuffler";
+        RtSim.main(argString.split(" "));
+    }
 }

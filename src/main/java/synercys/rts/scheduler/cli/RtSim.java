@@ -10,6 +10,7 @@ import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.EdfScheduler;
 import synercys.rts.scheduler.FixedPriorityScheduler;
 import synercys.rts.scheduler.TaskSetContainer;
+import synercys.rts.scheduler.TaskShufflerScheduler;
 import synercys.rts.util.*;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class RtSim implements Callable {
     @Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")
     protected List<String> outputFilePathAndFormat = new ArrayList<>();
 
-    @Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\" or \"RM\").")
+    @Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\", \"RM\", \"TaskShuffler\" or \"ReOrder\").")
     protected String schedulingPolicy = "";
 
     @Option(names = {"-d", "--duration"}, required = true, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
@@ -168,6 +169,10 @@ public class RtSim implements Callable {
             loggerConsole.info("EDF selected.");
             EdfScheduler edfSimulator = new EdfScheduler(taskSet, optionExecutionVariation);
             eventContainer = edfSimulator.runSim(simDuration);
+        } else if (schedulingPolicy.equalsIgnoreCase("TaskShuffler")) { // TaskShuffler
+            loggerConsole.info("TaskShuffler selected.");
+            TaskShufflerScheduler taskShufflerSimulator = new TaskShufflerScheduler(taskSet, optionExecutionVariation);
+            eventContainer = taskShufflerSimulator.runSim(simDuration);
         } else {
             eventContainer = null;
         }
