@@ -16,7 +16,7 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
     protected static String SHUFFLE_MODE_WITH_IDLE = "withIdle";
     protected static String SHUFFLE_MODE_FINE_GRAINED = "fineGrained";
 
-    protected String shuffleMode = SHUFFLE_MODE_NORMAL;
+    protected String shuffleMode = SHUFFLE_MODE_WITH_IDLE;
 
     protected HashMap<Task, Long> taskWCIB = new HashMap<>(); // each task's worst case maximum inversion budget
     protected HashMap<Task, Long> jobRIB = new HashMap<>(); // each task's current job's remaining inversion budget
@@ -43,13 +43,14 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
     protected Job getNextJob(long tick) {
         ArrayList<Job> candidateJobs = new ArrayList<>();
         Job nextJob = null;
-        if (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) {
+        if ((shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) || (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_WITH_IDLE))) {
 
             /* Step 1: get the highest priority task and check */
             Job topPriorityJob = getNextJobInReadyQueue(tick);
             if (topPriorityJob == null) {
-                /* No job is active at this given tick point, so let's return the first arrived job in the future. */
-                return getEarliestArrivedHigherPriorityJob();
+                /* No job is active at this given tick point, so let's move to the first arrived job in the future. */
+                topPriorityJob = getEarliestArrivedHigherPriorityJob();
+                tick = topPriorityJob.releaseTime;
             }
 
             if (getJobRIB(topPriorityJob) <= 0) {
@@ -59,9 +60,11 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
 
             /* Step 1-a and 1-b: construct candidate list */
             ArrayList<Job> readyJobs = getAllReadyJobs(tick);
-            if (readyJobs.size() == 1) {
-                // There is only one job (the highest priority job) in the ready queue.
-                return topPriorityJob;
+            if (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) {
+                if (readyJobs.size() == 1) {
+                    // There is only one job (the highest priority job) in the ready queue.
+                    return topPriorityJob;
+                }
             }
 
             int topPriorityWithZeroRIB = 0;
@@ -78,11 +81,26 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
                 }
             }
 
+            if (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_WITH_IDLE)) {
+                if ((readyJobs.size()==candidateJobs.size()) && (topPriorityWithZeroRIB==0)) {
+                    /* All jobs in the ready queue are open to priority inversion, so let's add the idle job to the candidate list. */
+                    long smallestRIB = -1;
+                    for (Job job : readyJobs) {
+                        if (smallestRIB == -1)
+                            smallestRIB = jobRIB.get(job.task);
+                        else
+                            smallestRIB = smallestRIB<jobRIB.get(job.task) ? smallestRIB : jobRIB.get(job.task);
+                    }
+                    // Making the remaining execution time as smallestRIB+1 ensures that the idle job will be preempted.
+                    Job dummyIdleTaskJob = new Job(taskSet.getIdleTask(), tick, smallestRIB+1);
+                    dummyIdleTaskJob.hasStarted = true;
+                    candidateJobs.add(dummyIdleTaskJob);
+                }
+            }
+
             /* Step 2: randomly pick one job from the list */
             int randomSelectionIndex = getRandomInt(0, candidateJobs.size()-1);
             nextJob = candidateJobs.get(randomSelectionIndex);
-        } else if (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_WITH_IDLE)) {
-
         }
         return nextJob;
     }
@@ -116,7 +134,7 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
     @Override
     protected long getPreemptingTick(Job runJob, long tick) {
         long preemptingTick = -1;
-        if (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) {
+        if ((shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_NORMAL)) || (shuffleMode.equalsIgnoreCase(SHUFFLE_MODE_WITH_IDLE))) {
             /* a preempting point (or say scheduling point) occurs when:
              *  1. RIB of any job in current ready queue being priority-inversed becomes 0.
              *  2. Literally some higher priority jobs arrive (as the original FP scheduling)
@@ -159,7 +177,6 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
 
     @Override
     protected void runJobExecutedHook(Job runJob, long tick, long executedTime) {
-        //TODO: if it's idle task, then we don't decrease the RIB (check if it's correct)
         for (Job job : getAllReadyJobs(tick-executedTime)) {
             if (runJob == job)
                 continue;
