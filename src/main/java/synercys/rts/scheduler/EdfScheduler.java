@@ -34,6 +34,15 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
      */
     @Override
     protected Job getNextJob(long tick) {
+        Job nextJob = getNextJobInReadyQueue(tick);
+        if (nextJob == null) {
+            /* No job is active at this given tick point, so let's check who is the first job in the future. */
+            nextJob = getEarliestArrivedJobWithCloserDeadline();
+        }
+        return nextJob;
+    }
+
+    protected Job getNextJobInReadyQueue(long tick) {
         long earliestDeadline = Long.MAX_VALUE;
         Job targetJob = null;
         for (Job job: nextJobOfATask.values()) {
@@ -49,12 +58,7 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
                 targetJob = job;
             }
         }
-
-        if (targetJob != null)
-            return targetJob;
-
-        /* No job is active at this given tick point, so let's check who is the first job in the future. */
-        return getEarliestArrivedJobWithCloserDeadline();
+        return targetJob;
     }
 
     @Override

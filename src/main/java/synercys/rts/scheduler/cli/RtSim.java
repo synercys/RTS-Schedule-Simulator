@@ -7,10 +7,7 @@ import picocli.CommandLine.*;
 import synercys.rts.framework.event.BusyIntervalEventContainer;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.scheduler.EdfScheduler;
-import synercys.rts.scheduler.FixedPriorityScheduler;
-import synercys.rts.scheduler.TaskSetContainer;
-import synercys.rts.scheduler.TaskShufflerScheduler;
+import synercys.rts.scheduler.*;
 import synercys.rts.util.*;
 
 import java.util.ArrayList;
@@ -173,6 +170,10 @@ public class RtSim implements Callable {
             loggerConsole.info("TaskShuffler selected.");
             TaskShufflerScheduler taskShufflerSimulator = new TaskShufflerScheduler(taskSet, optionExecutionVariation);
             eventContainer = taskShufflerSimulator.runSim(simDuration);
+        } else if (schedulingPolicy.equalsIgnoreCase("Reorder")) { // ReOrder
+            loggerConsole.info("ReOrder selected.");
+            ReorderScheduler reorderSchedulerSimulator = new ReorderScheduler(taskSet, optionExecutionVariation);
+            eventContainer = reorderSchedulerSimulator.runSim(simDuration);
         } else {
             eventContainer = null;
         }

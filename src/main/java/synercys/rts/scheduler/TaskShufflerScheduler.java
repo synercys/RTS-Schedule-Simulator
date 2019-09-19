@@ -102,17 +102,6 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
         return nextJob;
     }
 
-    protected ArrayList<Job> getAllReadyJobs(long tick) {
-        ArrayList<Job> readyJobs = new ArrayList<>();
-        for (Job job : nextJobOfATask.values()) {
-            if (job.releaseTime > tick)
-                continue;
-            else {
-                readyJobs.add(job);
-            }
-        }
-        return readyJobs;
-    }
 
     protected Job findTopPriorityJobWithZeroRIB(ArrayList<Job> jobs) {
         Job topPriorityJobWithZeroRIB = null;

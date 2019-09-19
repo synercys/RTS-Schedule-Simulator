@@ -17,4 +17,10 @@ class RtSimTest {
         String argString = "-i sampleLogs/5tasks.tasksets -d 10000 -p taskshuffler";
         RtSim.main(argString.split(" "));
     }
+
+    @Test
+    void testReorder() {
+        String argString = "-i sampleLogs/5tasks.tasksets -d 10000 -p reorder";
+        RtSim.main(argString.split(" "));
+    }
 }

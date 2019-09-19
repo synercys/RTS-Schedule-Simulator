@@ -1,9 +1,11 @@
 package synercys.rts.scheduler;
 
+import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.framework.event.EventContainer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -11,6 +13,7 @@ public class ReorderScheduler extends EdfScheduler {
 
     protected boolean idleTimeShuffleEnabled = true;
     protected boolean fineGrainedShuffleEnabled = true;
+    protected boolean unusedTimeReclamationEnabled = true;
 
     protected HashMap<Task, Long> taskWCIB = new HashMap<>(); // each task's worst case maximum inversion budget
     protected HashMap<Task, Long> jobRIB = new HashMap<>(); // each task's current job's remaining inversion budget
@@ -29,6 +32,166 @@ public class ReorderScheduler extends EdfScheduler {
         }
 
     }
+
+
+    @Override
+    protected Job getNextJob(long tick) {
+        ArrayList<Job> candidateJobs = new ArrayList<>();
+        Job nextJob = null;
+
+        /* Step 1: check the top priority job and construct candidate list. */
+        Job topPriorityJob = getNextJobInReadyQueue(tick);
+        if (topPriorityJob == null) {
+            /* No job is active at this given tick point, so let's move to the first arrived job in the future. */
+            topPriorityJob = getEarliestArrivedJobWithCloserDeadline();
+            tick = topPriorityJob.releaseTime;
+        }
+
+        if (getJobRIB(topPriorityJob) <= 0) {
+            /* No priority inversion is allowed. */
+            return topPriorityJob;
+        }
+
+        ArrayList<Job> readyJobs = getAllReadyJobs(tick);
+        if (idleTimeShuffleEnabled == false) {
+            if (readyJobs.size() == 1) {
+                // There is only one job (the highest priority job) in the ready queue.
+                return topPriorityJob;
+            }
+        }
+
+        long topPriorityJobM = computeCurrentJobM(topPriorityJob, tick);
+        if (topPriorityJobM == -1) {
+            candidateJobs.addAll(readyJobs);
+        } else {
+            for (Job job : readyJobs) {
+                if (job.absoluteDeadline<=topPriorityJobM)
+                    candidateJobs.add(job);
+            }
+        }
+
+        if (idleTimeShuffleEnabled) {
+            if (topPriorityJobM==-1) {
+                /* All jobs in the ready queue are open to priority inversion, so let's add the idle job to the candidate list. */
+                long smallestRIB = -1;
+                for (Job job : readyJobs) {
+                    if (smallestRIB == -1)
+                        smallestRIB = jobRIB.get(job.task);
+                    else
+                        smallestRIB = smallestRIB<jobRIB.get(job.task) ? smallestRIB : jobRIB.get(job.task);
+                }
+                // Making the remaining execution time as smallestRIB+1 ensures that the idle job will be preempted.
+                Job dummyIdleTaskJob = new Job(taskSet.getIdleTask(), tick, smallestRIB+1);
+                dummyIdleTaskJob.hasStarted = true;
+                candidateJobs.add(dummyIdleTaskJob);
+            }
+        }
+
+        /* Step 2: randomly pick one job from the list */
+        int randomSelectionIndex = getRandomInt(0, candidateJobs.size()-1);
+        nextJob = candidateJobs.get(randomSelectionIndex);
+
+        return nextJob;
+
+    }
+
+    @Override
+    protected long getPreemptingTick(Job runJob, long tick) {
+        long preemptingTick = -1;
+
+        /* a preempting point (or say scheduling point) occurs when:
+         *  1. RIB of any job in current ready queue being priority-inversed becomes 0.
+         *  2. Literally some jobs arrive (as the original EDF scheduling)
+         *  (3. when runJob itself is finished -- this is not preempting, thus is not handled here)
+         */
+
+        /* Check condition 1 -- RIB of jobs in the ready queue. */
+        for (Job job : getAllReadyJobs(tick)) {
+            if (job == runJob)
+                continue;
+
+            if ((job.absoluteDeadline < runJob.absoluteDeadline) || (runJob.task.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE))) { // < is based on equation 2 in the REORDER paper
+                if (getJobRIB(job) < runJob.remainingExecTime) {
+                    if (preemptingTick == -1)
+                        preemptingTick = tick + getJobRIB(job);
+                    else
+                        preemptingTick = preemptingTick<(tick+getJobRIB(job)) ? preemptingTick : (tick+getJobRIB(job));
+                }
+            }
+        }
+
+        /* Now check if any job arrives before that RIB becomes 0 (if any) and after present tick.
+         * Note that the jobs arrived before present tick do not preempt (except for RIB==0) the current job
+         * as thy were chosen to be priority-inversed when the current job was selected to run.
+         */
+        long maxPreemptingTick = preemptingTick!=-1 ? preemptingTick : (tick+runJob.remainingExecTime);
+        for (Job job: nextJobOfATask.values()) {
+            if (job == runJob)
+                continue;
+
+            if ((job.releaseTime>tick) && (job.releaseTime<maxPreemptingTick)) {
+                /* Here is a new arrival! */
+                if (preemptingTick==-1)
+                    preemptingTick = job.releaseTime;
+                else
+                    preemptingTick = preemptingTick<job.releaseTime ? preemptingTick : job.releaseTime;
+            }
+        }
+
+        return preemptingTick;
+    }
+
+    @Override
+    protected void runJobExecutedHook(Job runJob, long tick, long executedTime) {
+        for (Job job : getAllReadyJobs(tick-executedTime)) {
+            if (runJob == job)
+                continue;
+
+            if ((job.absoluteDeadline<runJob.absoluteDeadline) || (runJob.task.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)))
+                consumeJobRIB(job, executedTime);
+        }
+    }
+
+    /* this is where a job is finished and RIB is refreshed. */
+    @Override
+    protected Job updateTaskJob(Task task) {
+        refreshTaskJobRIB(task);
+        return super.updateTaskJob(task);
+    }
+
+    protected long getJobRIB(Job job) {
+        return jobRIB.get(job.task);
+    }
+
+    protected void refreshTaskJobRIB(Task task) {
+        jobRIB.put(task, taskWCIB.get(task));
+    }
+
+
+    /**
+     * Compute the minimum inversion deadline for the given job. It is used to exclude jobs from priority inversion.
+     * No job has a higher deadline than jobM_i of the given job can be scheduled as long as this job_i has an unfinished job.
+     * @param job   the job_i
+     * @param tick  present tick
+     * @return  the minimum inversion deadline for job_i. -1 indicates that nothing needs to be excluded from priority inversion.
+     */
+    protected long computeCurrentJobM(Job job, long tick) {
+        ArrayList<Job> readyJobs = getAllReadyJobs(tick);
+        long jobM = -1;
+        for (Job jJob : readyJobs) {
+            if (jJob == job)
+                continue;
+
+            if ((jJob.absoluteDeadline>job.absoluteDeadline) && (getJobRIB(jJob)<=0)) { // TODO: Fix the equation at the top of page 4 with <= 0
+                if (jobM == -1)
+                    jobM = jJob.absoluteDeadline;
+                else
+                    jobM = jobM < jJob.absoluteDeadline ? jobM : jJob.absoluteDeadline;
+            }
+        }
+        return jobM;    // Note that jobM might be -1, which indicates that
+    }
+
 
     /* WCIB_i = D_i - R'_i
      * where R'_i is the +1 version of the WCRT
@@ -185,5 +348,22 @@ public class ReorderScheduler extends EdfScheduler {
                     1+Math.floor((t+Di-Dj)/Tj)+1);
         }
         return interference;
+    }
+
+    protected long consumeJobRIB(Job job, long consumedBudget) {
+        long updatedRIB = jobRIB.get(job.task) - consumedBudget;
+        jobRIB.put(job.task, updatedRIB);
+        return updatedRIB;
+    }
+
+    /**
+     * generate a random integer between inclusiveMin and inclusiveMax, both bounds are inclusive.
+     * @param inclusiveMin  the smallest possible number
+     * @param inclusiveMax  the largest possible number
+     * @return an integer between inclusiveMin and inclusiveMax, both bounds are inclusive
+     */
+    public int getRandomInt(int inclusiveMin, int inclusiveMax) {
+        // nextInt generates a number between 0 (inclusive) and the given number (exclusive).
+        return rand.nextInt(inclusiveMax - inclusiveMin + 1) + inclusiveMin;
     }
 }

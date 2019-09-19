@@ -6,6 +6,7 @@ import synercys.rts.framework.TaskSet;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.event.SchedulerIntervalEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -151,4 +152,15 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
         }
     }
 
+    protected ArrayList<Job> getAllReadyJobs(long tick) {
+        ArrayList<Job> readyJobs = new ArrayList<>();
+        for (Job job : nextJobOfATask.values()) {
+            if (job.releaseTime > tick)
+                continue;
+            else {
+                readyJobs.add(job);
+            }
+        }
+        return readyJobs;
+    }
 }
