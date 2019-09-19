@@ -329,7 +329,8 @@ public class ReorderScheduler extends EdfScheduler {
 
     /* CAUTION: This is implemented based on the REORDER paper.
      * Given task i (task_index), compute the upper bound of the experienced interference:
-     * I_i(t) = sum{ min[ceil(Di/Tj)+1, 1+floor[(t+Di-Dj)/Tj]+1] * Cj} | j~=i, Dj <= t+Di
+     * I_i(t) = sum{  [1+floor[(t+Di-Dj)/Tj]+1] * Cj } | j~=i, Dj <= t+Di
+     *         + sum{ Cj } | j~=i, Dj > t+Di
      */
     protected long REORDER_calculateInterferenceForTaskAtGivenTimePoint(Task task, long t) {
         long Di = task.getDeadline();
