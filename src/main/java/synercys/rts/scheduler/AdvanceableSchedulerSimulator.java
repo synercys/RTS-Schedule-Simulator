@@ -110,6 +110,10 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
             runJob.remainingExecTime = 0;
             runJobExecutedHook(runJob, runJobFinishTime,runJobFinishTime - tick);
 
+            if (runJobFinishTime > runJob.absoluteDeadline) {
+                throw new AssertionError("A job (" + runJob.task.toString() + ") missed its deadline: deadline=" + runJob.absoluteDeadline + ", finishedTime=" + runJobFinishTime);
+            }
+
             /* Log the job interval. */
             SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, runJobFinishTime, runJob.task, "");
             if ( runJob.hasStarted == false ) { // Check this job's starting state.
