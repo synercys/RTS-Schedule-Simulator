@@ -159,8 +159,7 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
 
         if (fineGrainedShuffleEnabled) {
             if (preemptingTick == -1) {
-                //TODO: Check if the dummy idle job would reach here.
-                if (runJob.remainingExecTime > 1) {
+                if ((runJob.remainingExecTime>1) && (getJobRIB(runJob)>0)) {
                     preemptingTick = tick + getRandomInt(1, (int)runJob.remainingExecTime);
                     if (preemptingTick == (tick+runJob.remainingExecTime)) {
                         preemptingTick = -1;
