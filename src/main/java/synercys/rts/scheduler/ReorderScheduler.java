@@ -225,14 +225,12 @@ public class ReorderScheduler extends EdfScheduler {
      * @return the response time of task_i arriving at time point a
      */
     protected long calculateTaskResponseTimeReleasedAtGivenTimePointWithPriorityInversion(Task task, long a) {
-        /* The following two calculation methods, one based on Spuri's WCRT analysis (with adding two +1 terms)
-         * and the other based on the REORDER paper, both yield the same result.
-         * REORDER calculation is more efficient as it takes the upper bound directly without needing a iteration loop. */
-
         // The following call uses traditional (Spuri's paper) WCRT analysis with minor modifications (two +1 terms)
+        // This does not consider the interference from lower priority jobs (Tj>Ti)
         // return Math.max(task.getWcet(), calculateWorkloadUpToGivenInclusiveArrivalInstanceWithPriorityInversion(task, a)-a);
 
         // The following call uses the WCRT equation given in the REORDER paper.
+        // ** Update 2019, 9/19: this call now explicitly includes the interference from lower priority jobs (Tj>Ti)
         return Math.max(task.getWcet(), REORDER_calculateWorkloadUpToGivenInclusiveArrivalInstance(task, a)-a);
     }
 
@@ -340,12 +338,14 @@ public class ReorderScheduler extends EdfScheduler {
             long Dj = jTask.getDeadline();
             long Tj = jTask.getPeriod();
             long Cj = jTask.getWcet();
-            if ( (jTask==task) || (Dj>(t+Di)))
+            if (jTask==task)
                 continue;
 
-            interference += Cj*Math.min(
-                    Math.ceil((double)Di/Tj)+1,
-                    1+Math.floor((t+Di-Dj)/Tj)+1);
+            if (Dj > (t+Di))
+                interference += Cj;
+            else {
+                interference += Cj * (1 + Math.floor((double) (t + Di - Dj) / Tj) + 1);
+            }
         }
         return interference;
     }
