@@ -73,6 +73,14 @@ public class Task {
         isSporadicTask = task.isSporadicTask;
     }
 
+    public boolean isAppTaskType() {
+        return taskType.equalsIgnoreCase(TASK_TYPE_APP);
+    }
+
+    public boolean isIdleTaskType() {
+        return taskType.equalsIgnoreCase(TASK_TYPE_IDLE);
+    }
+
     public boolean isSporadicTask() {
         return isSporadicTask;
     }

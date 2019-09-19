@@ -18,6 +18,9 @@ public class ReorderScheduler extends EdfScheduler {
     protected HashMap<Task, Long> taskWCIB = new HashMap<>(); // each task's worst case maximum inversion budget
     protected HashMap<Task, Long> jobRIB = new HashMap<>(); // each task's current job's remaining inversion budget
 
+    // This is only used when unusedTimeReclamationEnabled==true
+    protected HashMap<Task, Long> jobUnusedTime = new HashMap<>(); // each task's current job's unused time (WCETi - varied Ci)
+
     Random rand = new Random();
 
     public ReorderScheduler(TaskSet taskSet, boolean runTimeVariation) {
@@ -29,6 +32,13 @@ public class ReorderScheduler extends EdfScheduler {
         for (Task task : taskSet.getAppTasksAsArray()) {
             taskWCIB.put(task, computeTaskWCIB(task, LCap));
             jobRIB.put(task, taskWCIB.get(task));
+        }
+
+        /* initialize jobUnusedTime */
+        if (unusedTimeReclamationEnabled) {
+            for (Job job : nextJobOfATask.values()) {
+                jobUnusedTime.put(job.task, job.task.getWcrt()-job.remainingExecTime);
+            }
         }
 
     }
@@ -163,13 +173,32 @@ public class ReorderScheduler extends EdfScheduler {
             if ((job.absoluteDeadline<runJob.absoluteDeadline) || (runJob.task.getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)))
                 consumeJobRIB(job, executedTime);
         }
+
+        if (unusedTimeReclamationEnabled) {
+            if ((runJob.task.isIdleTaskType()==false) && (runJob.remainingExecTime==0)) {
+                /* this runJob is finished. */
+                for (Job job : getAllReadyJobs(tick - executedTime)) {
+                    if (runJob == job)
+                        continue;
+
+                    if ((job.absoluteDeadline>runJob.absoluteDeadline) && (runJob.task.isIdleTaskType()==false))
+                        jobRIB.put(job.task, getJobRIB(job)+getJobUnusedTime(runJob));
+                }
+            }
+        }
     }
 
     /* this is where a job is finished and RIB is refreshed. */
     @Override
     protected Job updateTaskJob(Task task) {
         refreshTaskJobRIB(task);
-        return super.updateTaskJob(task);
+        Job newJob = super.updateTaskJob(task);
+
+        if (unusedTimeReclamationEnabled) {
+            jobUnusedTime.put(task, task.getWcrt() - newJob.remainingExecTime);
+        }
+
+        return newJob;
     }
 
     protected long getJobRIB(Job job) {
@@ -368,6 +397,10 @@ public class ReorderScheduler extends EdfScheduler {
         long updatedRIB = jobRIB.get(job.task) - consumedBudget;
         jobRIB.put(job.task, updatedRIB);
         return updatedRIB;
+    }
+
+    protected long getJobUnusedTime(Job job) {
+        return jobUnusedTime.get(job.task);
     }
 
     /**
