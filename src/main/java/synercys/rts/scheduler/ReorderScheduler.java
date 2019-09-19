@@ -138,6 +138,19 @@ public class ReorderScheduler extends EdfScheduler {
             }
         }
 
+        if (fineGrainedShuffleEnabled) {
+            if (preemptingTick == -1) {
+                if (runJob.remainingExecTime > 1) {
+                    preemptingTick = tick + getRandomInt(1, (int)runJob.remainingExecTime);
+                    if (preemptingTick == (tick+runJob.remainingExecTime)) {
+                        preemptingTick = -1;
+                    }
+                }
+            } else {
+                preemptingTick = tick + getRandomInt(1, (int)(preemptingTick-tick));
+            }
+        }
+
         return preemptingTick;
     }
 
