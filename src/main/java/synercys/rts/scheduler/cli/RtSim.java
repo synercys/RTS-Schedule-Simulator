@@ -50,11 +50,16 @@ public class RtSim implements Callable {
     @Option(names = {"-l", "--ladder"}, required = false, description = "Applicable for xlsx format. Width of a ladder diagram.")
     protected long optionLadderDiagramWidth = 0;
 
+    @Option(names = {"-r", "--rounds"}, required = false, description = "The number of simulation rounds to be carried.")
+    protected long optionRounds = 1;
+
     @Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     protected boolean optionExecutionVariation = false;
 
     protected TaskSet taskSet = null;
     protected EventContainer eventContainer = null;
+
+    ExcelLogHandler excelLogHandler = null;
 
     public static void main(String... args) {
         /* A few test command and parameters. Uncomment one to test it. */
@@ -89,57 +94,85 @@ public class RtSim implements Callable {
             return null;
         }
 
-        if (runScheduleSimulation() == false) {
-            loggerConsole.error("Unknown scheduler: \"{}\"", schedulingPolicy);
-            return null;
-        }
-
-        // Build busy intervals for ScheduLeak
-        BusyIntervalEventContainer biEvents = new BusyIntervalEventContainer();
-        biEvents.createBusyIntervalsFromEvents(eventContainer);
-        //biEvents.removeBusyIntervalsBeforeButExcludeTimeStamp(victimTask.getInitialOffset());
-
-
-        /* Output generation */
-        for (int i=0; i<outputFilePathAndFormat.size(); i++) {
-            String thisOutputFileName = outputFilePathAndFormat.get(i);
-
-            /* Extract the extension name. */
-            String outputExtension = "";
-            int extensionNameIndex = thisOutputFileName.lastIndexOf('.');
-            if (extensionNameIndex > 0)
-                outputExtension = thisOutputFileName.substring(extensionNameIndex+1);
-
-            if (outputExtension.equalsIgnoreCase("txt")) {
-                loggerConsole.info("Generate output in txt format.");
-                LogExporter logExporter = new LogExporter();
-                logExporter.openToWriteFile(thisOutputFileName);
-                if (optionGenBisBinaryString == true)
-                    logExporter.exportBusyIntervalsBinaryString(biEvents);
-                else
-                    logExporter.exportRawScheduleString(eventContainer);
-            } else if (outputExtension.equalsIgnoreCase("xlsx")) {
-                loggerConsole.info("Generate output in xlsx format.");
-                // Create Excel file
-                ExcelLogHandler excelLogHandler = new ExcelLogHandler();
-                if (optionLadderDiagramWidth > 0) {
-                    // Width for the ladder diagram is specified, so output with a ladder diagram.
-                    excelLogHandler.genSchedulerIntervalEventsOnLadderDiagram(eventContainer, optionLadderDiagramWidth);
-                } else {
-                    // Output normal schedule format in a single row.
-                    excelLogHandler.genRowSchedulerIntervalEvents(eventContainer, true);
-                }
-                excelLogHandler.saveAndClose(thisOutputFileName);
-            } else if (outputExtension.equalsIgnoreCase("rtschedule")) {
-                loggerConsole.info("Generate output in rtschedule (json) format.");
-                JsonLogExporter jsonLogExporter = new JsonLogExporter(thisOutputFileName);
-                jsonLogExporter.exportRawSchedule(eventContainer);
-            } else {
-                loggerConsole.info("Invalid output extension.");
+        for (int round=1; round<=optionRounds; round++) {
+            if (runScheduleSimulation() == false) {
+                loggerConsole.error("Unknown scheduler: \"{}\"", schedulingPolicy);
+                return null;
             }
-        }
 
-        loggerConsole.info(eventContainer.getAllEvents());
+            // Build busy intervals for ScheduLeak
+            BusyIntervalEventContainer biEvents = new BusyIntervalEventContainer();
+            biEvents.createBusyIntervalsFromEvents(eventContainer);
+            //biEvents.removeBusyIntervalsBeforeButExcludeTimeStamp(victimTask.getInitialOffset());
+
+
+            /* Output generation */
+            for (int i = 0; i < outputFilePathAndFormat.size(); i++) {
+                String thisOutputFileName = outputFilePathAndFormat.get(i);
+
+                /* Extract the extension name. */
+                String outputExtension = "";
+                String fileNamePrefix = "";
+                int extensionNameIndex = thisOutputFileName.lastIndexOf('.');
+                if (extensionNameIndex > 0) {
+                    outputExtension = thisOutputFileName.substring(extensionNameIndex + 1);
+                    fileNamePrefix = thisOutputFileName.substring(0, extensionNameIndex);
+                } else {
+                    fileNamePrefix = thisOutputFileName;
+                }
+
+                if (outputExtension.equalsIgnoreCase("txt")) {
+                    loggerConsole.info("Generate output in txt format.");
+
+                    if (optionRounds > 1) {
+                        thisOutputFileName = fileNamePrefix + "_" + round + ".txt";
+                    }
+
+                    LogExporter logExporter = new LogExporter();
+                    logExporter.openToWriteFile(thisOutputFileName);
+                    if (optionGenBisBinaryString == true)
+                        logExporter.exportBusyIntervalsBinaryString(biEvents);
+                    else
+                        logExporter.exportRawScheduleString(eventContainer);
+                } else if (outputExtension.equalsIgnoreCase("xlsx")) {
+                    loggerConsole.info("Generate output in xlsx format.");
+
+                    //ExcelLogHandler excelLogHandler;
+                    if (round == 1) {
+                        // Create Excel file from scratch
+                        excelLogHandler = new ExcelLogHandler();
+                    } else {
+                        // Open the existing Excel file and append
+                        //excelLogHandler = new ExcelLogHandler(thisOutputFileName);
+                        ;
+                    }
+
+                    if (optionLadderDiagramWidth > 0) {
+                        // Width for the ladder diagram is specified, so output with a ladder diagram.
+                        excelLogHandler.genSchedulerIntervalEventsOnLadderDiagram(eventContainer, optionLadderDiagramWidth);
+                    } else {
+                        // Output normal schedule format in a single row.
+                        excelLogHandler.genRowSchedulerIntervalEvents(eventContainer, (optionRounds==1));
+                    }
+
+                    if (round == optionRounds)
+                        excelLogHandler.saveAndClose(thisOutputFileName);
+                } else if (outputExtension.equalsIgnoreCase("rtschedule")) {
+                    loggerConsole.info("Generate output in rtschedule (json) format.");
+
+                    if (optionRounds > 1) {
+                        thisOutputFileName = fileNamePrefix + "_" + round + ".rtschedule";
+                    }
+
+                    JsonLogExporter jsonLogExporter = new JsonLogExporter(thisOutputFileName);
+                    jsonLogExporter.exportRawSchedule(eventContainer);
+                } else {
+                    loggerConsole.info("Invalid output extension.");
+                }
+            }
+
+            loggerConsole.info(eventContainer.getAllEvents());
+        }
 
         return null;
     }

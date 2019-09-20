@@ -1,5 +1,6 @@
 package synercys.rts.util;
 
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -12,9 +13,7 @@ import synercys.rts.framework.event.BusyIntervalEventContainer;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.event.SchedulerIntervalEvent;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -37,6 +36,32 @@ public class ExcelLogHandler {
 
         // Set title column.
         sheet.setColumnWidth(0, 4000);
+    }
+
+    public ExcelLogHandler(String inFilePath) {
+        String filePath;
+        if (inFilePath == null) {
+            filePath = DEFAULT_XLSX_FILE_PATH;
+        } else {
+            filePath = inFilePath;
+        }
+
+        File openedFile = new File(filePath);
+        try {
+            ZipSecureFile.setMinInflateRatio(0);
+            workbook = new XSSFWorkbook(new FileInputStream(openedFile));
+            sheet = workbook.getSheet("log");
+            rowIndex = sheet.getPhysicalNumberOfRows();
+        } catch (Exception e) {
+            workbook = new XSSFWorkbook();
+            createNewSheet("log");
+
+            // Set default column width
+            sheet.setDefaultColumnWidth(1);
+
+            // Set title column.
+            sheet.setColumnWidth(0, 4000);
+        }
     }
 
     public void createNewSheet(String sheetName) {
