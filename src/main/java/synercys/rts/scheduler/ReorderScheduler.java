@@ -37,7 +37,7 @@ public class ReorderScheduler extends EdfScheduler {
         /* initialize jobUnusedTime */
         if (unusedTimeReclamationEnabled) {
             for (Job job : nextJobOfATask.values()) {
-                jobUnusedTime.put(job.task, job.task.getWcrt()-job.remainingExecTime);
+                jobUnusedTime.put(job.task, job.task.getWcet()-job.remainingExecTime);
             }
         }
 
@@ -195,7 +195,7 @@ public class ReorderScheduler extends EdfScheduler {
         Job newJob = super.updateTaskJob(task);
 
         if (unusedTimeReclamationEnabled) {
-            jobUnusedTime.put(task, task.getWcrt() - newJob.remainingExecTime);
+            jobUnusedTime.put(task, task.getWcet() - newJob.remainingExecTime);
         }
 
         return newJob;
