@@ -224,7 +224,7 @@ public class ReorderScheduler extends EdfScheduler {
             if (jJob == job)
                 continue;
 
-            if ((jJob.absoluteDeadline>job.absoluteDeadline) && (getJobRIB(jJob)<=0)) { // TODO: Fix the equation at the top of page 4 with <= 0
+            if ((jJob.absoluteDeadline>=job.absoluteDeadline) && (getJobRIB(jJob)<=0)) { // TODO: Fix the equation at the top of page 4 with <= 0 (and also > becomes =>)
                 if (jobM == -1)
                     jobM = jJob.absoluteDeadline;
                 else
