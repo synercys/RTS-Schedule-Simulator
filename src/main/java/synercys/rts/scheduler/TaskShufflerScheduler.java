@@ -235,6 +235,19 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
         return updatedRIB;
     }
 
+    public void setRandomizationLevel(int level) {
+        if (level == 0) {
+            idleTimeShuffleEnabled = false;
+            fineGrainedShuffleEnabled = false;
+        } else if (level == 1) {
+            idleTimeShuffleEnabled = true;
+            fineGrainedShuffleEnabled = false;
+        } else {
+            idleTimeShuffleEnabled = true;
+            fineGrainedShuffleEnabled = true;
+        }
+    }
+
     /**
      * generate a random integer between inclusiveMin and inclusiveMax, both bounds are inclusive.
      * @param inclusiveMin  the smallest possible number

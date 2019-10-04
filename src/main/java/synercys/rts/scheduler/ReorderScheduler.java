@@ -403,6 +403,26 @@ public class ReorderScheduler extends EdfScheduler {
         return jobUnusedTime.get(job.task);
     }
 
+    public void setRandomizationLevel(int level) {
+        if (level == 0) {
+            idleTimeShuffleEnabled = false;
+            fineGrainedShuffleEnabled = false;
+            unusedTimeReclamationEnabled = false;
+        } else if (level == 1) {
+            idleTimeShuffleEnabled = true;
+            fineGrainedShuffleEnabled = false;
+            unusedTimeReclamationEnabled = false;
+        } else if (level == 2){
+            idleTimeShuffleEnabled = true;
+            fineGrainedShuffleEnabled = true;
+            unusedTimeReclamationEnabled = false;
+        } else {
+            idleTimeShuffleEnabled = true;
+            fineGrainedShuffleEnabled = true;
+            unusedTimeReclamationEnabled = true;
+        }
+    }
+
     /**
      * generate a random integer between inclusiveMin and inclusiveMax, both bounds are inclusive.
      * @param inclusiveMin  the smallest possible number
