@@ -81,6 +81,7 @@ public class RtTaskGen implements Callable {
                 int taskSetCount = 1;
                 for (TaskSet taskSet : taskSetContainer.getTaskSets()) {
                     loggerConsole.info("#TaskSet {}:", String.valueOf(taskSetCount));
+                    loggerConsole.info("Schedulable: {}", taskSet.schedulabilityTest()==true?"Yes":"No");
                     loggerConsole.info(taskSet.toString());
                     loggerConsole.info(" ");
                     taskSetCount++;
