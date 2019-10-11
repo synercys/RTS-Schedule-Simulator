@@ -15,10 +15,14 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
 
     protected boolean idleTimeShuffleEnabled = true;
     protected boolean fineGrainedShuffleEnabled = true;
+    protected boolean unusedTimeReclamationEnabled = true;
 
     protected HashMap<Task, Long> taskWCIB = new HashMap<>(); // each task's worst case maximum inversion budget
     protected HashMap<Task, Long> jobRIB = new HashMap<>(); // each task's current job's remaining inversion budget
     protected HashMap<Task, Integer> taskM = new HashMap<>();   // each task's minimum inversion priority, M_i (TaskShuffler, Definition 3)
+
+    // This is only used when unusedTimeReclamationEnabled==true
+    protected HashMap<Task, Long> jobUnusedTime = new HashMap<>(); // each task's current job's unused time (WCETi - varied Ci)
 
     Random rand = new Random();
 
@@ -34,6 +38,13 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
         /* initialize taskM */
         for (Task task : taskSet.getAppTasksAsArray()) {
             taskM.put(task, computeTaskMinInversionPriority(task));
+        }
+
+        /* initialize jobUnusedTime */
+        if (unusedTimeReclamationEnabled) {
+            for (Job job : nextJobOfATask.values()) {
+                jobUnusedTime.put(job.task, job.task.getWcet()-job.remainingExecTime);
+            }
         }
     }
 
@@ -187,13 +198,32 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
             if (job.task.getPriority()>runJob.task.getPriority())
                 consumeJobRIB(job, executedTime);
         }
+
+        if (unusedTimeReclamationEnabled) {
+            if ((runJob.task.isIdleTaskType()==false) && (runJob.remainingExecTime==0)) {
+                /* this runJob is finished. */
+                for (Job job : getAllReadyJobs(tick - executedTime)) {
+                    if (runJob == job)
+                        continue;
+
+                    if ((job.task.getPriority()<runJob.task.getPriority()) && (runJob.task.isIdleTaskType()==false))
+                        jobRIB.put(job.task, getJobRIB(job)+getJobUnusedTime(runJob));
+                }
+            }
+        }
     }
 
     /* this is where a job is finished and RIB is refreshed. */
     @Override
     protected Job updateTaskJob(Task task) {
         refreshTaskJobRIB(task);
-        return super.updateTaskJob(task);
+        Job newJob = super.updateTaskJob(task);
+
+        if (unusedTimeReclamationEnabled) {
+            jobUnusedTime.put(task, task.getWcet() - newJob.remainingExecTime);
+        }
+
+        return newJob;
     }
 
     /* This function is modified based on Man-Ki's original implementation of TaskShuffler. */
@@ -238,16 +268,27 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
         return updatedRIB;
     }
 
+    protected long getJobUnusedTime(Job job) {
+        return jobUnusedTime.get(job.task);
+    }
+
     public void setRandomizationLevel(int level) {
         if (level <= 1) {   // 0 or 1 (or below)
             idleTimeShuffleEnabled = false;
             fineGrainedShuffleEnabled = false;
+            unusedTimeReclamationEnabled = false;
         } else if (level == 2) {
             idleTimeShuffleEnabled = true;
             fineGrainedShuffleEnabled = false;
+            unusedTimeReclamationEnabled = false;
+        } else if (level == 3){
+            idleTimeShuffleEnabled = true;
+            fineGrainedShuffleEnabled = true;
+            unusedTimeReclamationEnabled = false;
         } else {
             idleTimeShuffleEnabled = true;
             fineGrainedShuffleEnabled = true;
+            unusedTimeReclamationEnabled = true;
         }
     }
 
