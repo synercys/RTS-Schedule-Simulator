@@ -404,15 +404,15 @@ public class ReorderScheduler extends EdfScheduler {
     }
 
     public void setRandomizationLevel(int level) {
-        if (level == 0) {
+        if (level <= 1) {   // 0 or 1 (or below)
             idleTimeShuffleEnabled = false;
             fineGrainedShuffleEnabled = false;
             unusedTimeReclamationEnabled = false;
-        } else if (level == 1) {
+        } else if (level == 2) {
             idleTimeShuffleEnabled = true;
             fineGrainedShuffleEnabled = false;
             unusedTimeReclamationEnabled = false;
-        } else if (level == 2){
+        } else if (level == 3){
             idleTimeShuffleEnabled = true;
             fineGrainedShuffleEnabled = true;
             unusedTimeReclamationEnabled = false;

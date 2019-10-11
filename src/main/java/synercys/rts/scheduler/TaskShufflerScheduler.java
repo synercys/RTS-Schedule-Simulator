@@ -239,10 +239,10 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
     }
 
     public void setRandomizationLevel(int level) {
-        if (level == 0) {
+        if (level <= 1) {   // 0 or 1 (or below)
             idleTimeShuffleEnabled = false;
             fineGrainedShuffleEnabled = false;
-        } else if (level == 1) {
+        } else if (level == 2) {
             idleTimeShuffleEnabled = true;
             fineGrainedShuffleEnabled = false;
         } else {
