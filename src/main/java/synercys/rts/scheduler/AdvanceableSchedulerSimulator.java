@@ -107,12 +107,13 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
         if (earliestPreemptingTick == -1) { // -1 indicates that the current job will not be preempted
             /* This job is finished. */
             long runJobFinishTime = tick + runJob.remainingExecTime;
-            runJob.remainingExecTime = 0;
-            runJobExecutedHook(runJob, runJobFinishTime,runJobFinishTime - tick);
 
             if (runJobFinishTime > runJob.absoluteDeadline) {
                 throw new AssertionError("A job (" + runJob.task.toString() + ") missed its deadline: deadline=" + runJob.absoluteDeadline + ", finishedTime=" + runJobFinishTime);
             }
+
+            runJob.remainingExecTime = 0;
+            runJobExecutedHook(runJob, runJobFinishTime,runJobFinishTime - tick);
 
             /* Log the job interval. */
             SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, runJobFinishTime, runJob.task, "");
