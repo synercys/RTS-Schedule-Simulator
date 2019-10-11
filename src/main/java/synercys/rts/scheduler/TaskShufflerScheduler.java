@@ -79,7 +79,12 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
         }
 
         if (idleTimeShuffleEnabled) {
-            if ((readyJobs.size()==candidateJobs.size()) && (topPriorityWithZeroRIB==0)) {
+            /**
+             * topPriorityJobM == -1 means that no tasks with lower priority has negative V.
+             * Based on level-\tau_x exclusion policy (Def. 2, TaskShuffler), when V_x<0, tasks with lower priority
+             * cannot be executed if higher priority tasks have unfinished jobs -- lower priority includes the idle task.
+             */
+            if ((readyJobs.size()==candidateJobs.size()) && (topPriorityWithZeroRIB==0) && (topPriorityJobM==-1)) {
                 /* All jobs in the ready queue are open to priority inversion, so let's add the idle job to the candidate list. */
                 long smallestRIB = -1;
                 for (Job job : readyJobs) {
@@ -206,7 +211,7 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
     }
 
     protected int computeTaskMinInversionPriority(Task task) {
-        int maxMinInversionPriority = 0;
+        int maxMinInversionPriority = -1;
         for (Task iTask : taskSet.getAppTasksAsArray()) {
             if ((iTask == task) || (iTask.getPriority()>=task.getPriority()))
                 continue;
@@ -215,9 +220,7 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
                 maxMinInversionPriority = iTask.getPriority()>maxMinInversionPriority ? iTask.getPriority() : maxMinInversionPriority;
 
         }
-        if (maxMinInversionPriority == 0) {
-            maxMinInversionPriority = taskSet.getLowestPriorityTask().getPriority();
-        }
+
         return maxMinInversionPriority;
     }
 
