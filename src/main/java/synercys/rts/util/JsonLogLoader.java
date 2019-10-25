@@ -217,6 +217,7 @@ public class JsonLogLoader extends FileHandler implements LogParser{
             try{taskSetGenerator.setRmSchedulabilityTest(jsonGenConfig.getBoolean("rmSchedulabilityTest"));}  catch (JSONException e){}
             /* configurations for ScheduLeak */
             try{taskSetGenerator.setNeedGenObserverTask(jsonGenConfig.getBoolean("needGenObserverTask"));}  catch (JSONException e){}
+            try{taskSetGenerator.setOnlyScheduLeakFailsInEDF(jsonGenConfig.getBoolean("onlyScheduLeakFailsInEDF"));}  catch (JSONException e){}
             try{taskSetGenerator.setNeedGenHarmonicObserverTask(jsonGenConfig.getBoolean("needGenHarmonicObserverTask"));}  catch (JSONException e){}
             try{taskSetGenerator.setEdfScheduleakObservationRatio(jsonGenConfig.getBoolean("edfScheduleakObservationRatio"));}  catch (JSONException e){}
             try{taskSetGenerator.setMaxObservationRatio(jsonGenConfig.getDouble("maxObservationRatio"));}  catch (JSONException e){}

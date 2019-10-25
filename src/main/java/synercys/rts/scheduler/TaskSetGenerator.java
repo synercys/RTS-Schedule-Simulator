@@ -44,6 +44,7 @@ public class TaskSetGenerator {
     /*==== Dedicated to the research for schedule-based side-channel =====*/
     Boolean needGenObserverTask;
     Boolean edfScheduleakObservationRatio;  // When enabled, observer/victim priorities are ignored.
+    Boolean onlyScheduLeakFailsInEDF;           // Generate task sets with C_o > T_o - T_v only
     double maxObservationRatio;
     double minObservationRatio;
     int observerTaskPriority;
@@ -85,6 +86,7 @@ public class TaskSetGenerator {
         needGenObserverTask = false;
         needGenHarmonicObserverTask = false;
         edfScheduleakObservationRatio = false;
+        onlyScheduLeakFailsInEDF = false;
         maxObservationRatio = 999;
         minObservationRatio = 1.0;
         observerTaskPriority = -1;  // -1 indicates that it's not being set
@@ -371,6 +373,14 @@ public class TaskSetGenerator {
                     return null;
                 }
             }
+
+            if (onlyScheduLeakFailsInEDF) {
+                // See the DyPS paper for details.
+                if (!(observer.getWcet() > (po - pv))) {
+                    return null;
+                }
+            }
+
         }
         /*===== end of needGenObserverTask =====*/
 
@@ -651,6 +661,14 @@ public class TaskSetGenerator {
 
     public void setNeedGenHarmonicObserverTask(boolean needGenHarmonicObserverTask) {
         this.needGenHarmonicObserverTask = needGenHarmonicObserverTask;
+    }
+
+    public Boolean getOnlyScheduLeakFailsInEDF() {
+        return onlyScheduLeakFailsInEDF;
+    }
+
+    public void setOnlyScheduLeakFailsInEDF(Boolean onlyScheduLeakFailsInEDF) {
+        this.onlyScheduLeakFailsInEDF = onlyScheduLeakFailsInEDF;
     }
 
     public Boolean getRmSchedulabilityTest() {
