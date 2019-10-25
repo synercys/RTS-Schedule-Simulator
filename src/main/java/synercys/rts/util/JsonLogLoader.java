@@ -214,6 +214,7 @@ public class JsonLogLoader extends FileHandler implements LogParser{
             try{taskSetGenerator.setGenerateFromHpDivisors(jsonGenConfig.getBoolean("generateFromHpDivisors"));}  catch (JSONException e){}
             try{taskSetGenerator.setNonHarmonicOnly(jsonGenConfig.getBoolean("nonHarmonicOnly"));}  catch (JSONException e){}
             try{taskSetGenerator.setDistinctPeriodOnly(jsonGenConfig.getBoolean("distinctPeriodOnly"));}  catch (JSONException e){}
+            try{taskSetGenerator.setRmSchedulabilityTest(jsonGenConfig.getBoolean("rmSchedulabilityTest"));}  catch (JSONException e){}
             /* configurations for ScheduLeak */
             try{taskSetGenerator.setNeedGenObserverTask(jsonGenConfig.getBoolean("needGenObserverTask"));}  catch (JSONException e){}
             try{taskSetGenerator.setNeedGenHarmonicObserverTask(jsonGenConfig.getBoolean("needGenHarmonicObserverTask"));}  catch (JSONException e){}

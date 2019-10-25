@@ -39,6 +39,7 @@ public class TaskSetGenerator {
 
     Boolean nonHarmonicOnly;
     Boolean distinctPeriodOnly;
+    Boolean rmSchedulabilityTest;
 
     /*==== Dedicated to the research for schedule-based side-channel =====*/
     Boolean needGenObserverTask;
@@ -77,6 +78,8 @@ public class TaskSetGenerator {
         nonHarmonicOnly = false;
 
         distinctPeriodOnly = true;
+
+        rmSchedulabilityTest = true;
 
         /*==== Dedicated to the research for schedule-based side-channel =====*/
         needGenObserverTask = false;
@@ -252,8 +255,10 @@ public class TaskSetGenerator {
 
         taskContainer.assignPriorityRm();
 
-        if (taskContainer.schedulabilityTest() == false)
-            return null;
+        if (rmSchedulabilityTest) {
+            if (taskContainer.schedulabilityTest() == false)
+                return null;
+        }
 
 
         /*==== Dedicated to the research for scheduler-based side-channel =====*/
@@ -337,8 +342,10 @@ public class TaskSetGenerator {
                     /* Reassign task priorities and do schedulability test. */
                     taskContainer.assignPriorityRm();
 
-                    if (taskContainer.schedulabilityTest() == false)
-                        return null;
+                    if (rmSchedulabilityTest) {
+                        if (taskContainer.schedulabilityTest() == false)
+                            return null;
+                    }
 
                     break;
                 }
@@ -644,6 +651,14 @@ public class TaskSetGenerator {
 
     public void setNeedGenHarmonicObserverTask(boolean needGenHarmonicObserverTask) {
         this.needGenHarmonicObserverTask = needGenHarmonicObserverTask;
+    }
+
+    public Boolean getRmSchedulabilityTest() {
+        return rmSchedulabilityTest;
+    }
+
+    public void setRmSchedulabilityTest(Boolean rmSchedulabilityTest) {
+        this.rmSchedulabilityTest = rmSchedulabilityTest;
     }
 
     public String toCommentString() {
