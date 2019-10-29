@@ -19,7 +19,7 @@ import java.util.HashMap;
  * @author CY Chen (cchen140@illinois.edu)
  * @version 1.0 - 2018, 12/21
  */
-abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
+abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implements AdvanceableSchedulerInterface {
     // This map stores each task's next job instance, no matter it's arrived or not.
     protected HashMap<Task, Job> nextJobOfATask = new HashMap<>();
 
@@ -47,9 +47,18 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
         return simEventContainer;
     }
 
+    
+    @Override
+    public EventContainer concludeSim() {
+        simEventContainer.trimEventsToTimeStamp(tick);
+        return simEventContainer;
+    }
+
+
     /**
      * Run simulation and advance to next scheduling point.
      */
+    @Override
     public void advance() {
         Job currentJob = getNextJob(tick);
 
@@ -168,4 +177,11 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator {
         }
         return readyJobs;
     }
+
+    @Override
+    public EventContainer getSimEventContainer()
+    {
+        return simEventContainer;
+    }
+
 }
