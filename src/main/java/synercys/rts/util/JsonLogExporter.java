@@ -296,6 +296,7 @@ public class JsonLogExporter extends FileHandler {
         jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_FROM_HP_DIVISORS, taskSetGenerator.getGenerateFromHpDivisors());
         jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_NON_HARMONIC_ONLY, taskSetGenerator.getNonHarmonicOnly());
         jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_DISTINCT_PERIOD_ONLY, taskSetGenerator.getDistinctPeriodOnly());
+        jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_TEST_RM_SCHEDULABILITY, taskSetGenerator.getRmSchedulabilityTest());
         /* ScheduLeak */
         // jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER, taskSetGenerator.getNeedGenObserverTask());
         // jsonConfig.put(JsonLogStr.TASK_GEN_SETTINGS_SCHEDULEAK_HARMONIC_OBSERVER, taskSetGenerator.isNeedGenHarmonicObserverTask());
