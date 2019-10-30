@@ -1,5 +1,6 @@
 package synercys.rts.framework.event;
 
+import synercys.rts.framework.Interval;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
 
@@ -123,16 +124,15 @@ public class EventContainer {
         return null;
     }
 
-    public ArrayList<SchedulerIntervalEvent> findSchedulerEventsByTimeWindow(int inBeginTimeStamp, int inEndTimeStamp)
+    public ArrayList<SchedulerIntervalEvent> findSchedulerEventsByTimeWindow(long inBeginTimeStamp, long inEndTimeStamp)
     {
+        Interval windowInterval = new Interval(inBeginTimeStamp, inEndTimeStamp);
         ArrayList resultArrayList = new ArrayList();
         for (SchedulerIntervalEvent thisEvent : schedulerEvents)
         {
-            if (isValueWithinRange(thisEvent.getOrgBeginTimestamp(), inBeginTimeStamp, inEndTimeStamp) ||
-                    isValueWithinRange(thisEvent.getOrgEndTimestamp(), inBeginTimeStamp, inEndTimeStamp))
-            {
+            Interval thisInterval = new Interval(thisEvent.getOrgBeginTimestamp(), thisEvent.getOrgEndTimestamp());
+            if (thisInterval.intersect(windowInterval) != null)
                 resultArrayList.add(thisEvent);
-            }
         }
         return resultArrayList;
     }
@@ -214,6 +214,34 @@ public class EventContainer {
 
             outStr += thisEvent.toRawScheduleString() + ", ";
             lastTimestamp = thisEvent.orgEndTimestamp;
+        }
+
+        if (outStr.length() != 0) {
+            outStr = outStr.substring(0, outStr.length()-2);
+        }
+        return outStr;
+    }
+
+    public String toRawScheduleString(long beginTimestamp, long endTimestamp) {
+        String outStr = "";
+        long currentTimestamp = beginTimestamp;
+        for (SchedulerIntervalEvent thisEvent : schedulerEvents) {
+            int thisTaskId = thisEvent.getTask().getId();
+            while (currentTimestamp < endTimestamp) {
+                if (currentTimestamp < thisEvent.getOrgBeginTimestamp())
+                    outStr += "0, ";
+                else if (currentTimestamp < thisEvent.getOrgEndTimestamp())
+                    outStr += thisTaskId + ", ";
+                else
+                    break;
+                currentTimestamp++;
+            }
+            if (currentTimestamp >= endTimestamp)
+                break;
+        }
+
+        for (; currentTimestamp<endTimestamp; currentTimestamp++) {
+            outStr += "0, ";
         }
 
         if (outStr.length() != 0) {

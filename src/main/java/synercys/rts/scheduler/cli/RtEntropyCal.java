@@ -87,7 +87,7 @@ public class RtEntropyCal implements Callable {
 
     protected ScheduleEntropyCalculatorInterface getEntropyCalculator() {
         if (entropyAlgorithm.equalsIgnoreCase("Shannon"))
-            return new ShannonScheduleEntropyCalculator();
+            return new ShannonScheduleEntropyCalculator(0, simDuration);
         else if (entropyAlgorithm.equalsIgnoreCase("UASE"))
             return new UASEntropyCalculator(taskSet, 0, simDuration);
         else // if (entropyAlgorithm.equalsIgnoreCase("ApEn"))
