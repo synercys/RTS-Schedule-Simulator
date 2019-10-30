@@ -91,6 +91,6 @@ public class RtEntropyCal implements Callable {
         else if (entropyAlgorithm.equalsIgnoreCase("UASE"))
             return new UASEntropyCalculator(taskSet, 0, simDuration);
         else // if (entropyAlgorithm.equalsIgnoreCase("ApEn"))
-            return new ApproximateEntropyCalculator();
+            return new ApproximateEntropyCalculator(0, simDuration);
     }
 }
