@@ -98,6 +98,10 @@ public class RtTaskGen implements Callable {
             // If the given config file path string is in fact a folder's path, then use the default file name.
             if (Files.isDirectory(Paths.get(generateDefaultConfigFile))) {
                 generateDefaultConfigFile = Paths.get(generateDefaultConfigFile, "default.rttaskgen").toString();
+            } else {
+                String outputFilePath = FilenameUtils.getFullPath(generateDefaultConfigFile);
+                String outputFileBaseName = FilenameUtils.getBaseName(generateDefaultConfigFile);
+                generateDefaultConfigFile = Paths.get(outputFilePath, outputFileBaseName + ".rttaskgen").toString();
             }
             JsonLogExporter taskGenConfigExporter = new JsonLogExporter(generateDefaultConfigFile);
             taskGenConfigExporter.exportRtTaskGenDefaultSettings();
