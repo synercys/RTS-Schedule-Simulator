@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShannonScheduleEntropyCalculator implements ScheduleEntropyCalculatorInterface {
+    public static String name = "Shannon";
     Map<String, Integer> scheduleOccurrenceMap = new HashMap<>();
     int totalScheduleCount = 0;
     long beginTimestamp;
@@ -18,7 +19,7 @@ public class ShannonScheduleEntropyCalculator implements ScheduleEntropyCalculat
 
     @Override
     public void applyOneSchedule(EventContainer schedule) {
-        String rawScheduleString = schedule.toRawScheduleString(beginTimestamp, length);
+        String rawScheduleString = schedule.toRawScheduleString(beginTimestamp, length+beginTimestamp);
         if (!scheduleOccurrenceMap.containsKey(rawScheduleString)) {
             scheduleOccurrenceMap.put(rawScheduleString, 0);
         }

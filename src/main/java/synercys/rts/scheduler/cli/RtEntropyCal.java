@@ -8,7 +8,7 @@ import synercys.rts.scheduler.*;
 import synercys.rts.scheduler.entropy.ApproximateEntropyCalculator;
 import synercys.rts.scheduler.entropy.ScheduleEntropyCalculatorInterface;
 import synercys.rts.scheduler.entropy.ShannonScheduleEntropyCalculator;
-import synercys.rts.scheduler.entropy.UASEntropyCalculator;
+import synercys.rts.scheduler.entropy.UpperApproximateEntropyCalculator;
 import synercys.rts.scheduler.entropy.tester.ScheduleEntropyTester;
 import synercys.rts.util.JsonLogLoader;
 
@@ -36,7 +36,7 @@ public class RtEntropyCal implements Callable {
     @CommandLine.Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     protected boolean optionExecutionVariation = false;
 
-    @CommandLine.Option(names = {"-e", "--entropy"}, required = true, description = "Entropy algorithm (\"Shannon\", \"UASE\" or \"ApEn\").")
+    @CommandLine.Option(names = {"-e", "--entropy"}, required = true, description = "Entropy algorithm (\"Shannon\", \"UApEn\" or \"ApEn\").")
     protected String entropyAlgorithm = "";
 
     @CommandLine.Option(names = {"-r", "--rounds"}, required = false, description = "The number of schedule rounds to be tested.")
@@ -64,9 +64,12 @@ public class RtEntropyCal implements Callable {
         loggerConsole.info("Length of each schedule = {}", simDuration);
         loggerConsole.info("Rounds to estimate entropy = {}", optionRounds);
 
-        ScheduleEntropyCalculatorInterface entropyCalculator = getEntropyCalculator();
-        ScheduleEntropyTester entropyTester = new ScheduleEntropyTester(taskSet, schedulingPolicy, entropyCalculator);
+        ScheduleEntropyTester entropyTester = new ScheduleEntropyTester(taskSet, schedulingPolicy, entropyAlgorithm, optionExecutionVariation);
         double finalEntropy = entropyTester.run(simDuration, optionRounds);
+        if (finalEntropy == -1) {
+            loggerConsole.error("Unknown entropy calculator: {}", entropyAlgorithm);
+            return null;
+        }
         loggerConsole.info("{} entropy = {}", entropyAlgorithm, finalEntropy);
         return null;
     }
@@ -84,13 +87,4 @@ public class RtEntropyCal implements Callable {
         return true;
     }
 
-
-    protected ScheduleEntropyCalculatorInterface getEntropyCalculator() {
-        if (entropyAlgorithm.equalsIgnoreCase("Shannon"))
-            return new ShannonScheduleEntropyCalculator(0, simDuration);
-        else if (entropyAlgorithm.equalsIgnoreCase("UASE"))
-            return new UASEntropyCalculator(taskSet, 0, simDuration);
-        else // if (entropyAlgorithm.equalsIgnoreCase("ApEn"))
-            return new ApproximateEntropyCalculator(0, simDuration);
-    }
 }

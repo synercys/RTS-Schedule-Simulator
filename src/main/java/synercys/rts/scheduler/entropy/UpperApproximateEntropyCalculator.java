@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UASEntropyCalculator implements ScheduleEntropyCalculatorInterface {
-
+public class UpperApproximateEntropyCalculator implements ScheduleEntropyCalculatorInterface {
+    public static String name = "UApEn";
     TaskSet taskSet;
     List<Map<Task, Integer>> slotTaskOccurrences = new ArrayList<>();
     List<Double> slotEntropy = new ArrayList<>();
@@ -20,7 +20,7 @@ public class UASEntropyCalculator implements ScheduleEntropyCalculatorInterface 
     long length;
     int totalScheduleCount = 0;
 
-    public UASEntropyCalculator(TaskSet taskSet, long beginTimestamp, long length) {
+    public UpperApproximateEntropyCalculator(TaskSet taskSet, long beginTimestamp, long length) {
         this.taskSet = taskSet;
         this.beginTimestamp = beginTimestamp;
         this.length = length;
