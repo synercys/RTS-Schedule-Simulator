@@ -27,6 +27,10 @@ public class IntervalEvent extends Event {
         scaledEndTimestamp = inEndTimeStamp;
     }
 
+    public void setOrgBeginTimestamp(long orgBeginTimestamp) {
+        this.orgBeginTimestamp = orgBeginTimestamp;
+    }
+
     public long getOrgBeginTimestamp() { return orgBeginTimestamp; }
     public long getScaledBeginTimestamp()
     {

@@ -180,6 +180,16 @@ public class EventContainer {
         taskInstantEvents.removeAll(taskInstantEventsToBeRemoved);
     }
 
+    public void removeTaskInstantEventsBeforeAndIncludeTimeStamp(long inTimeStamp) {
+        ArrayList<TaskInstantEvent> taskInstantEventsToBeRemoved = new ArrayList<>();
+        for (TaskInstantEvent thisInstantEvent : taskInstantEvents) {
+            if (thisInstantEvent.getOrgTimestamp() <= inTimeStamp) {
+                taskInstantEventsToBeRemoved.add(thisInstantEvent);
+            }
+        }
+        taskInstantEvents.removeAll(taskInstantEventsToBeRemoved);
+    }
+
     public void trimEventsToTimeStamp(long timeLimit) {
         /* Scheduler interval events */
         removeSchedulerIntervalEventsAfterButExcludeTimeStamp(timeLimit);
@@ -196,6 +206,22 @@ public class EventContainer {
 
         /* Task instant events */
         removeTaskInstantEventsAfterAndIncludeTimeStamp(timeLimit);
+    }
+
+    public void trimEventsBeforeTimeStamp(long timeLimit) {
+        removeEventsBeforeButExcludeTimeStamp(timeLimit);
+        if (schedulerEvents.size() > 0) {
+            SchedulerIntervalEvent firstInterval = schedulerEvents.get(0);
+            if (firstInterval.getOrgEndTimestamp() == timeLimit) {
+                // This means the first interval will become empty after trimmed.
+                schedulerEvents.remove(firstInterval);
+            } else  if (firstInterval.getOrgBeginTimestamp() < timeLimit) {
+                firstInterval.setOrgBeginTimestamp(timeLimit);
+            }
+        }
+
+        /* Remove task instant events before the given time */
+        removeTaskInstantEventsBeforeAndIncludeTimeStamp(timeLimit);
     }
 
     public String toRawScheduleString() {

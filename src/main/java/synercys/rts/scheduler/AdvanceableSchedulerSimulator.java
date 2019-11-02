@@ -47,6 +47,30 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
         return simEventContainer;
     }
 
+
+    /**
+     * Run schedule simulation with an offset. The simulation is stilled proceeded from time 0 til (offset + duration),
+     * but the schedule before the offset time will be discarded.
+     * @param offset    offset value
+     * @param duration  length of schedule to be simulated (offset + duration)
+     * @return
+     */
+    public EventContainer runSimWithOffset(long offset, long duration) {
+        runSim(offset + duration);
+        simEventContainer.trimEventsBeforeTimeStamp(offset);
+        return simEventContainer;
+    }
+
+
+    public EventContainer runSimWithDefaultOffset(long duration) {
+        return runSimWithOffset(getSimDefaultOffset(), duration);
+    }
+
+    public long getSimDefaultOffset() {
+        Task largestPeriodTask = taskSet.getLargestPeriodTask();
+        return largestPeriodTask.getPeriod()*2 + largestPeriodTask.getInitialOffset();
+    }
+
     
     @Override
     public EventContainer concludeSim() {
