@@ -1,0 +1,1099 @@
+{
+    "data": {
+        "tickUnitInNs": 100000,
+        "tasksets": [
+            {
+                "id": 0,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 8,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 1,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 5,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 2,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 2,
+                        "priority": 2
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 2,
+                        "priority": 1
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 3,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 2,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 2,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 4,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 2,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 2,
+                        "priority": 1
+                    }
+                ]
+            },
+            {
+                "id": 5,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 3,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 1,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 6,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 3,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 2,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 2,
+                        "wcet": 1,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 7,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 3,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 8,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 2,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    }
+                ]
+            },
+            {
+                "id": 9,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 3,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 3,
+                        "priority": 1
+                    }
+                ]
+            },
+            {
+                "id": 0,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 2,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 2,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 2,
+                        "wcet": 1,
+                        "priority": 4
+                    }
+                ]
+            },
+            {
+                "id": 1,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 2,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 1,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 1,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 2,
+                        "priority": 4
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 1,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 4,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 1,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 5,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 2,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    }
+                ]
+            },
+            {
+                "id": 6,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 1,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 2,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    }
+                ]
+            },
+            {
+                "id": 7,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 1,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 3,
+                        "priority": 2
+                    }
+                ]
+            },
+            {
+                "id": 8,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 2,
+                        "priority": 2
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 3,
+                        "priority": 1
+                    }
+                ]
+            },
+            {
+                "id": 9,
+                "tasks": [
+                    {
+                        "phase": 0,
+                        "period": 0,
+                        "arrivalType": "periodic",
+                        "name": "IDLE",
+                        "id": 0,
+                        "type": "IDLE",
+                        "deadline": 0,
+                        "wcet": 0,
+                        "priority": 0
+                    },
+                    {
+                        "phase": 0,
+                        "period": 4,
+                        "arrivalType": "periodic",
+                        "name": "APP1",
+                        "id": 4,
+                        "type": "APP",
+                        "deadline": 4,
+                        "wcet": 1,
+                        "priority": 4
+                    },
+                    {
+                        "phase": 0,
+                        "period": 20,
+                        "arrivalType": "periodic",
+                        "name": "APP2",
+                        "id": 1,
+                        "type": "APP",
+                        "deadline": 20,
+                        "wcet": 2,
+                        "priority": 1
+                    },
+                    {
+                        "phase": 0,
+                        "period": 5,
+                        "arrivalType": "periodic",
+                        "name": "APP3",
+                        "id": 3,
+                        "type": "APP",
+                        "deadline": 5,
+                        "wcet": 1,
+                        "priority": 3
+                    },
+                    {
+                        "phase": 0,
+                        "period": 10,
+                        "arrivalType": "periodic",
+                        "name": "APP4",
+                        "id": 2,
+                        "type": "APP",
+                        "deadline": 10,
+                        "wcet": 1,
+                        "priority": 2
+                    }
+                ]
+            }
+        ]
+    },
+    "dataType": "tasksets",
+    "formatVersion": "15"
+}

@@ -1,0 +1,40 @@
+{
+    "data": {
+        "configs": [{
+            "distinctPeriodOnly": true,
+            "rmSchedulabilityTest": true,
+            "minWcet": 1,
+            "minPeriod": 1,
+            "generateFromHpDivisors": true,
+            "maxPeriod": 1000,
+            "nonHarmonicOnly": false,
+            "maxWcet": 500,
+            "maxHyperPeriod": 20,
+            "maxUtil": 1,
+            "maxInitOffset": 0,
+            "numTaskSet": 10,
+            "minInitOffset": 0,
+            "numTaskPerSet": 3,
+            "minUtil": 0
+        },{
+            "distinctPeriodOnly": true,
+            "rmSchedulabilityTest": true,
+            "minWcet": 1,
+            "minPeriod": 1,
+            "generateFromHpDivisors": true,
+            "maxPeriod": 1000,
+            "nonHarmonicOnly": false,
+            "maxWcet": 500,
+            "maxHyperPeriod": 20,
+            "maxUtil": 1,
+            "maxInitOffset": 0,
+            "numTaskSet": 10,
+            "minInitOffset": 0,
+            "numTaskPerSet": 4,
+            "minUtil": 0
+        }],
+        "tickUnitInNs": 100000
+    },
+    "dataType": "rtTaskGen settings",
+    "formatVersion": "15"
+}
