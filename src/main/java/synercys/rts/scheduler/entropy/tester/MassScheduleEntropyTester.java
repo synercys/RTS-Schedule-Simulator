@@ -1,19 +1,20 @@
 package synercys.rts.scheduler.entropy.tester;
 
 import cy.utility.file.FileHandler;
+import cy.utility.Class;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.TaskSetContainer;
-import synercys.rts.scheduler.entropy.ApproximateEntropyCalculator;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class MassScheduleEntropyTester {
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
-    public static final String[] TEST_CASES = {"FULL_HP"};
+    public static final String TEST_CASES_FULL_HP = "FULL_HP";
 
     TaskSetContainer taskSetContainer = null;
     String schedulingPolicy = "";
@@ -30,7 +31,7 @@ public class MassScheduleEntropyTester {
     }
 
     public boolean run(String testCase) {
-        if (testCase.equalsIgnoreCase(TEST_CASES[0])) {
+        if (testCase.equalsIgnoreCase(TEST_CASES_FULL_HP)) {
             return runFullHyperPeriodTest();
         } else {
             loggerConsole.error("Test terminated: test case \"{}\" not found.", testCase);
@@ -44,12 +45,15 @@ public class MassScheduleEntropyTester {
      */
     protected boolean runFullHyperPeriodTest() {
         if (taskSetContainer==null || schedulingPolicy=="" || entropyAlgorithm=="" || testRounds==0) {
-            loggerConsole.error("Some required variables are not set before running the test case {}.", TEST_CASES[0]);
+            loggerConsole.error("Some required variables are not set before running the test case {}.", TEST_CASES_FULL_HP);
             return false;
         }
 
         FileHandler fileTestConfig = openWriteLogFile("full_hyperperiod_config");
+        fileTestConfig.writeString("Test Case = " + TEST_CASES_FULL_HP + "\n");
         fileTestConfig.writeString("Test Rounds = " + testRounds + "\n");
+        fileTestConfig.writeString("Entropy Algorithm = " + entropyAlgorithm + "\n");
+        fileTestConfig.writeString("Scheduling Algorithm = " + schedulingPolicy + "\n");
         /* TODO: write test config details to the fileTestConfig file. */
 
         FileHandler fileTestLog = openWriteLogFile("full_hyperperiod");
@@ -102,6 +106,11 @@ public class MassScheduleEntropyTester {
         FileHandler newLogFile = new FileHandler();
         newLogFile.openToWriteFile(Paths.get(logFileFolderPath, logFileNamePrefix + fileNameSuffix + ".csv").toString());
         return newLogFile;
+    }
+
+    static public ArrayList<String> getTestCaseNames() {
+        // This function is from cy.utility
+        return Class.getPrefixMatchedVariableStringValues(MassScheduleEntropyTester.class, "TEST_CASES_");
     }
 
     public void setTaskSetContainer(TaskSetContainer taskSetContainer) {

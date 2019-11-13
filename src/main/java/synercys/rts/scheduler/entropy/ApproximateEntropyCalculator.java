@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApproximateEntropyCalculator implements ScheduleEntropyCalculatorInterface {
-    public static String name = "ApEn";
+    static public String name = EntropyCalculatorUtility.ENTROPY_APPROXIMATE;
     long m = 1; // window width
     int threshold = 0; // hamming distance threshold
     List<List<String>> slotWindowSchedules = new ArrayList<>();

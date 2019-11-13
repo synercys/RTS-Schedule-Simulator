@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShannonScheduleEntropyCalculator implements ScheduleEntropyCalculatorInterface {
-    public static String name = "Shannon";
+    static public String name = EntropyCalculatorUtility.ENTROPY_SHANNON;
     Map<String, Integer> scheduleOccurrenceMap = new HashMap<>();
     int totalScheduleCount = 0;
     long beginTimestamp;

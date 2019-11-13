@@ -3,10 +3,8 @@ package synercys.rts.scheduler.entropy.tester;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.AdvanceableSchedulerInterface;
 import synercys.rts.scheduler.SchedulerUtil;
-import synercys.rts.scheduler.entropy.ApproximateEntropyCalculator;
 import synercys.rts.scheduler.entropy.ScheduleEntropyCalculatorInterface;
-import synercys.rts.scheduler.entropy.ShannonScheduleEntropyCalculator;
-import synercys.rts.scheduler.entropy.UpperApproximateEntropyCalculator;
+import static synercys.rts.scheduler.entropy.EntropyCalculatorUtility.getEntropyCalculator;
 
 public class ScheduleEntropyTester {
     TaskSet taskSet;
@@ -26,7 +24,7 @@ public class ScheduleEntropyTester {
         for (int i=0; i<rounds; i++) {
             AdvanceableSchedulerInterface scheduler = SchedulerUtil.getScheduler(schedulingPolicy, taskSet, executionVariation);
             if (i==0) {
-                entropyCalculator = getEntropyCalculator(scheduler.getSimDefaultOffset(), simDuration);
+                entropyCalculator = getEntropyCalculator(entropyAlgorithm, taskSet, scheduler.getSimDefaultOffset(), simDuration);
                 if (entropyCalculator == null)
                     return -1;
             }
@@ -35,14 +33,5 @@ public class ScheduleEntropyTester {
         return entropyCalculator.concludeEntropy();
     }
 
-    protected ScheduleEntropyCalculatorInterface getEntropyCalculator(long simOffset, long simDuration) {
-        if (entropyAlgorithm.equalsIgnoreCase(ShannonScheduleEntropyCalculator.name))
-            return new ShannonScheduleEntropyCalculator(simOffset, simDuration);
-        else if (entropyAlgorithm.equalsIgnoreCase(UpperApproximateEntropyCalculator.name))
-            return new UpperApproximateEntropyCalculator(taskSet, simOffset, simDuration);
-        else if (entropyAlgorithm.equalsIgnoreCase(ApproximateEntropyCalculator.name))
-            return new ApproximateEntropyCalculator(simOffset, simDuration);
-        else
-            return null;
-    }
+
 }

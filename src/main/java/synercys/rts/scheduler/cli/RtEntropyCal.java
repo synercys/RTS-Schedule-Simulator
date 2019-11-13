@@ -5,10 +5,7 @@ import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.*;
-import synercys.rts.scheduler.entropy.ApproximateEntropyCalculator;
-import synercys.rts.scheduler.entropy.ScheduleEntropyCalculatorInterface;
-import synercys.rts.scheduler.entropy.ShannonScheduleEntropyCalculator;
-import synercys.rts.scheduler.entropy.UpperApproximateEntropyCalculator;
+import synercys.rts.scheduler.entropy.*;
 import synercys.rts.scheduler.entropy.tester.MassScheduleEntropyTester;
 import synercys.rts.scheduler.entropy.tester.ScheduleEntropyTester;
 import synercys.rts.util.JsonLogLoader;
@@ -27,7 +24,7 @@ public class RtEntropyCal implements Callable {
     @CommandLine.Option(names = {"-V", "--version"}, versionHelp = true, description = "Print version information and exit.")
     boolean versionHelpRequested;
 
-    @CommandLine.Option(names = {"-i", "--in"}, required = true, description = "One or more files that contain tasksets.")
+    @CommandLine.Option(names = {"-i", "--in"}, required = false, description = "One or more files that contain tasksets.")
     protected List<String> taskInputFileList = new ArrayList<>();
 
     @CommandLine.Option(names = {"-o", "--out"}, required = false, description = "A file path a prefix name for storing test results (the file extension is ignored).")
@@ -36,20 +33,24 @@ public class RtEntropyCal implements Callable {
     @CommandLine.Option(names = {"-d", "--duration"}, required = false, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
     protected long simDuration = 0;
 
-    @CommandLine.Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\", \"RM\", \"TaskShuffler\" or \"ReOrder\").")
+    @CommandLine.Option(names = {"-p", "--policy"}, required = false, description = "Scheduling policy (\"--option\" for detailed options).")
     protected String schedulingPolicy = "";
 
     @CommandLine.Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     protected boolean optionExecutionVariation = false;
 
-    @CommandLine.Option(names = {"-e", "--entropy"}, required = true, description = "Entropy algorithm (\"Shannon\", \"UApEn\" or \"ApEn\").")
+    @CommandLine.Option(names = {"-e", "--entropy"}, required = false, description = "Entropy algorithm (\"--option\" for detailed options).")
     protected String entropyAlgorithm = "";
 
     @CommandLine.Option(names = {"-r", "--rounds"}, required = false, description = "The number of schedule rounds to be tested.")
     protected int optionRounds = 1;
 
-    @CommandLine.Option(names = {"-c", "--case"}, required = false, description = "Test case (\"FULL_HP\").")
+    @CommandLine.Option(names = {"-c", "--case"}, required = false, description = "Test case (\"--option\" for detailed options).")
     String testCase = "";
+
+    @CommandLine.Option(names = {"--options"}, required = false, description = "Show all option names.")
+    protected boolean showOptionNames = false;
+
 
     //protected TaskSet taskSet = null;
 
@@ -65,6 +66,15 @@ public class RtEntropyCal implements Callable {
 
     @Override
     public Object call() throws Exception {
+
+        if (showOptionNames) {
+            loggerConsole.info("All supported options:");
+            loggerConsole.info("Scheduling Algorithms = {}", SchedulerUtil.getSchedulerNames());
+            loggerConsole.info("Entropy Algorithms = {}", EntropyCalculatorUtility.getEntropyNames());
+            loggerConsole.info("Test Case = {}", MassScheduleEntropyTester.getTestCaseNames());
+            return null;
+        }
+
         /*===== Load tasksets =====*/
         TaskSetContainer taskSetContainer = new TaskSetContainer();
         for (String taskInputFile : taskInputFileList) {

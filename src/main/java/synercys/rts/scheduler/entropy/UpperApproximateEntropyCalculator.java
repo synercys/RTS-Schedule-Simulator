@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UpperApproximateEntropyCalculator implements ScheduleEntropyCalculatorInterface {
-    public static String name = "UApEn";
+    static public String name = EntropyCalculatorUtility.ENTROPY_UPPER_APPROXIMATE;
     TaskSet taskSet;
     List<Map<Task, Integer>> slotTaskOccurrences = new ArrayList<>();
     List<Double> slotEntropy = new ArrayList<>();
@@ -59,6 +59,10 @@ public class UpperApproximateEntropyCalculator implements ScheduleEntropyCalcula
         }
         return finalUASEntropy;
     }
+
+//    public double getPartialEntropy(int ) {
+//
+//    }
 
     protected double computeSlotEntropy(Map<Task, Integer> taskOccurrenceMap, int totalOccurrence) {
         double slotEntropy = 0.0;
