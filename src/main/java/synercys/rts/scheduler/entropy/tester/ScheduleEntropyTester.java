@@ -10,9 +10,9 @@ import synercys.rts.scheduler.entropy.UpperApproximateEntropyCalculator;
 
 public class ScheduleEntropyTester {
     TaskSet taskSet;
-    String schedulingPolicy = "";
-    String entropyAlgorithm = "";
-    boolean executionVariation = false;
+    String schedulingPolicy;
+    String entropyAlgorithm;
+    boolean executionVariation;
     ScheduleEntropyCalculatorInterface entropyCalculator;
 
     public ScheduleEntropyTester(TaskSet taskSet, String schedulingPolicy, String entropyAlgorithm, boolean executionVariation) {
