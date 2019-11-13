@@ -255,6 +255,11 @@ public class TaskSetGenerator {
         if (total_util<minUtil || total_util>=maxUtil)
             return null;
 
+        if (generateFromHpDivisors) {
+            if (taskContainer.calHyperPeriod() != maxHyperPeriod)
+                return null;
+        }
+
         taskContainer.assignPriorityRm();
 
         if (rmSchedulabilityTest) {
