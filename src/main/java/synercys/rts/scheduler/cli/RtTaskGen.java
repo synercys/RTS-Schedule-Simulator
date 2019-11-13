@@ -40,6 +40,9 @@ public class RtTaskGen implements Callable {
     @Option(names = {"-o", "--out"}, required = false, description = "A file path a prefix name for storing generated task sets (the file extension is ignored).")
     String outputFilePrefix = "";
 
+    @Option(names = {"-s", "--single"}, required = false, description = "Output all the task sets in a single file.")
+    boolean optionOutputSingleFile = false;
+
     @Option(names = {"-r", "--read"}, required = false, description = "A taskset file to be read and printed. This option ignores other options.")
     String tasksetFileToBeReadAndPrinted = "";
 
@@ -135,6 +138,16 @@ public class RtTaskGen implements Callable {
         if (!outputFilePrefix.equalsIgnoreCase("")) {
             String outputFilePath = FilenameUtils.getFullPath(outputFilePrefix);
             String outputFileBaseName = FilenameUtils.getBaseName(outputFilePrefix);
+
+            /* If it's requested to output all task sets in a single file, then we merge all task set containers into one.*/
+            if (optionOutputSingleFile) {
+                TaskSetContainer allInOneTaskSetContainer = new TaskSetContainer();
+                for (TaskSetContainer taskSetContainer : taskSetContainerArrayList) {
+                    allInOneTaskSetContainer.addTaskSets(taskSetContainer.getTaskSets());
+                }
+                taskSetContainerArrayList.clear();
+                taskSetContainerArrayList.add(allInOneTaskSetContainer);
+            }
 
             int outputFileIndex = 0;
             for (TaskSetContainer taskSetContainer : taskSetContainerArrayList) {
