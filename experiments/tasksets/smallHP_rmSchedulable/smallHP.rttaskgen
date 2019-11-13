@@ -12,7 +12,7 @@
             "maxHyperPeriod": 20,
             "maxUtil": 1,
             "maxInitOffset": 0,
-            "numTaskSet": 10,
+            "numTaskSet": 100,
             "minInitOffset": 0,
             "numTaskPerSet": 3,
             "minUtil": 0
@@ -28,7 +28,7 @@
             "maxHyperPeriod": 20,
             "maxUtil": 1,
             "maxInitOffset": 0,
-            "numTaskSet": 10,
+            "numTaskSet": 100,
             "minInitOffset": 0,
             "numTaskPerSet": 4,
             "minUtil": 0
