@@ -1,0 +1,5 @@
+Test Case = PARTIAL_HP_XXX
+Test HP Proportion = 0.75
+Test Rounds = 1000000
+Entropy Algorithm = shannon
+Scheduling Algorithm = taskshuffler

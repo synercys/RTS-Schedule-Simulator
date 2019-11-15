@@ -1,0 +1,4 @@
+Test Case = FULL_HP
+Test Rounds = 10000
+Entropy Algorithm = apen
+Scheduling Algorithm = taskshuffler
