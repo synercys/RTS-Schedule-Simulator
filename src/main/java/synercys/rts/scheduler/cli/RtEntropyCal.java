@@ -48,6 +48,9 @@ public class RtEntropyCal implements Callable {
     @CommandLine.Option(names = {"-c", "--case"}, required = false, description = "Test case (\"--option\" for detailed options).")
     String testCase = "";
 
+    @CommandLine.Option(names = {"-n", "--num"}, required = false, description = "Limit the number of task sets to be tested.")
+    protected int theNumberOfTestingTaskSets = -1;
+
     @CommandLine.Option(names = {"--options"}, required = false, description = "Show all option names.")
     protected boolean showOptionNames = false;
 
@@ -99,6 +102,16 @@ public class RtEntropyCal implements Callable {
             loggerConsole.info("{} entropy = {}", entropyAlgorithm, finalEntropy);
         } else {
             loggerConsole.info("Run mass test for the test case {}.", testCase);
+
+            /* Check if only a subset of task sets need to be tested (and remove all others). */
+            if (theNumberOfTestingTaskSets > 0 && theNumberOfTestingTaskSets < taskSetContainer.size()) {
+                loggerConsole.info("{}/{} task sets to be tested.", theNumberOfTestingTaskSets, taskSetContainer.size());
+                int numOfTaskSetsToBeRemoved = taskSetContainer.size() - theNumberOfTestingTaskSets;
+                for (int i=0; i<numOfTaskSetsToBeRemoved; i++) {
+                    taskSetContainer.getTaskSets().remove(taskSetContainer.size()-1);
+                }
+            }
+
             long startTime = System.currentTimeMillis();
             MassScheduleEntropyTester massScheduleEntropyTester = new MassScheduleEntropyTester(outputFilePrefixPath, taskSetContainer);
             massScheduleEntropyTester.setTestRounds(optionRounds);
