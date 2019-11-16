@@ -111,7 +111,7 @@ abstract class SchedulerSimulator {
         // Poisson Distribution
         long variedInterArrivalTime = 0;
         while (variedInterArrivalTime < minInterArrival) {
-            variedInterArrivalTime = Umath.getPoisson((minInterArrival/10)*1.2)*10;
+            variedInterArrivalTime = Umath.getPoisson((minInterArrival/10.0)*1.2)*10;
         }
         return variedInterArrivalTime;
         /* For reference: case of uniform distribution
