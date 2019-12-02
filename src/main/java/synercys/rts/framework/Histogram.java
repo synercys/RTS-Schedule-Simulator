@@ -148,7 +148,7 @@ public class Histogram {
         return resultIntervals;
     }
 
-    public ArrayList<Interval> getLeastWeightedIntervals() {
+    public ArrayList<Interval> getLeastNonZeroWeightedIntervals() {
         ArrayList<Interval> resultIntervals = new ArrayList<>();
 
         // Return the empty array if nothing is in the map.
@@ -190,5 +190,59 @@ public class Histogram {
         }
 
         return resultIntervals;
+    }
+
+
+    public ArrayList<Interval> getLeastWeightedIntervals(long begin, long end) {
+        ArrayList<Interval> resultIntervals = new ArrayList<>();
+
+        long leastWeight = getLeastWeight(begin, end);
+        Boolean isBuildingAInterval = false;
+        long currentIntervalBegin = 0;
+        for (long i=begin; i<=end; i++) {
+            long currentWeight = map.get(i)==null ? 0 : map.get(i);
+
+            if (currentWeight == leastWeight) {
+                if (isBuildingAInterval) {
+                    continue;
+                } else {
+                    currentIntervalBegin = i;
+                    isBuildingAInterval = true;
+                }
+            } else {
+                if (isBuildingAInterval) {
+                    Interval newInterval = new Interval(currentIntervalBegin, i-1);
+                    resultIntervals.add(newInterval);
+                    isBuildingAInterval = false;
+                }
+            }
+        }
+
+        // Check if the last arrival interval has not yet closed.
+        if (isBuildingAInterval) {
+            Interval newInterval = new Interval(currentIntervalBegin, getEnd());
+            resultIntervals.add(newInterval);
+            //isBuildingAInterval = false;
+        }
+
+        if (resultIntervals.size() == 0) {
+            //ProgMsg.debugErrPutline("It should never happen.");
+        }
+
+        return resultIntervals;
+    }
+
+    public long getLeastWeight(long begin, long end) {
+        boolean first = true;
+        long smallestWeight = 0;
+        for (long i=begin; i<end; i++) {
+            if (first) {
+                smallestWeight = map.getOrDefault(i, Long.valueOf(0));
+                first = false;
+                continue;
+            }
+            smallestWeight = Math.min(smallestWeight, map.getOrDefault(i, Long.valueOf(0)).longValue());
+        }
+        return smallestWeight;
     }
 }
