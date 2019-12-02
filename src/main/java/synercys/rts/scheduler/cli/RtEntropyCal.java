@@ -1,5 +1,6 @@
 package synercys.rts.scheduler.cli;
 
+import cy.utility.Sys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
@@ -10,6 +11,7 @@ import synercys.rts.scheduler.entropy.tester.MassScheduleEntropyTester;
 import synercys.rts.scheduler.entropy.tester.ScheduleEntropyTester;
 import synercys.rts.util.JsonLogLoader;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -79,12 +81,36 @@ public class RtEntropyCal implements Callable {
         }
 
         /*===== Load tasksets =====*/
+        loggerConsole.info("==============================");
+        loggerConsole.info("Loading task sets ...");
+        loggerConsole.info("==============================");
         TaskSetContainer taskSetContainer = new TaskSetContainer();
         for (String taskInputFile : taskInputFileList) {
-            JsonLogLoader jsonLogLoader = new JsonLogLoader(taskInputFile);
-            taskSetContainer.addTaskSets(((TaskSetContainer)jsonLogLoader.getResult()).getTaskSets());
-        }
+            ArrayList<String> taskInputFilePaths = new ArrayList<>();
+            if (Sys.isFolderExisted(taskInputFile)) {
+                loggerConsole.info("\"{}\" is a folder.", taskInputFile);
+                loggerConsole.info("Loading all task set files in the folder.");
+                ArrayList<File> taskSetFiles = Sys.getFilesByExtensionInFolder(taskInputFile, ".tasksets");
+                for (File taskSetFile : taskSetFiles) {
+                    taskInputFilePaths.add(taskSetFile.getPath());
+                }
+            } else {
+                loggerConsole.info("\"{}\" is a file.", taskInputFile);
+                taskInputFilePaths.add(taskInputFile);
+            }
 
+            for (String taskInputFilePath : taskInputFilePaths) {
+                loggerConsole.info("- Loading task sets from \"{}\"...", taskInputFilePath);
+                JsonLogLoader jsonLogLoader = new JsonLogLoader(taskInputFilePath);
+                taskSetContainer.addTaskSets(((TaskSetContainer) jsonLogLoader.getResult()).getTaskSets());
+            }
+        }
+        loggerConsole.info("{} task sets have been loaded.", taskSetContainer.size());
+
+
+        loggerConsole.info("==============================");
+        loggerConsole.info("Running test(s) ...");
+        loggerConsole.info("==============================");
         if (testCase.equalsIgnoreCase("")) {
             TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
             loggerConsole.info("No test case selected. Testing one task set.");
