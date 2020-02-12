@@ -38,7 +38,7 @@ public class RtSim implements Callable {
     @Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")
     protected List<String> outputFilePathAndFormat = new ArrayList<>();
 
-    @Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"EDF\", \"RM\", \"TaskShuffler\" or \"ReOrder\").")
+    @CommandLine.Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"--option\" for detailed options).")
     protected String schedulingPolicy = "";
 
     @Option(names = {"-d", "--duration"}, required = true, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
@@ -55,6 +55,9 @@ public class RtSim implements Callable {
 
     @Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     protected boolean optionExecutionVariation = false;
+
+    @CommandLine.Option(names = {"--options"}, required = false, description = "Show all option names.")
+    protected boolean showOptionNames = false;
 
     protected TaskSet taskSet = null;
     protected EventContainer eventContainer = null;
@@ -88,6 +91,11 @@ public class RtSim implements Callable {
     @Override
     public Object call() throws Exception {
 
+        if (showOptionNames) {
+            loggerConsole.info("All supported options:");
+            loggerConsole.info("Scheduling Algorithms = {}", SchedulerUtil.getSchedulerNames());
+            return null;
+        }
 
         if (importTaskSet() == false) {
             loggerConsole.error("Failed to import the taskset.");
@@ -191,25 +199,12 @@ public class RtSim implements Callable {
     }
 
     protected boolean runScheduleSimulation() {
-        if (schedulingPolicy.equalsIgnoreCase("RM")) {
-            loggerConsole.info("RM selected.");
-            FixedPriorityScheduler rmSimulator = new FixedPriorityScheduler(taskSet, optionExecutionVariation);
-            eventContainer = rmSimulator.runSim(simDuration);
-        } else if (schedulingPolicy.equalsIgnoreCase("EDF")) { // EDF
-            loggerConsole.info("EDF selected.");
-            EdfScheduler edfSimulator = new EdfScheduler(taskSet, optionExecutionVariation);
-            eventContainer = edfSimulator.runSim(simDuration);
-        } else if (schedulingPolicy.equalsIgnoreCase("TaskShuffler")) { // TaskShuffler
-            loggerConsole.info("TaskShuffler selected.");
-            TaskShufflerScheduler taskShufflerSimulator = new TaskShufflerScheduler(taskSet, optionExecutionVariation);
-            eventContainer = taskShufflerSimulator.runSim(simDuration);
-        } else if (schedulingPolicy.equalsIgnoreCase("Reorder")) { // ReOrder
-            loggerConsole.info("ReOrder selected.");
-            ReorderScheduler reorderSchedulerSimulator = new ReorderScheduler(taskSet, optionExecutionVariation);
-            eventContainer = reorderSchedulerSimulator.runSim(simDuration);
-        } else {
-            eventContainer = null;
-        }
+        AdvanceableSchedulerInterface scheduler;
+        scheduler = SchedulerUtil.getScheduler(schedulingPolicy, taskSet, optionExecutionVariation);
+
+        loggerConsole.info("{} selected.", scheduler.getClass().getName());
+
+        eventContainer = scheduler.runSim(simDuration);
 
         if (eventContainer != null)
             return true;
