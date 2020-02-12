@@ -59,7 +59,7 @@ public class ScheduleEntropyTester {
                 currentEntropy = entropyCalculator.concludeEntropy();
                 double diffEntropy = abs((currentEntropy - lastEntropy) / lastEntropy);
                 loggerConsole.info("- [#{}] Testing Round {}/{} ... en={}, diff={}%", taskSet.getId(), i, rounds, String.format("%.5f",currentEntropy), String.format("%.3f", diffEntropy*100.0));
-                if (diffEntropy < 0.0001) // < 0.01%, based on TaskShuffler
+                if ( (diffEntropy<0.0001) || (lastEntropy==0.0 && currentEntropy==0.0) ) // < 0.01%, based on TaskShuffler
                     break;
             }
 
