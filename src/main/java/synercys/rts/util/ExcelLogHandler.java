@@ -183,20 +183,35 @@ public class ExcelLogHandler {
                 Cell cell = currentRow.createCell((int) (lastTimestamp % ladderWidth + columnOffset)); // Create a new cell
                 if (lastTimestamp<thisScheduleEvent.getOrgBeginTimestamp()) {
                     /* Fill the gaps with idle task. */
-                    cell.setCellValue(0);
+                    //cell.setCellValue(0);
+                    setCellColor(cell, IndexedColors.WHITE.index);
+                } else if (thisScheduleEvent.getTask() != null && thisScheduleEvent.getTask().isIdleTaskType()) {
+                    //cell.setCellValue(0);
+                    setCellColor(cell, IndexedColors.WHITE.index);
                 } else {
                     if (thisScheduleEvent.getBeginTimeScheduleState()==SchedulerIntervalEvent.SCHEDULE_STATE_START
                             && lastTimestamp==thisScheduleEvent.getOrgBeginTimestamp()) {
-                        cell.setCellValue(thisScheduleEvent.getTask().getId() + "*");
+//                        cell.setCellValue(thisScheduleEvent.getTask().getId() + "*");
+                        cell.setCellValue(thisScheduleEvent.getTask().getId());
                     } else {
                         if (thisScheduleEvent.getTask() != null)
                             cell.setCellValue(thisScheduleEvent.getTask().getId());
                     }
 
-                    if (thisScheduleEvent.getTask() != null)
-                        setCellColor(cell, (short)(thisScheduleEvent.getTask().getId()+1));
+                    if (thisScheduleEvent.getTask() != null) {
+                        int taskId = thisScheduleEvent.getTask().getId();
+                        short colorId;
+                        switch (taskId) {
+                            case 0: colorId = 9; break;
+                            case 1: colorId = 30; break;
+                            case 2: colorId = 17; break;
+                            case 3: colorId = 23; break;
+                            default: colorId = (short) (taskId+1); break;
+                        }
+                        setCellColor(cell, colorId);
+                    }
                     else
-                        setCellColor(cell, (short)99);
+                        setCellColor(cell, IndexedColors.WHITE.index);
 
                 }
 
@@ -309,10 +324,9 @@ public class ExcelLogHandler {
 //        cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
         cellStyle.setFillForegroundColor(inColorIndex);
         cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
         /* font color */
         Font font = workbook.createFont();
-        font.setColor(IndexedColors.BLACK.getIndex());
+        font.setColor(IndexedColors.WHITE.getIndex());
         cellStyle.setFont(font);
 
         // Apply style to the cell
