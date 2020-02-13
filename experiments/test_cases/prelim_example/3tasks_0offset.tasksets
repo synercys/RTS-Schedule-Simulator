@@ -1,0 +1,56 @@
+{
+    "data": {
+        "tickUnitInNs": 100000,
+        "tasksets": [{
+            "id": 0,
+            "tasks": [
+                {
+                    "phase": 0,
+                    "period": 0,
+                    "arrivalType": "periodic",
+                    "name": "IDLE",
+                    "id": 0,
+                    "type": "IDLE",
+                    "deadline": 0,
+                    "wcet": 0,
+                    "priority": 0
+                },
+                {
+                    "phase": 0,
+                    "period": 15,
+                    "arrivalType": "periodic",
+                    "name": "APP1",
+                    "id": 3,
+                    "type": "APP",
+                    "deadline": 15,
+                    "wcet": 2,
+                    "priority": 2
+                },
+                {
+                    "phase": 0,
+                    "period": 6,
+                    "arrivalType": "periodic",
+                    "name": "APP2",
+                    "id": 2,
+                    "type": "APP",
+                    "deadline": 6,
+                    "wcet": 2,
+                    "priority": 1
+                },
+                {
+                    "phase": 0,
+                    "period": 5,
+                    "arrivalType": "periodic",
+                    "name": "APP3",
+                    "id": 1,
+                    "type": "APP",
+                    "deadline": 5,
+                    "wcet": 1,
+                    "priority": 4
+                }
+            ]
+        }]
+    },
+    "dataType": "single taskset",
+    "formatVersion": "14"
+}
