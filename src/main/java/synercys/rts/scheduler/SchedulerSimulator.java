@@ -5,7 +5,6 @@ import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import cy.utility.ProgressUpdater;
 
 import java.util.*;
 
@@ -21,8 +20,6 @@ abstract class SchedulerSimulator {
     public static int DISTRIBUTION_MODE_FIXED = 0;
     public static int DISTRIBUTION_MODE_UNIFORM = 1;
     public static int DISTRIBUTION_MODE_GAUSSIAN = 2;
-
-    public ProgressUpdater progressUpdater = new ProgressUpdater();
 
     protected TaskSet taskSet = null;
 
