@@ -24,9 +24,9 @@
         <dependency>
             <groupId>cy.util</groupId>
             <artifactId>util</artifactId>
-            <version>1.0</version>
+            <version>0.1.2</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/dep/CY-Utility-Library-Java_v0.1.jar</systemPath>
+            <systemPath>${project.basedir}/dep/CY-Utility-Library-Java.jar</systemPath>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
