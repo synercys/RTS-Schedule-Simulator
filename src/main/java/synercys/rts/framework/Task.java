@@ -169,6 +169,10 @@ public class Task {
         this.wcrt = wcrt;
     }
 
+    public double getFreq() {
+        return 1.0 / ((double)period * RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER);
+    }
+
     @Override
     public String toString() {
         return "Task-" + id +
@@ -176,7 +180,6 @@ public class Task {
                 ", c=" + wcet +
                 ", pri=" + priority +
                 ", offset=" + initialOffset +
-                //", f=" + 1 / ((double)period*RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER);
-                (new Formatter()).format(", f=%.2f", 1 / ((double)period*RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER)).toString();
+                (new Formatter()).format(", f=%.2f", getFreq()).toString();
     }
 }
