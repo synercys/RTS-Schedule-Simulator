@@ -13,6 +13,10 @@ public class BusyIntervalEventContainer {
 
     public BusyIntervalEventContainer() {}
 
+    public BusyIntervalEventContainer(EventContainer inEventContainer) {
+        createBusyIntervalsFromEvents(inEventContainer);
+    }
+
     public BusyIntervalEventContainer(ArrayList<BusyIntervalEvent> inBusyIntervals) {
         busyIntervals.addAll( inBusyIntervals );
     }
@@ -21,72 +25,44 @@ public class BusyIntervalEventContainer {
         busyIntervals.add(inBi);
     }
 
+    /**
+     * create corresponding busy intervals from a set of scheduler events (with or without idle events)
+     * @param inEventContainer schedule events (with or without idle events)
+     * @return true if at least a busy interval is created; false otherwise
+     */
     public Boolean createBusyIntervalsFromEvents(EventContainer inEventContainer) {
         ArrayList<SchedulerIntervalEvent> schedulerEvents = inEventContainer.getSchedulerEvents();
-        //ArrayList<TaskInstantEvent> appEvents = inEventContainer.getTaskInstantEvents();
 
         // Reset the variable.
         busyIntervals.clear();
 
-        Boolean busyIntervalFound = false;
-        long beginTimeStamp = 0;
-        long endTimeStamp = 0; // keep track on current end timestamp.
-        ArrayList<SchedulerIntervalEvent> schedulerIntervalEventsInCurrentBI = new ArrayList<>();
+        BusyIntervalEvent currentBi = new BusyIntervalEvent();
+        Boolean firstEvent = true;
         for (SchedulerIntervalEvent currentEvent : schedulerEvents) {
-            if (busyIntervalFound == false) {
-                if (currentEvent.getTask().getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)) {
-                    continue;
-                } else { // Start of a busy interval is found.
-                    busyIntervalFound = true;
-                    beginTimeStamp = currentEvent.getOrgBeginTimestamp();
-                    endTimeStamp = currentEvent.getOrgEndTimestamp();
-                    schedulerIntervalEventsInCurrentBI.clear();
-                    schedulerIntervalEventsInCurrentBI.add(currentEvent);
-                    continue;
-                }
+            if (currentEvent.getTask().getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)) {
+                continue;
             }
 
-            if (currentEvent.getTask().getTaskType().equalsIgnoreCase(Task.TASK_TYPE_IDLE)) { // This is the end of a busy interval.
-                endTimeStamp = currentEvent.getOrgBeginTimestamp();
-                //TaskReleaseEventContainer thisBusyIntervalGroundTruth = new TaskReleaseEventContainer();
-                BusyIntervalEvent thisBusyInterval = new BusyIntervalEvent(beginTimeStamp, endTimeStamp);
-                if (beginTimeStamp > endTimeStamp) throw new AssertionError();
-
-                thisBusyInterval.getSchedulerIntervalEvents().addAll(schedulerIntervalEventsInCurrentBI);
-
-                /* Search for the composition of this busy interval. (ground truth) */
-//                for (AppEvent currentAppEvent : appEvents)
-//                {
-//                    if ( (currentAppEvent.getOrgBeginTimestampNs() >= beginTimeStamp)
-//                            && (currentAppEvent.getOrgBeginTimestampNs() <= endTimeStamp))
-//                    { // This app event is within the busy interval.
-//                        if (currentAppEvent.getNote().equalsIgnoreCase("BEGIN"))
-//                            thisBusyIntervalGroundTruth.add( currentAppEvent );
-//                    }
-//                }
-//                thisBusyInterval.setCompositionGroundTruth(thisBusyIntervalGroundTruth);
-                busyIntervals.add(thisBusyInterval);
-
-                // Reset flag to search next busy interval.
-                busyIntervalFound = false;
-            } else { // current task is not idle, thus it is still within a busy interval. Continue searching for the idle task.
-                schedulerIntervalEventsInCurrentBI.add(currentEvent);
-                endTimeStamp = currentEvent.getOrgEndTimestamp();
+            if (firstEvent) {
+                firstEvent = false;
+                currentBi.addIntervalEvent(currentEvent);
+                busyIntervals.add(currentBi);
+                continue;
             }
 
-        } // End of scheduler events iteration loop.
+            if (currentEvent.getOrgBeginTimestamp() > currentBi.getOrgEndTimestamp()) {
+                currentBi = new BusyIntervalEvent();
+                busyIntervals.add(currentBi);
+            } else if (currentEvent.getOrgBeginTimestamp() < currentBi.getOrgEndTimestamp()) {
+                System.err.println("Schedule events are ordered when creating busy intervals.");
+                throw new AssertionError();
+            }
 
-        if (busyIntervalFound == true) {
-            // The last busy interval is not closed, so close it now.
-            BusyIntervalEvent thisBusyInterval = new BusyIntervalEvent(beginTimeStamp, endTimeStamp);
-            if (beginTimeStamp > endTimeStamp) throw new AssertionError();
-
-            thisBusyInterval.getSchedulerIntervalEvents().addAll(schedulerIntervalEventsInCurrentBI);
-            busyIntervals.add(thisBusyInterval);
-            busyIntervalFound = false;
+            currentBi.addIntervalEvent(currentEvent);
         }
 
-        return true;
+        // return false if no busy interval is created from any scheduler event; return true otherwise
+        return !firstEvent;
     }
 
     /* This is used to convert events from Zedboard log. */
@@ -291,5 +267,36 @@ public class BusyIntervalEventContainer {
             outStr = outStr.substring(0, outStr.length()-2);
         }
         return outStr;
+    }
+
+    public double[] toBinaryDouble() {
+        ArrayList<Double> binarySchedule = new ArrayList<>();
+
+        long lastTimestamp = 0;
+        boolean firstPass = true;
+        for (BusyIntervalEvent thisBi : busyIntervals) {
+            if (firstPass) {
+                firstPass = false;
+                lastTimestamp = thisBi.orgBeginTimestamp;
+            }
+
+            for (long i=lastTimestamp; i<thisBi.getOrgBeginTimestamp(); i++) {
+                binarySchedule.add(0.0);
+            }
+
+            for (long i=thisBi.orgBeginTimestamp; i<thisBi.getOrgEndTimestamp(); i++) {
+                binarySchedule.add(1.0);
+            }
+
+            lastTimestamp = thisBi.orgEndTimestamp;
+        }
+
+        // convert the resulting ArrayList<Double> to primitive double[]
+        double[] returnArray = new double[binarySchedule.size()];
+        for (int i=0; i<binarySchedule.size(); i++) {
+            returnArray[i] = binarySchedule.get(i).doubleValue();
+        }
+
+        return returnArray;
     }
 }
