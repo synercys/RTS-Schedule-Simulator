@@ -11,9 +11,7 @@ import synercys.rts.framework.event.EventContainer;
 public class ScheduleDFTAnalyzer {
 
     public double[] getFrequencySpectrumOfSchedule(EventContainer schedule) {
-        BusyIntervalEventContainer biContainer = new BusyIntervalEventContainer(schedule);
-        double[] rawBinarySchedule = biContainer.toBinaryDouble();
-        return transformFFTPowerOfTwo(rawBinarySchedule, 0);
+        return transformFFTPowerOfTwo(schedule.toBinaryScheduleDouble(), 0);
     }
 
 

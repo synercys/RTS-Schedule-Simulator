@@ -276,6 +276,36 @@ public class EventContainer {
         return outStr;
     }
 
+    public double[] toBinaryScheduleDouble() {
+        ArrayList<Double> binarySchedule = new ArrayList<>();
+
+        long lastTimestamp = 0;
+        boolean firstPass = true;
+        for (SchedulerIntervalEvent thisEvent : schedulerEvents) {
+            if (firstPass) {
+                firstPass = false;
+                lastTimestamp = thisEvent.orgBeginTimestamp;
+            }
+
+            for (long i=lastTimestamp; i<thisEvent.orgBeginTimestamp; i++) {
+                binarySchedule.add(0.0);
+            }
+
+            for (long i=thisEvent.orgBeginTimestamp; i<thisEvent.orgEndTimestamp; i++) {
+                binarySchedule.add(1.0);
+            }
+            lastTimestamp = thisEvent.orgEndTimestamp;
+        }
+
+        // convert the resulting ArrayList<Double> to primitive double[]
+        double[] returnArray = new double[binarySchedule.size()];
+        for (int i=0; i<binarySchedule.size(); i++) {
+            returnArray[i] = binarySchedule.get(i).doubleValue();
+        }
+
+        return returnArray;
+    }
+
     public long getEndTimeStamp() {
         long endTimestamp = 0;
         for (SchedulerIntervalEvent event: schedulerEvents) {
