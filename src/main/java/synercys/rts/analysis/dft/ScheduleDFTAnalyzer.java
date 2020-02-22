@@ -5,6 +5,7 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 import synercys.rts.framework.event.EventContainer;
+import java.util.*;
 
 import static synercys.rts.RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER;
 
@@ -17,7 +18,7 @@ public class ScheduleDFTAnalyzer {
     int paddingMode = DFT_DATA_PADDING_MODE_LAST_POWER_OF_TWO;
 
     double[] binarySchedule = null;
-    double[] spectrum = null;
+    Map<Double, Double> freqSpectrumMap = new HashMap<>();
 
 
     public void setBinarySchedule(EventContainer schedule) {
@@ -42,18 +43,18 @@ public class ScheduleDFTAnalyzer {
         binarySchedule = zeroPaddedData;
     }
 
-    public double[] computeFreqSpectrum() {
+    public void computeFreqSpectrum() {
         // Transform
         FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
         Complex[] fftComplexArray = transformer.transform(binarySchedule, TransformType.FORWARD);
 
-        spectrum = new double[(fftComplexArray.length/2)+1];
+        double baseFreq = getBaseFreq();
+        //spectrum = new double[(fftComplexArray.length/2)+1];
         for (int i=0; i<(fftComplexArray.length/2)+1; i++) {
-            // spectrum[i] = fftComplexArray[i].abs() * fftComplexArray[i].abs();
-            spectrum[i] = fftComplexArray[i].abs() * fftComplexArray[i].abs() + fftComplexArray[i].getImaginary() * fftComplexArray[i].getImaginary();
+            // double amplitude = fftComplexArray[i].abs() * fftComplexArray[i].abs();
+            double amplitude = fftComplexArray[i].abs() * fftComplexArray[i].abs() + fftComplexArray[i].getImaginary() * fftComplexArray[i].getImaginary();
+            freqSpectrumMap.put(i*baseFreq, amplitude);
         }
-
-        return spectrum;
     }
 
 
@@ -91,25 +92,37 @@ public class ScheduleDFTAnalyzer {
 
 
     public double getPeakFreq() {
-        if (spectrum == null) {
+        if (freqSpectrumMap.size() == 0) {
             return 0.0;
         }
-
-        double baseFreq = getBaseFreq();
-        double maxAmplitude = 0.0;
-        double peakFreq = 0.0;
-        for (int i=0; i<spectrum.length; i++) {
-            if (spectrum[i] > maxAmplitude) {
-                maxAmplitude = spectrum[i];
-                peakFreq = baseFreq*i;
-            }
-        }
-        return peakFreq;
+        return sortMapByValueDescending(freqSpectrumMap).keySet().iterator().next();
     }
 
 
     public double getBaseFreq() {
         int sampleRate = (int)(1/TIMESTAMP_UNIT_TO_S_MULTIPLIER);
         return (double)sampleRate/getAnalyzedDataLength();
+    }
+
+
+    /* This function is modified from https://mkyong.com/java/how-to-sort-a-map-in-java/
+     * This function takes a map instance and return a value-sorted (in a descending order) map instance. */
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValueDescending(Map<K, V> unsortMap) {
+
+        List<Map.Entry<K, V>> list =
+                new LinkedList<Map.Entry<K, V>>(unsortMap.entrySet());
+
+        Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+                return (o2.getValue()).compareTo(o1.getValue());
+            }
+        });
+
+        Map<K, V> result = new LinkedHashMap<K, V>();
+        for (Map.Entry<K, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+
+        return result;
     }
 }
