@@ -18,7 +18,8 @@ public class ScheduleDFTAnalyzer {
     int paddingMode = DFT_DATA_PADDING_MODE_LAST_POWER_OF_TWO;
 
     double[] binarySchedule = null;
-    Map<Double, Double> freqSpectrumMap = new HashMap<>();
+    Map<Double, Double> freqSpectrumAmplitudeMap = new HashMap<>();
+    Map<Double, Double> freqSpectrumPhaseMap = new HashMap<>();
 
 
     public void setBinarySchedule(EventContainer schedule) {
@@ -49,11 +50,13 @@ public class ScheduleDFTAnalyzer {
         Complex[] fftComplexArray = transformer.transform(binarySchedule, TransformType.FORWARD);
 
         double baseFreq = getBaseFreq();
-        //spectrum = new double[(fftComplexArray.length/2)+1];
-        for (int i=0; i<(fftComplexArray.length/2)+1; i++) {
-            // double amplitude = fftComplexArray[i].abs() * fftComplexArray[i].abs();
-            double amplitude = fftComplexArray[i].abs() * fftComplexArray[i].abs() + fftComplexArray[i].getImaginary() * fftComplexArray[i].getImaginary();
-            freqSpectrumMap.put(i*baseFreq, amplitude);
+        for (int i=1; i<(fftComplexArray.length/2)+1; i++) {
+            double im = fftComplexArray[i].getImaginary();
+            double re = fftComplexArray[i].getReal();
+            double amplitude = Math.sqrt(re*re + im*im);
+            double phase = Math.atan2(im, re);
+            freqSpectrumAmplitudeMap.put(i*baseFreq, amplitude);
+            freqSpectrumPhaseMap.put(i*baseFreq, phase);
         }
     }
 
@@ -92,10 +95,10 @@ public class ScheduleDFTAnalyzer {
 
 
     public double getPeakFreq() {
-        if (freqSpectrumMap.size() == 0) {
+        if (freqSpectrumAmplitudeMap.size() == 0) {
             return 0.0;
         }
-        return sortMapByValueDescending(freqSpectrumMap).keySet().iterator().next();
+        return sortMapByValueDescending(freqSpectrumAmplitudeMap).keySet().iterator().next();
     }
 
 
@@ -104,6 +107,13 @@ public class ScheduleDFTAnalyzer {
         return (double)sampleRate/getAnalyzedDataLength();
     }
 
+    public Map<Double, Double> getFreqSpectrumAmplitude() {
+        return freqSpectrumAmplitudeMap;
+    }
+
+    public Map<Double, Double> getFreqSpectrumPhase() {
+        return freqSpectrumPhaseMap;
+    }
 
     /* This function is modified from https://mkyong.com/java/how-to-sort-a-map-in-java/
      * This function takes a map instance and return a value-sorted (in a descending order) map instance. */

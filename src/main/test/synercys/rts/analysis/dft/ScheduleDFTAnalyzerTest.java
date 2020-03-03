@@ -7,6 +7,9 @@ import synercys.rts.framework.TaskSet;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.scheduler.FixedPriorityScheduler;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import static synercys.rts.RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER;
 import static synercys.rts.RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER;
 
@@ -51,7 +54,7 @@ class ScheduleDFTAnalyzerTest {
         /* uncomment to print raw spectrum values */
         // System.out.println("Freq\t:\tAmplitude");
         // System.out.println("=====================");
-        // Map<Double, Double> sortedFreqSpectrum = new TreeMap<>(analyzer.freqSpectrumMap);
+        // Map<Double, Double> sortedFreqSpectrum = new TreeMap<>(analyzer.freqSpectrumAmplitudeMap);
         // for (Map.Entry<Double, Double> entry : sortedFreqSpectrum.entrySet()) {
         //     System.out.println(String.format("%.2f\t:\t%.2f", entry.getKey(), entry.getValue()));
         // }
