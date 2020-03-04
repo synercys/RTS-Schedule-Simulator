@@ -32,10 +32,11 @@ class ScheduleDFTAnalyzerTest {
     void getFrequencySpectrumOfSchedule() {
         long SIM_DURATION = (long)(250*TIMESTAMP_MS_TO_UNIT_MULTIPLIER);
         long TASK_PERIOD_MS = 30;
+        long TASK_WCET_MS = 15;
 
         // Set up a sample task set
         TaskSet taskSet = new TaskSet();
-        taskSet.addTask(new Task(1, "", Task.TASK_TYPE_APP, (long)(TASK_PERIOD_MS*TIMESTAMP_MS_TO_UNIT_MULTIPLIER), (long)(TASK_PERIOD_MS*TIMESTAMP_MS_TO_UNIT_MULTIPLIER), 1, 1));
+        taskSet.addTask(new Task(1, "", Task.TASK_TYPE_APP, (long)(TASK_PERIOD_MS*TIMESTAMP_MS_TO_UNIT_MULTIPLIER), (long)(TASK_PERIOD_MS*TIMESTAMP_MS_TO_UNIT_MULTIPLIER), (long)(TASK_WCET_MS*TIMESTAMP_MS_TO_UNIT_MULTIPLIER), 1));
         taskSet.addIdleTask();
 
         FixedPriorityScheduler fixedPriorityScheduler = new FixedPriorityScheduler(taskSet, false);
