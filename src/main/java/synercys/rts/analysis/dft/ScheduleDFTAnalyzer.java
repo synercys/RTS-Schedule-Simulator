@@ -1,5 +1,6 @@
 package synercys.rts.analysis.dft;
 
+import hageldave.ezfftw.dp.FFT;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
@@ -15,8 +16,9 @@ import static synercys.rts.RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER;
 public class ScheduleDFTAnalyzer {
     static final int FFT_LIB_APACHE = 0; // Apache's implementation that supports data in a power-of-2 length
     static final int FFT_LIB_JTRANSFORMS = 1; // an open source library that supports data in any length
-    
-    static final int FFT_LIB = FFT_LIB_JTRANSFORMS;
+    static final int FFT_LIB_EZFFTW = 2; // a wrapper for the FFTW library (see function description for details)
+
+    static final int FFT_LIB = FFT_LIB_EZFFTW;
 
     double[] binarySchedule = null;
     Map<Double, Double> freqSpectrumAmplitudeMap = new HashMap<>();
@@ -56,10 +58,13 @@ public class ScheduleDFTAnalyzer {
 
 
     public ScheduleDFTAnalysisReport computeFreqSpectrum() {
-        if (FFT_LIB == FFT_LIB_APACHE) {
-            return computeFreqSpectrumApache();
-        } else {
-            return computeFreqSpectrumJTransforms();
+        switch (FFT_LIB) {
+            case FFT_LIB_APACHE:
+                return computeFreqSpectrumApache();
+            case FFT_LIB_JTRANSFORMS:
+                return computeFreqSpectrumJTransforms();
+            case FFT_LIB_EZFFTW: default:
+                return computeFreqSpectrumEZFFTW();
         }
     }
 
@@ -99,6 +104,33 @@ public class ScheduleDFTAnalyzer {
         for (int i=1; i<(fftComplexArray.length/2)+1; i++) {
             double im = fftComplexArray[i].getImaginary();
             double re = fftComplexArray[i].getReal();
+            double amplitude = Math.sqrt(re*re + im*im);
+            double phase = Math.atan2(im, re);
+            freqSpectrumAmplitudeMap.put(i*baseFreq, amplitude);
+            freqSpectrumPhaseMap.put(i*baseFreq, phase);
+        }
+
+        concludeReport();
+
+        return report;
+    }
+
+
+    /**
+     * Compute FFT by using EZFFTW (https://github.com/hageldave/ezfftw), a Java wrapper for a highly cited FFT
+     * library (http://www.fftw.org/index.html).
+     * @return
+     */
+    protected ScheduleDFTAnalysisReport computeFreqSpectrumEZFFTW() {
+
+        double[] reOut = new double[binarySchedule.length];
+        double[] imOut = new double[binarySchedule.length];
+        FFT.fft(binarySchedule, reOut, imOut, binarySchedule.length);
+
+        double baseFreq = getBaseFreq();
+        for (int i=1; i<(binarySchedule.length/2)+1; i++) {
+            double re = reOut[i];
+            double im = imOut[i];
             double amplitude = Math.sqrt(re*re + im*im);
             double phase = Math.atan2(im, re);
             freqSpectrumAmplitudeMap.put(i*baseFreq, amplitude);
