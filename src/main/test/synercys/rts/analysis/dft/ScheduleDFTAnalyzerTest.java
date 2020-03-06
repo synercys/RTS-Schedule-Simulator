@@ -7,9 +7,6 @@ import synercys.rts.framework.TaskSet;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.scheduler.FixedPriorityScheduler;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import static synercys.rts.RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER;
 import static synercys.rts.RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER;
 
@@ -48,9 +45,9 @@ class ScheduleDFTAnalyzerTest {
         // Analyze FFT
         ScheduleDFTAnalyzer analyzer = new ScheduleDFTAnalyzer();
         analyzer.setBinarySchedule(eventContainer);
-        analyzer.computeFreqSpectrum();
-        double baseFreq = analyzer.getBaseFreq();
-        double peakFreq = analyzer.getPeakFreq();
+        ScheduleDFTAnalysisReport report = analyzer.computeFreqSpectrum();
+        double baseFreq = report.getBaseFreq();
+        double peakFreq = report.getPeakFreq();
 
         /* uncomment to print raw spectrum values */
         // System.out.println("Freq\t:\tAmplitude");

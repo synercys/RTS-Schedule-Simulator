@@ -4,6 +4,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
+import synercys.rts.framework.TaskSet;
 import synercys.rts.framework.event.EventContainer;
 import java.util.*;
 
@@ -21,10 +22,20 @@ public class ScheduleDFTAnalyzer {
     Map<Double, Double> freqSpectrumAmplitudeMap = new HashMap<>();
     Map<Double, Double> freqSpectrumPhaseMap = new HashMap<>();
 
+    ScheduleDFTAnalysisReport report = new ScheduleDFTAnalysisReport();
 
     public void setBinarySchedule(EventContainer schedule) {
         binarySchedule = schedule.toBinaryScheduleDouble();
         validateBinarySchedule(-1);
+    }
+
+
+    /**
+     * The task set is only stored in report and is not used in DFT analysis.
+     * @param taskSet task set instance that associates with the given schedule
+     */
+    public void setTaskSet(TaskSet taskSet) {
+        report.taskSet = taskSet;
     }
 
 
@@ -44,7 +55,7 @@ public class ScheduleDFTAnalyzer {
         binarySchedule = zeroPaddedData;
     }
 
-    public void computeFreqSpectrum() {
+    public ScheduleDFTAnalysisReport computeFreqSpectrum() {
         // Transform
         FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
         Complex[] fftComplexArray = transformer.transform(binarySchedule, TransformType.FORWARD);
@@ -58,6 +69,10 @@ public class ScheduleDFTAnalyzer {
             freqSpectrumAmplitudeMap.put(i*baseFreq, amplitude);
             freqSpectrumPhaseMap.put(i*baseFreq, phase);
         }
+
+        concludeReport();
+
+        return report;
     }
 
 
@@ -69,8 +84,16 @@ public class ScheduleDFTAnalyzer {
         }
     }
 
+    protected void concludeReport() {
+        report.baseFreq = getBaseFreq();
+        report.dataLength = getAnalyzedDataLength();
+        report.freqSpectrumAmplitudeMap = freqSpectrumAmplitudeMap;
+        report.freqSpectrumPhaseMap = freqSpectrumPhaseMap;
+        report.peakFreq = getPeakFreq();
+    }
 
-    public int getAnalyzedDataLength() {
+
+    protected int getAnalyzedDataLength() {
         if (binarySchedule == null) {
             return 0;
         } else {
@@ -94,7 +117,7 @@ public class ScheduleDFTAnalyzer {
     }
 
 
-    public double getPeakFreq() {
+    protected double getPeakFreq() {
         if (freqSpectrumAmplitudeMap.size() == 0) {
             return 0.0;
         }
@@ -102,17 +125,14 @@ public class ScheduleDFTAnalyzer {
     }
 
 
-    public double getBaseFreq() {
+    protected double getBaseFreq() {
         int sampleRate = (int)(1/TIMESTAMP_UNIT_TO_S_MULTIPLIER);
         return (double)sampleRate/getAnalyzedDataLength();
     }
 
-    public Map<Double, Double> getFreqSpectrumAmplitude() {
-        return freqSpectrumAmplitudeMap;
-    }
 
-    public Map<Double, Double> getFreqSpectrumPhase() {
-        return freqSpectrumPhaseMap;
+    public ScheduleDFTAnalysisReport getReport() {
+        return report;
     }
 
     /* This function is modified from https://mkyong.com/java/how-to-sort-a-map-in-java/
