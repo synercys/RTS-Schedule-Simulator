@@ -4,6 +4,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
+import org.jtransforms.fft.DoubleFFT_1D;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.framework.event.EventContainer;
 import java.util.*;
@@ -12,11 +13,10 @@ import static synercys.rts.RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER;
 
 
 public class ScheduleDFTAnalyzer {
-    static int DFT_DATA_PADDING_MODE_NEXT_POWER_OF_TWO = 0;
-    static int DFT_DATA_PADDING_MODE_LAST_POWER_OF_TWO = 1;
-
-    // configurations
-    int paddingMode = DFT_DATA_PADDING_MODE_LAST_POWER_OF_TWO;
+    static final int FFT_LIB_APACHE = 0; // Apache's implementation that supports data in a power-of-2 length
+    static final int FFT_LIB_JTRANSFORMS = 1; // an open source library that supports data in any length
+    
+    static final int FFT_LIB = FFT_LIB_JTRANSFORMS;
 
     double[] binarySchedule = null;
     Map<Double, Double> freqSpectrumAmplitudeMap = new HashMap<>();
@@ -26,7 +26,6 @@ public class ScheduleDFTAnalyzer {
 
     public void setBinarySchedule(EventContainer schedule) {
         binarySchedule = schedule.toBinaryScheduleDouble();
-        validateBinarySchedule(-1);
     }
 
 
@@ -39,14 +38,14 @@ public class ScheduleDFTAnalyzer {
     }
 
 
-    protected void validateBinarySchedule(int admittedDataLength) {
+    protected void trimOrAppendBinaryScheduleToPowerOfTwoLength(int admittedDataLength, boolean toNextPowerOfTwoInclusive) {
         // determine the actual length that will be used for FFT computation
-        // (the length must be in power of two)
+        // (the length must be a power of two)
         if (admittedDataLength <= 0) {
             admittedDataLength = binarySchedule.length;
         }
 
-        int actualPowerOfTwoLength = computeValidDataLength(admittedDataLength);
+        int actualPowerOfTwoLength = computeValidDataLength(admittedDataLength, toNextPowerOfTwoInclusive);
 
         // Add padding zeros
         double[] zeroPaddedData = new double[actualPowerOfTwoLength];
@@ -55,7 +54,43 @@ public class ScheduleDFTAnalyzer {
         binarySchedule = zeroPaddedData;
     }
 
+
     public ScheduleDFTAnalysisReport computeFreqSpectrum() {
+        if (FFT_LIB == FFT_LIB_APACHE) {
+            return computeFreqSpectrumApache();
+        } else {
+            return computeFreqSpectrumJTransforms();
+        }
+    }
+
+
+    protected ScheduleDFTAnalysisReport computeFreqSpectrumJTransforms() {
+
+        DoubleFFT_1D transformer = new DoubleFFT_1D(binarySchedule.length);
+        double[] extendedData = new double[binarySchedule.length*2];
+        System.arraycopy(binarySchedule, 0, extendedData, 0, binarySchedule.length);
+        transformer.realForward(extendedData);
+
+        double baseFreq = getBaseFreq();
+        for (int i=1; i<(binarySchedule.length/2)+1; i++) {
+            double re = extendedData[i*2];
+            double im = extendedData[i*2+1];
+            double amplitude = Math.sqrt(re*re + im*im);
+            double phase = Math.atan2(im, re);
+            freqSpectrumAmplitudeMap.put(i*baseFreq, amplitude);
+            freqSpectrumPhaseMap.put(i*baseFreq, phase);
+        }
+
+        concludeReport();
+
+        return report;
+    }
+
+    protected ScheduleDFTAnalysisReport computeFreqSpectrumApache() {
+
+        // Make sure data has a power-of-2 length since Apache's library only works with this limitation
+        trimOrAppendBinaryScheduleToPowerOfTwoLength(-1, false);
+
         // Transform
         FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
         Complex[] fftComplexArray = transformer.transform(binarySchedule, TransformType.FORWARD);
@@ -76,8 +111,8 @@ public class ScheduleDFTAnalyzer {
     }
 
 
-    protected int computeValidDataLength(int rawLength) {
-        if (paddingMode == DFT_DATA_PADDING_MODE_NEXT_POWER_OF_TWO) {
+    protected int computeValidDataLength(int rawLength, boolean toNextPowerOfTwoInclusive) {
+        if (toNextPowerOfTwoInclusive == true) {
             return getNextPowerOfTwoInclusive(rawLength);
         } else {
             return getLastPowerOfTwoInclusive(rawLength);

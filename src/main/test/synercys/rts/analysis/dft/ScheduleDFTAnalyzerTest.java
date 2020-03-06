@@ -27,7 +27,7 @@ class ScheduleDFTAnalyzerTest {
 
     @Test
     void getFrequencySpectrumOfSchedule() {
-        long SIM_DURATION = (long)(250*TIMESTAMP_MS_TO_UNIT_MULTIPLIER);
+        long SIM_DURATION = (long)(333*TIMESTAMP_MS_TO_UNIT_MULTIPLIER);
         long TASK_PERIOD_MS = 30;
         long TASK_WCET_MS = 15;
 
@@ -60,8 +60,9 @@ class ScheduleDFTAnalyzerTest {
         // System.out.println("");
 
         System.out.println("Tested Task Freq: " + taskFreq);
-        System.out.println("Sample Rate: " + sampleRate);
-        System.out.println("Base Freq: " + baseFreq);
+        System.out.println("Sample Rate (fs): " + sampleRate);
+        System.out.println("Samples (N): " + report.getDataLength());
+        System.out.println("Base Freq (fs/N): " + baseFreq);
         System.out.println("Peak Freq: " + peakFreq);
 
         // Check if the peak freq is a multiple of taskFreq Hz and within 10% error
