@@ -94,7 +94,7 @@
             <scope>test</scope>
         </dependency>
 
-        
+
         <!-- https://sites.google.com/site/piotrwendykier/software/jtransforms -->
         <!-- for Fast Fourier Transform analysis -->
         <dependency>
@@ -102,6 +102,14 @@
             <artifactId>JTransforms</artifactId>
             <version>3.1</version>
             <classifier>with-dependencies</classifier>
+        </dependency>
+
+        <!-- https://github.com/hageldave/ezfftw -->
+        <!-- a FFTW library wrapper for Discrete Fourier Transform analysis -->
+        <dependency>
+            <groupId>com.github.hageldave.ezfftw</groupId>
+            <artifactId>ezfftw</artifactId>
+            <version>0.1.2</version>
         </dependency>
 
     </dependencies>
