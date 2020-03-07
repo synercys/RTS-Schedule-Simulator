@@ -4,6 +4,7 @@ import cy.utility.file.FileHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import synercys.rts.RtsConfig;
+import synercys.rts.analysis.dft.ScheduleDFTAnalysisReport;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.event.SchedulerIntervalEvent;
 import synercys.rts.framework.event.TaskInstantEvent;
@@ -13,6 +14,7 @@ import synercys.rts.scheduler.TaskSetContainer;
 import synercys.rts.scheduler.TaskSetGenerator;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by cy on 3/28/2018.
@@ -29,47 +31,11 @@ public class JsonLogExporter extends FileHandler {
     }
 
     public void exportSingleTaskSet(TaskSet inTaskSet) {
-        JSONObject jsonRoot = new JSONObject();
-
-        /* Basics */
-        // root - formatVersion
-        putVersion(jsonRoot);
-        // root - dataType
-        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_SINGLE_TASKSET);
-
-        /* root - data */
-        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
-        // root - data - tickUnitNs
-        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
-        // root - data - taskSets (an array containing only one taskset)
-        JSONArray jsonTaskSetArray = new JSONArray();
-        jsonTaskSetArray.put(getJsonTaskSet(inTaskSet));
-        jsonData.put(JsonLogStr.DATA_TASKSETS, jsonTaskSetArray);
-
-        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
-
-        writeString(jsonRoot.toString(4));
+        writeString(getSingleTaskSetWrapperJson(inTaskSet).toString(4));
     }
 
     public void exportTaskSets(TaskSetContainer taskSetContainer) {
-        JSONObject jsonRoot = new JSONObject();
-
-        /* Basics */
-        // root - formatVersion
-        putVersion(jsonRoot);
-        // root - dataType
-        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_TASKSETS);
-
-        /* root - data */
-        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
-        // root - data - tickUnitNs
-        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
-        // root - data - tasksets
-        jsonData.put(JsonLogStr.DATA_TASKSETS, getJsonTaskSets(taskSetContainer.getTaskSets()));
-
-        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
-
-        writeString(jsonRoot.toString(4));
+        writeString(getTaskSetsWrapperJson(taskSetContainer).toString(4));
     }
 
     public void exportRawSchedule(EventContainer eventContainer) {
@@ -111,6 +77,96 @@ public class JsonLogExporter extends FileHandler {
 
         writeString(jsonRoot.toString(4));
     }
+
+    protected JSONObject getSingleTaskSetWrapperJson(TaskSet inTaskSet) {
+        JSONObject jsonRoot = new JSONObject();
+
+        /* Basics */
+        // root - formatVersion
+        putVersion(jsonRoot);
+        // root - dataType
+        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_SINGLE_TASKSET);
+
+        /* root - data */
+        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
+        // root - data - tickUnitNs
+        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
+        // root - data - taskSets (an array containing only one taskset)
+        JSONArray jsonTaskSetArray = new JSONArray();
+        jsonTaskSetArray.put(getJsonTaskSet(inTaskSet));
+        jsonData.put(JsonLogStr.DATA_TASKSETS, jsonTaskSetArray);
+
+        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
+
+        return jsonRoot;
+    }
+
+    public JSONObject getTaskSetsWrapperJson(TaskSetContainer taskSetContainer) {
+        JSONObject jsonRoot = new JSONObject();
+
+        /* Basics */
+        // root - formatVersion
+        putVersion(jsonRoot);
+        // root - dataType
+        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_TASKSETS);
+
+        /* root - data */
+        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
+        // root - data - tickUnitNs
+        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
+        // root - data - tasksets
+        jsonData.put(JsonLogStr.DATA_TASKSETS, getJsonTaskSets(taskSetContainer.getTaskSets()));
+
+        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
+
+        return jsonRoot;
+    }
+
+    public void exportDFTAnalysisReport(ScheduleDFTAnalysisReport report) {
+        JSONObject jsonRoot = new JSONObject();
+
+        /* Basics */
+        // root - formatVersion
+        putVersion(jsonRoot);
+        // root - dataType
+        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_DFT_REPORT);
+
+        /* root - data */
+        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
+        // root - data - tickUnitNs
+        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
+
+        // root - data - dft-report - taskSet
+        jsonData.put(JsonLogStr.DFT_REPORT_TASKSET, getJsonTaskSet(report.getTaskSet()));
+
+        // root - data - dft-report - sampleCount
+        jsonData.put(JsonLogStr.DFT_REPORT_SAMPLE_COUNT, report.getDataLength());
+
+        // root - data - dft-report - spectrumMagnitudeCSV
+        jsonData.put(JsonLogStr.DFT_REPORT_SPECTRUM_CSV,
+                dftSpectrumToCSVString(report.getFreqSpectrumAmplitudeMap(),
+                report.getFreqSpectrumPhaseMap()));
+
+        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
+
+        writeString(jsonRoot.toString(4));
+    }
+
+    protected String dftSpectrumToCSVString(Map<Double, Double> mapMagnitude, Map<Double, Double> mapPhase) {
+        String output = "";
+
+        // title row
+        output += "frequency,magnitude,phase\n";
+
+        for (Double freq : mapMagnitude.keySet()) {
+            double magnitude = mapMagnitude.get(freq);
+            double phase = mapPhase.get(freq);
+            output += String.format("%f,%f,%f\n", freq, magnitude, phase);
+        }
+
+        return output;
+    }
+
 
     protected void putVersion(JSONObject inJson) {
         inJson.put(JsonLogStr.ROOT_FORMAT_VERSION, getVersion());

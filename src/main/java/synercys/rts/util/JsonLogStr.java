@@ -5,10 +5,12 @@ package synercys.rts.util;
  */
 public class JsonLogStr {
     /* data type */
+    public static String DATA_TYPE_MULTI = "multi"; // A "multi" type can wrap many of the following type data
     public static String DATA_TYPE_RT_TASK_GEN_SETTINGS = "rtTaskGen settings";
     public static String DATA_TYPE_SINGLE_TASKSET = "single taskset";
     public static String DATA_TYPE_TASKSETS = "tasksets";
     public static String DATA_TYPE_RT_SIM_RAW_SCHEDULE = "rtSim raw schedule";
+    public static String DATA_TYPE_DFT_REPORT = "dft-report";
 
     /* key names */
     /* root */
@@ -100,4 +102,10 @@ public class JsonLogStr {
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_OBSERVER_PRIORITY = "observerTaskPriority";
     public static String TASK_GEN_SETTINGS_SCHEDULEAK_VICTIM_PRIORITY = "victimTaskPriority";
 
+    /* dft-report */
+    public static String DFT_REPORT_SAMPLE_COUNT = "sampleCount";
+    public static String DFT_REPORT_TASKSET = "taskSet";
+    public static String DFT_REPORT_SPECTRUM_CSV = "spectrumCSV";
+    // public static String DFT_REPORT_SPECTRUM_MAGNITUDE_CSV = "spectrumMagnitudeCSV";
+    // public static String DFT_REPORT_SPECTRUM_PHASE_CSV = "spectrumPhase_CSV";
 }
