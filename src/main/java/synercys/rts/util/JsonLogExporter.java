@@ -161,7 +161,7 @@ public class JsonLogExporter extends FileHandler {
         for (Double freq : mapMagnitude.keySet()) {
             double magnitude = mapMagnitude.get(freq);
             double phase = mapPhase.get(freq);
-            output += String.format("%f,%f,%f\n", freq, magnitude, phase);
+            output += String.format("%.4f,%.4f,%.4f\n", freq, magnitude, phase);
         }
 
         return output;

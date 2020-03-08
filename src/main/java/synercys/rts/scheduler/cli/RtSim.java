@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
+import synercys.rts.analysis.dft.ScheduleDFTAnalysisReport;
+import synercys.rts.analysis.dft.ScheduleDFTAnalyzer;
 import synercys.rts.framework.event.BusyIntervalEventContainer;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.TaskSet;
@@ -35,7 +37,10 @@ public class RtSim implements Callable {
     @Option(names = {"-i", "--in"}, required = true, description = "A file that contains taskset parameters.")
     protected String taskInputFile = "";
 
-    @Option(names = {"-o", "--out"}, required = false, description = "File names (including their formats) for schedule simulation output. The output format is determined by the given file extension: \".xlsx\", \".txt\", \".rtschedule\".")
+    @Option(names = {"-o", "--out"}, required = false, description =
+            "File names (including their formats) for schedule simulation output. " +
+            "The output format is determined by the given file extension: " +
+            "\".xlsx\", \".txt\", \".rtschedule\", \".rtdft\" (for DFT analysis).")
     protected List<String> outputFilePathAndFormat = new ArrayList<>();
 
     @CommandLine.Option(names = {"-p", "--policy"}, required = true, description = "Scheduling policy (\"--option\" for detailed options).")
@@ -174,6 +179,19 @@ public class RtSim implements Callable {
 
                     JsonLogExporter jsonLogExporter = new JsonLogExporter(thisOutputFileName);
                     jsonLogExporter.exportRawSchedule(eventContainer);
+                } else if (outputExtension.equalsIgnoreCase("rtdft")) {
+                    loggerConsole.info("Run and generate FFT analysis.");
+                    ScheduleDFTAnalyzer dftAnalyzer = new ScheduleDFTAnalyzer();
+                    dftAnalyzer.setTaskSet(taskSet);
+                    dftAnalyzer.setBinarySchedule(eventContainer);
+                    ScheduleDFTAnalysisReport dftReport = dftAnalyzer.computeFreqSpectrum();
+
+                    if (optionRounds > 1) {
+                        thisOutputFileName = fileNamePrefix + "_" + round + ".rtdft";
+                    }
+
+                    JsonLogExporter jsonLogExporter = new JsonLogExporter(thisOutputFileName);
+                    jsonLogExporter.exportDFTAnalysisReport(dftReport);
                 } else {
                     loggerConsole.info("Invalid output extension.");
                 }
