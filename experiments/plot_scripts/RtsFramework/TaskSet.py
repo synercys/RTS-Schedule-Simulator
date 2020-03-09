@@ -14,6 +14,12 @@ class TaskSet:
             util += task.wcet/task.period
         return util
 
+    def getLargestFreq(self):
+        maxFreq = 0;
+        for task in self.tasks:
+            maxFreq = max(maxFreq, task.frequency)
+        return maxFreq
+
     ''' Example output:
     TaskSet(0.5474416457017328):
 	    Task-2: p=970, c=103, pri=1, offset=472, f=10.31

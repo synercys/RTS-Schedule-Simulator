@@ -50,7 +50,7 @@ if __name__ == '__main__':
     yMag = data_dict_base['magnitude']
     yPhase = data_dict_base['phase']
 
-    '''Plot display config'''
+    ''' Plot display config '''
     if displayDetail:
         plt.rcParams['figure.figsize'] = 7, 4.5
     else:
@@ -73,36 +73,42 @@ if __name__ == '__main__':
     # plt.rcParams['ytick.labelsize'] = 15
     # plt.rcParams['xtick.labelsize'] = 15
 
-    X_AXIS_FREQ_LIMIT = 201
 
-    X_AXIS_TICK_INTERVAL = 10
-
-
-    ''' FFT Frequency Amplitude Plot '''
+    ''' Frequency Magnitude Spectrum Plot '''
     if displayDetail:
         ax = plt.subplot(211)
     else:
         ax = plt.subplot(111)
 
-    # Axis display limit
-    xaxis_limit = findIndexOfFrequency(xFreq, X_AXIS_FREQ_LIMIT)
+    # X-axis Settings
+    plt.xlabel('Frequency (Hz)')
 
-    # Compute the max value of amplitude for Y axis in the given display range (frequency range)
-    maxAmplitude = max(yMag[:xaxis_limit])
-    yaxis_limit = 1 # normalized # maxAmplitude if not normalized
+    # Set X-axis limit based on the largest frequency of all tasks
+    X_AXIS_FREQ_LIMIT = 100*(int(taskSet.getLargestFreq()/100)+1)
 
-    # lists of X and Y axis values (trimmed to the desired display range) to be displayed
-    displayedFreq = xFreq[:xaxis_limit]
-    displayedAmplitude = [amp / maxAmplitude for amp in yMag[:xaxis_limit]] # Normalized
-
+    X_AXIS_TICK_INTERVAL = 10
     #ax.set_xticks(major_ticks)
+
     ax.xaxis.set_major_locator(ticker.MultipleLocator(X_AXIS_TICK_INTERVAL))
+    ax.set_xlim(0, X_AXIS_FREQ_LIMIT)
+
+
+    # Y-axis Settings
+    ax.set_ylabel(ylabel='Magnitude \n(Normalized)')
+
+    yaxis_limit = 1 # normalized # maxAmplitude if not normalized
     ax.set_ylim([0, yaxis_limit])
 
-    plt.xlabel('Frequency (Hz)')
-    ax.set_ylabel(ylabel='Magnitude \n(Normalized)')
     ax.yaxis.labelpad = 3
     ax.xaxis.labelpad = 3
+
+    # get X and Y axis values (trimmed to the desired display range) to be displayed
+    # X
+    xFreq_limitIndx = findIndexOfFrequency(xFreq, X_AXIS_FREQ_LIMIT)
+    displayedFreq = xFreq[:xFreq_limitIndx]
+    # Y
+    maxAmplitude = max(yMag[:xFreq_limitIndx])
+    displayedAmplitude = [amp / maxAmplitude for amp in yMag[:xFreq_limitIndx]] # Normalized
 
     plt.plot(displayedFreq, displayedAmplitude, color='navy', alpha=0.75, linewidth=1.5)
     plt.grid(linestyle=':')
@@ -119,11 +125,11 @@ if __name__ == '__main__':
         #ax.set_xticks(major_ticks)
         ax.xaxis.set_major_locator(ticker.MultipleLocator(X_AXIS_TICK_INTERVAL))
         plt.grid()
-        plt.plot(xFreq[:xaxis_limit], np.angle(yPhase[:xaxis_limit]), color='blue', alpha=0.8,)
+        plt.plot(xFreq[:xFreq_limitIndx], np.angle(yPhase[:xFreq_limitIndx]), color='blue', alpha=0.8, )
 
     plt.tight_layout()
 
-    # Save the plot to files with the specified format
+    ''' Save the plot to files with the specified format '''
     for outFileName in outFileNames:
         outputFormat = outFileName.split('.')[-1]
         if outputFormat == "pdf" or outputFormat == "png":
