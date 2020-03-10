@@ -15,9 +15,10 @@ class FixedPrioritySchedulerTest {
         taskSet.addTask(new Task(0, "", Task.TASK_TYPE_APP, 5, 5, 2, 1));
 
         FixedPriorityScheduler fixedPriorityScheduler = new FixedPriorityScheduler(taskSet, false);
+        //fixedPriorityScheduler.setGenIdleTimeEvents(false);
         EventContainer eventContainer = fixedPriorityScheduler.runSim(20);
 
-        assertEquals(4, eventContainer.getSchedulerEvents().size());
+        assertEquals(8, eventContainer.getSchedulerEvents().size());    // This includes 4 idle time events
     }
 
 }

@@ -23,6 +23,8 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
     // This map stores each task's next job instance, no matter it's arrived or not.
     protected HashMap<Task, Job> nextJobOfATask = new HashMap<>();
 
+    protected boolean genIdleTimeEvents = true; // Should the scheduler log idle time intervals?
+
     public AdvanceableSchedulerSimulator(TaskSet taskSet, boolean runTimeVariation, String schedulingPolicy) {
         super(taskSet, runTimeVariation, schedulingPolicy);
 
@@ -87,8 +89,16 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
         Job currentJob = getNextJob(tick);
 
         // If it is a future job, then jump the tick first.
-        if (currentJob.releaseTime > tick)
+        if (currentJob.releaseTime > tick) {
+
+            if (genIdleTimeEvents == true) {
+                SchedulerIntervalEvent idleJobEvent = new SchedulerIntervalEvent(tick, currentJob.releaseTime, taskSet.getIdleTask(), "");
+                idleJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_START, SchedulerIntervalEvent.SCHEDULE_STATE_END);
+                simEventContainer.add(idleJobEvent);
+            }
+
             tick = currentJob.releaseTime;
+        }
 
         // Run the job (and log the execution interval).
         tick = runJobToNextSchedulingPoint(tick, currentJob);
@@ -200,6 +210,10 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
             }
         }
         return readyJobs;
+    }
+
+    public void setGenIdleTimeEvents(boolean genIdleTimeEvents) {
+        this.genIdleTimeEvents = genIdleTimeEvents;
     }
 
     @Override
