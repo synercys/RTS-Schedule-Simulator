@@ -240,6 +240,13 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
         return task.getDeadline() - Wi;
     }
 
+    /**
+     * A task's minimum inversion priority (Mi) is defined by the highest priority among lp(τi) that has a negative
+     * worst-case maximum inversion budget.
+     * @param task the task whose minimum inversion priority is to calculate
+     * @return minimum inversion priority; if no priority is found, then Mi is set to an arbitrarily minimum priority,
+     * which is -1 in this implementation.
+     */
     protected int computeTaskMinInversionPriority(Task task) {
         int maxMinInversionPriority = -1;
         for (Task iTask : taskSet.getAppTasksAsArray()) {

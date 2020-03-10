@@ -45,8 +45,8 @@ class TaskShufflerSchedulerTest {
         assertEquals(task2.getPriority(), taskShufflerScheduler.taskM.get(task0));
         assertEquals(task2.getPriority(), taskShufflerScheduler.taskM.get(task1));
         assertEquals(task3.getPriority(), taskShufflerScheduler.taskM.get(task2));
-        assertEquals(task4.getPriority(), taskShufflerScheduler.taskM.get(task3));
-        assertEquals(task4.getPriority(), taskShufflerScheduler.taskM.get(task4));
+        assertEquals(-1, taskShufflerScheduler.taskM.get(task3));
+        assertEquals(-1, taskShufflerScheduler.taskM.get(task4));
 
     }
 
