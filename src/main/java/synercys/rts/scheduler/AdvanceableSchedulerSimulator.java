@@ -70,7 +70,7 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
 
     public long getSimDefaultOffset() {
         Task largestPeriodTask = taskSet.getLargestPeriodTask();
-        return largestPeriodTask.getPeriod()*2 + largestPeriodTask.getInitialOffset();
+        return largestPeriodTask.getPeriod() + largestPeriodTask.getInitialOffset();
     }
 
     
