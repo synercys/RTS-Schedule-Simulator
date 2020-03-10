@@ -291,10 +291,52 @@ public class EventContainer {
                 binarySchedule.add(0.0);
             }
 
+            double valueToBeAdded;
+            if (thisEvent.getTask().isIdleTaskType()) {
+                valueToBeAdded = 0.0;
+            } else {
+                valueToBeAdded = 1.0;
+            }
             for (long i=thisEvent.orgBeginTimestamp; i<thisEvent.orgEndTimestamp; i++) {
-                binarySchedule.add(1.0);
+                binarySchedule.add(valueToBeAdded);
             }
             lastTimestamp = thisEvent.orgEndTimestamp;
+        }
+
+        // convert the resulting ArrayList<Double> to primitive double[]
+        double[] returnArray = new double[binarySchedule.size()];
+        for (int i=0; i<binarySchedule.size(); i++) {
+            returnArray[i] = binarySchedule.get(i).doubleValue();
+        }
+
+        return returnArray;
+    }
+
+
+    public double[] toBinaryScheduleDouble(long beginTimestamp, long endTimestamp) {
+        ArrayList<Double> binarySchedule = new ArrayList<>();
+
+        long currentTimestamp = beginTimestamp;
+        for (SchedulerIntervalEvent thisEvent : schedulerEvents) {
+            while (currentTimestamp < endTimestamp) {
+                if (currentTimestamp < thisEvent.getOrgBeginTimestamp())
+                    binarySchedule.add(0.0);
+                else if (currentTimestamp < thisEvent.getOrgEndTimestamp()) {
+                    if (thisEvent.getTask().isIdleTaskType()) {
+                        binarySchedule.add(0.0);
+                    } else {
+                        binarySchedule.add(1.0);
+                    }
+                } else
+                    break;
+                currentTimestamp++;
+            }
+            if (currentTimestamp >= endTimestamp)
+                break;
+        }
+
+        for (; currentTimestamp<endTimestamp; currentTimestamp++) {
+            binarySchedule.add(0.0);
         }
 
         // convert the resulting ArrayList<Double> to primitive double[]

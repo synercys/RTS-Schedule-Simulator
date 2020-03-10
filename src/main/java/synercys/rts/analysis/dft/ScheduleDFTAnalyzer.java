@@ -30,6 +30,9 @@ public class ScheduleDFTAnalyzer {
         binarySchedule = schedule.toBinaryScheduleDouble();
     }
 
+    public void setBinarySchedule(double[] binarySchedule) {
+        this.binarySchedule = binarySchedule;
+    }
 
     /**
      * The task set is only stored in report and is not used in DFT analysis.
