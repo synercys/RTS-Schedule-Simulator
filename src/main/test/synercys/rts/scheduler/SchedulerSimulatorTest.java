@@ -40,4 +40,21 @@ class SchedulerSimulatorTest {
         };
         return schedulerSimulator;
     }
+
+    @Test
+    void getVariedInterArrivalTime() {
+        long testPeriod = 100;
+
+        SchedulerSimulator schedulerSimulator = newEmptySchedulerSimulator();
+
+        Task task = new Task();
+        task.setPeriod(testPeriod);
+
+        long variedInterArrivalTime;
+        for (int i=0; i<100000; i++) {
+            variedInterArrivalTime = schedulerSimulator.getVariedInterArrivalTime(task);
+            //System.out.println(variedExecutionTime);
+            assertTrue(variedInterArrivalTime>=testPeriod);
+        }
+    }
 }
