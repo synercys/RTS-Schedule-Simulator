@@ -13,6 +13,8 @@ import java.util.Random;
  */
 public class TaskSetGenerator {
 
+    int taskSetIdCounter;
+
     int minNumTasks;
     int maxNumTasks;
 
@@ -55,6 +57,8 @@ public class TaskSetGenerator {
     Random rand = new Random();
 
     public TaskSetGenerator() {
+
+        taskSetIdCounter = 0;
 
         maxHyperPeriod = (1001_000_000/ RtsConfig.TIMESTAMP_UNIT_NS)*3; // 3 sec
 
@@ -111,7 +115,8 @@ public class TaskSetGenerator {
                 i--;
                 continue;
             } else {
-                thisTaskContainer.setId(i);
+                thisTaskContainer.setId(taskSetIdCounter);
+                taskSetIdCounter++;
                 resultTaskSetContainer.addTaskSet(thisTaskContainer);
             }
         }
@@ -682,6 +687,14 @@ public class TaskSetGenerator {
 
     public void setRmSchedulabilityTest(Boolean rmSchedulabilityTest) {
         this.rmSchedulabilityTest = rmSchedulabilityTest;
+    }
+
+    public int getTaskSetIdCounter() {
+        return taskSetIdCounter;
+    }
+
+    public void setTaskSetIdCounter(int taskSetIdCounter) {
+        this.taskSetIdCounter = taskSetIdCounter;
     }
 
     public String toCommentString() {

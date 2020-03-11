@@ -127,15 +127,16 @@ public class RtTaskGen implements Callable {
             ArrayList<TaskSetGenerator> taskSetGenerators = (ArrayList<TaskSetGenerator>) jsonLogLoader.getResult();
 
             int configIndex = 0;
+            int taskSetIdCounter = 0;
             for (TaskSetGenerator taskSetGenerator : taskSetGenerators) {
                 configIndex++;
                 loggerConsole.info("Generating task sets for the #{} configuration.", configIndex);
 
+                taskSetGenerator.setTaskSetIdCounter(taskSetIdCounter);
                 TaskSetContainer thisTaskSetContainer = taskSetGenerator.generate();
-                TaskSetContainer taskSetContainer = new TaskSetContainer();
+                taskSetContainerArrayList.add(thisTaskSetContainer);
 
-                taskSetContainer.addTaskSets(thisTaskSetContainer.getTaskSets());
-                taskSetContainerArrayList.add(taskSetContainer);
+                taskSetIdCounter = taskSetGenerator.getTaskSetIdCounter();
             }
         }
 
