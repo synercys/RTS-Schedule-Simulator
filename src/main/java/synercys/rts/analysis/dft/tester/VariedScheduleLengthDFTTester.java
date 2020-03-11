@@ -54,13 +54,15 @@ public class VariedScheduleLengthDFTTester {
         String fileFullPathBasePrefix = FilenameUtils.getFullPath(filePath);
         if (FilenameUtils.getBaseName(filePath).isEmpty()) {
             fileFullPathBasePrefix = FilenameUtils.concat(fileFullPathBasePrefix, String.valueOf(taskSet.getId()));
+        } else {
+            fileFullPathBasePrefix = FilenameUtils.concat(fileFullPathBasePrefix, FilenameUtils.getBaseName(filePath));
         }
 
         for (Task task : taskSet.getRunnableTasksAsArray()) {
             // Get file name
             String taskFilePathPrefix = String.format("%s_%s", fileFullPathBasePrefix, task.getId());
             for (int i=0; i<taskDFTReports.get(task).size(); i++) {
-                String trueFilePathName = String.format("%s_%i.rtdft", taskFilePathPrefix, i+1);
+                String trueFilePathName = String.format("%s_%d.rtdft", taskFilePathPrefix, i+1);
                 JsonLogExporter exporter = new JsonLogExporter(trueFilePathName);
                 exporter.exportDFTAnalysisReport(taskDFTReports.get(task).get(i));
             }
