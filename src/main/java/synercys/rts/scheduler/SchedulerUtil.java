@@ -12,7 +12,7 @@ public class SchedulerUtil {
     public static String SCHEDULER_REORDER = "ReOrder";
 
     public static AdvanceableSchedulerInterface getScheduler(String schedulingPolicy, TaskSet taskSet, boolean executionVariation) {
-        if (schedulingPolicy.equalsIgnoreCase("RM") || schedulingPolicy.equalsIgnoreCase("TaskShuffler0"))
+        if (schedulingPolicy.isEmpty() || schedulingPolicy.equalsIgnoreCase("RM") || schedulingPolicy.equalsIgnoreCase("TaskShuffler0"))
             return new FixedPriorityScheduler(taskSet, executionVariation);
         else if (schedulingPolicy.equalsIgnoreCase("EDF") || schedulingPolicy.equalsIgnoreCase("ReOrder0"))
             return new EdfScheduler(taskSet, executionVariation);
