@@ -1,5 +1,6 @@
 package synercys.rts.util;
 
+import cy.utility.Sys;
 import cy.utility.file.FileHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,8 +14,10 @@ import synercys.rts.scheduler.TaskSetContainer;
 import synercys.rts.scheduler.TaskSetGenerator;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cy on 3/29/2018.
@@ -258,6 +261,37 @@ public class JsonLogLoader extends FileHandler implements LogParser{
 
     public Object getResult() {
         return result;
+    }
+
+    /**
+     * Load task sets from a path list. A path can be a .tasksets file or a folder.
+     * In the case of a folder is given, this function loads all .tasksets in the folder.
+     * @param taskInputFileList
+     * @return
+     */
+    public static TaskSetContainer loadTaskSetsFromPathList(List<String> taskInputFileList) {
+        TaskSetContainer taskSetContainer = new TaskSetContainer();
+        for (String taskInputFile : taskInputFileList) {
+            ArrayList<String> taskInputFilePaths = new ArrayList<>();
+            if (Sys.isFolderExisted(taskInputFile)) {
+                // loggerConsole.info("\"{}\" is a folder.", taskInputFile);
+                // loggerConsole.info("Loading all task set files in the folder.");
+                ArrayList<File> taskSetFiles = Sys.getFilesByExtensionInFolder(taskInputFile, ".tasksets");
+                for (File taskSetFile : taskSetFiles) {
+                    taskInputFilePaths.add(taskSetFile.getPath());
+                }
+            } else {
+                // loggerConsole.info("\"{}\" is a file.", taskInputFile);
+                taskInputFilePaths.add(taskInputFile);
+            }
+
+            for (String taskInputFilePath : taskInputFilePaths) {
+                // loggerConsole.info("- Loading task sets from \"{}\"...", taskInputFilePath);
+                JsonLogLoader jsonLogLoader = new JsonLogLoader(taskInputFilePath);
+                taskSetContainer.addTaskSets(((TaskSetContainer) jsonLogLoader.getResult()).getTaskSets());
+            }
+        }
+        return taskSetContainer;
     }
 
     public static void main(String[] args) {
