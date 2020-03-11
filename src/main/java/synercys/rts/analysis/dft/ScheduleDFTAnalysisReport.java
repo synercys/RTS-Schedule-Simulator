@@ -1,6 +1,8 @@
 package synercys.rts.analysis.dft;
 
 import synercys.rts.framework.TaskSet;
+
+import java.util.ArrayList;
 import java.util.Map;
 
 public class ScheduleDFTAnalysisReport {
@@ -13,7 +15,7 @@ public class ScheduleDFTAnalysisReport {
     Map<Double, Double> freqSpectrumAmplitudeMap;
     Map<Double, Double> freqSpectrumPhaseMap;
 
-    double peakFreq;
+    ArrayList<Double> peakFrequencies;
 
     public double getBaseFreq() {
         return baseFreq;
@@ -24,7 +26,7 @@ public class ScheduleDFTAnalysisReport {
     }
 
     public double getPeakFreq() {
-        return peakFreq;
+        return peakFrequencies.get(0);
     }
 
     public Map<Double, Double> getFreqSpectrumAmplitudeMap() {
@@ -37,5 +39,9 @@ public class ScheduleDFTAnalysisReport {
 
     public TaskSet getTaskSet() {
         return taskSet;
+    }
+
+    public ArrayList<Double> getPeakFrequencies() {
+        return peakFrequencies;
     }
 }

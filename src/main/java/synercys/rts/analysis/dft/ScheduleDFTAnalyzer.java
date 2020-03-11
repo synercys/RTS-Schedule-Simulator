@@ -159,7 +159,12 @@ public class ScheduleDFTAnalyzer {
         report.dataLength = getAnalyzedDataLength();
         report.freqSpectrumAmplitudeMap = freqSpectrumAmplitudeMap;
         report.freqSpectrumPhaseMap = freqSpectrumPhaseMap;
-        report.peakFreq = getPeakFreq();
+
+        ArrayList<Double> peakFrequencies = new ArrayList<>();
+        for (Double freq : sortMapByValueDescending(freqSpectrumAmplitudeMap).keySet()) {
+            peakFrequencies.add(freq);
+        }
+        report.peakFrequencies = peakFrequencies;
     }
 
 
