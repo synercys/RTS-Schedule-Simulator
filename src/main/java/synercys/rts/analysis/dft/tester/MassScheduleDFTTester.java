@@ -9,6 +9,7 @@ import synercys.rts.scheduler.TaskSetContainer;
 
 public class MassScheduleDFTTester extends MassTester {
     public static final String TEST_CASES_VARIED_SCHEDULE_LENGTH = "VARIED_SCHEDULE_LENGTH";
+    public static final String TEST_CASES_STFT = "STFT";
 
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
@@ -18,7 +19,10 @@ public class MassScheduleDFTTester extends MassTester {
 
     public boolean run(String testCase) {
         switch (testCase) {
-            case "TEST_CASES_VARIED_SCHEDULE_LENGTH": default:
+            case TEST_CASES_STFT:
+                runSTFTTest();
+                break;
+            case TEST_CASES_VARIED_SCHEDULE_LENGTH: default:
                 runVariedScheduleLengthTest();
                 break;
         }
@@ -38,6 +42,15 @@ public class MassScheduleDFTTester extends MassTester {
             tester.run(10);
             tester.exportAll(getLogFullPathFileName(String.valueOf(taskSet.getId())));
         }
+
+        return true;
+    }
+
+    protected boolean runSTFTTest() {
+        TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
+        ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
+        stftTester.runScheduLeakAttackDuration(1);
+        stftTester.exportReport(getLogFullPathFileName());
 
         return true;
     }

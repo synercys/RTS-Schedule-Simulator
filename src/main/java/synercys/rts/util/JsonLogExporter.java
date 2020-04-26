@@ -5,6 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import synercys.rts.RtsConfig;
 import synercys.rts.analysis.dft.ScheduleDFTAnalysisReport;
+import synercys.rts.analysis.dft.ScheduleSTFTAnalysisReport;
 import synercys.rts.framework.event.EventContainer;
 import synercys.rts.framework.event.SchedulerIntervalEvent;
 import synercys.rts.framework.event.TaskInstantEvent;
@@ -152,6 +153,43 @@ public class JsonLogExporter extends FileHandler {
         writeString(jsonRoot.toString(4));
     }
 
+
+    public void exportSTFTAnalysisReport(ScheduleSTFTAnalysisReport report) {
+        JSONObject jsonRoot = new JSONObject();
+
+        /* Basics */
+        // root - formatVersion
+        putVersion(jsonRoot);
+        // root - dataType
+        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_STFT_REPORT);
+
+        /* root - data */
+        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
+        // root - data - tickUnitNs
+        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
+
+        // root - data - ftft-report - taskSet
+        jsonData.put(JsonLogStr.STFT_REPORT_TASKSET, getJsonTaskSet(report.getTaskSet()));
+
+        // root - data - stft-report - sampleCount
+        // jsonData.put(JsonLogStr.STFT_REPORT_SAMPLE_COUNT, report.getDataLength());
+
+        // root - data - stft-report - spectrumMagnitudeCSV
+        jsonData.put(JsonLogStr.STFT_REPORT_SPECTRUM_CSV,
+                stftSpectrumToCSVString(report.getExpandedTimeFreqSpectrumAmplitudeMap()));
+
+        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
+
+        writeString(jsonRoot.toString(4));
+    }
+
+
+    public void exportSTFTAnalysisReportToCSV(ScheduleSTFTAnalysisReport report) {
+        writeString(stftSpectrumToCSVString(report.getExpandedTimeFreqSpectrumAmplitudeMap()));
+    }
+
+
+
     protected String dftSpectrumToCSVString(Map<Double, Double> mapMagnitude, Map<Double, Double> mapPhase) {
         String output = "";
 
@@ -162,6 +200,35 @@ public class JsonLogExporter extends FileHandler {
             double magnitude = mapMagnitude.get(freq);
             double phase = mapPhase.get(freq);
             output += String.format("%.4f,%.4f,%.4f\n", freq, magnitude, phase);
+        }
+
+        return output;
+    }
+
+
+    /**
+     *  An example for the output (without white spaces):
+     *  0, freq0, freq1, freq2,...\n
+     *  t0, v00, v01, v02,...\n
+     *  t1, v10, v11, v12,...\n
+     */
+    protected String stftSpectrumToCSVString(Map<Double, Map<Double, Double>> mapTimeFreqMagnitude) {
+        String output = "";
+
+        // y labels (Freq)
+        output += "0";
+        for (Double freq : mapTimeFreqMagnitude.values().iterator().next().keySet()) {
+            output += String.format(",%2f", freq);
+        }
+        output += "\n";
+
+        // the first column in each row is the x label (Time)
+        for (Double time : mapTimeFreqMagnitude.keySet()) {
+            output += String.format("%2f", time);
+            for (Double magnitude : mapTimeFreqMagnitude.get(time).values()) {
+                output += String.format(",%2f", magnitude);
+            }
+            output += "\n";
         }
 
         return output;

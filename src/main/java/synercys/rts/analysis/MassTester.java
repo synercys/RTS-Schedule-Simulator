@@ -48,6 +48,10 @@ public abstract class MassTester {
         return newLogFile;
     }
 
+    protected String getLogFullPathFileName() {
+        return getLogFullPathFileName("", "");
+    }
+
     protected String getLogFullPathFileName(String baseNameSuffix) {
         return getLogFullPathFileName(baseNameSuffix, "");
     }
@@ -57,10 +61,14 @@ public abstract class MassTester {
 
         // File base name
         if (!logFileBaseNamePrefix.isEmpty()) {
-            fileName = String.format("%s_", logFileBaseNamePrefix);
+            fileName = logFileBaseNamePrefix;
         }
 
-        fileName += baseNameSuffix;
+        // Suffix
+        System.out.println(baseNameSuffix);
+        if (!baseNameSuffix.isEmpty()) {
+            fileName += String.format("_%s", baseNameSuffix);
+        }
 
         // Extension
         if (!extension.isEmpty()) {

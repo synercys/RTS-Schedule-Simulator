@@ -21,8 +21,8 @@ public class ScheduleDFTAnalyzer {
     static final int FFT_LIB = FFT_LIB_EZFFTW;
 
     double[] binarySchedule = null;
-    Map<Double, Double> freqSpectrumAmplitudeMap = new LinkedHashMap<>();
-    Map<Double, Double> freqSpectrumPhaseMap = new LinkedHashMap<>();
+    LinkedHashMap<Double, Double> freqSpectrumAmplitudeMap = new LinkedHashMap<>();
+    LinkedHashMap<Double, Double> freqSpectrumPhaseMap = new LinkedHashMap<>();
 
     ScheduleDFTAnalysisReport report = new ScheduleDFTAnalysisReport();
 

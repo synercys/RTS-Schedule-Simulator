@@ -2,8 +2,7 @@ package synercys.rts.analysis.dft;
 
 import synercys.rts.framework.TaskSet;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 public class ScheduleDFTAnalysisReport {
 
@@ -12,10 +11,10 @@ public class ScheduleDFTAnalysisReport {
     double baseFreq;
     int dataLength;
 
-    Map<Double, Double> freqSpectrumAmplitudeMap;
-    Map<Double, Double> freqSpectrumPhaseMap;
+    LinkedHashMap<Double, Double> freqSpectrumAmplitudeMap;
+    LinkedHashMap<Double, Double> freqSpectrumPhaseMap;
 
-    ArrayList<Double> peakFrequencies;
+    ArrayList<Double> peakFrequencies = null;
 
     public double getBaseFreq() {
         return baseFreq;
@@ -42,6 +41,33 @@ public class ScheduleDFTAnalysisReport {
     }
 
     public ArrayList<Double> getPeakFrequencies() {
+        if (peakFrequencies == null) {
+            for (Double freq : sortMapByValueDescending(freqSpectrumAmplitudeMap).keySet()) {
+                peakFrequencies.add(freq);
+            }
+        }
+
         return peakFrequencies;
+    }
+
+    /* This function is modified from https://mkyong.com/java/how-to-sort-a-map-in-java/
+     * This function takes a map instance and return a value-sorted (in a descending order) map instance. */
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValueDescending(Map<K, V> unsortMap) {
+
+        List<Map.Entry<K, V>> list =
+                new LinkedList<Map.Entry<K, V>>(unsortMap.entrySet());
+
+        Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+                return (o2.getValue()).compareTo(o1.getValue());
+            }
+        });
+
+        Map<K, V> result = new LinkedHashMap<K, V>();
+        for (Map.Entry<K, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+
+        return result;
     }
 }
