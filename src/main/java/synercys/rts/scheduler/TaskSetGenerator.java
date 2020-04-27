@@ -430,6 +430,17 @@ public class TaskSetGenerator {
         return result;
     }
 
+    /**
+     * Get the observer and the victim tasks in a given task set based on default priorities.
+     * @param taskSet the task set to be considered.
+     * @return an int array storing the the observer (the first element) and victim (the second element).
+     */
+    static public Task[] getDefaultObserverVictimTasks(TaskSet taskSet) {
+        int numOfTasks = taskSet.getRunnableTasksAsArray().size();
+        int[] observerVictimPriorities = computeDefaultObserverAndVictimTaskPriorities(numOfTasks);
+        return new Task[] {taskSet.getOneTaskByPriority(observerVictimPriorities[0]), taskSet.getOneTaskByPriority(observerVictimPriorities[1])};
+    }
+
     int getRandomDivisor(ArrayList<Long> inFactors, int numOfChosenFactors) {
         ArrayList<Long> factors = (ArrayList<Long>) inFactors.clone();
         int resultDivisor = 1;
