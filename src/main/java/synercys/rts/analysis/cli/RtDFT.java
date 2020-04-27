@@ -137,8 +137,10 @@ public class RtDFT implements Callable {
 
             loggerConsole.info("Run mass test for the test case \"{}\".", testCase);
             MassScheduleDFTTester massTester = new MassScheduleDFTTester(outputFilePrefixPath, taskSetContainer);
-            massTester.run(testCase);
-
+            massTester.setParams(simDuration, schedulingPolicy, optionExecutionVariation);
+            if (!massTester.run(testCase)) {
+                return EXIT_CODE_PRINT_HELP;
+            }
         }
 
         return EXIT_CODE_NORMAL;

@@ -13,6 +13,7 @@ public abstract class MassTester {
     protected TaskSetContainer taskSetContainer = null;
     protected String schedulingPolicy = "RM";
     protected boolean executionVariation = false;
+    protected long runDuration = 0;
 
     protected String logFileFolderPath = "";
     protected String logFileBaseNamePrefix = "";
@@ -27,6 +28,16 @@ public abstract class MassTester {
     }
 
     public void setExecutionVariation(boolean executionVariation) {
+        this.executionVariation = executionVariation;
+    }
+
+    public void setRunDuration(long runDuration) {
+        this.runDuration = runDuration;
+    }
+
+    public void setParams(long runDuration, String schedulingPolicy, boolean executionVariation) {
+        this.runDuration = runDuration;
+        this.schedulingPolicy = schedulingPolicy;
         this.executionVariation = executionVariation;
     }
 

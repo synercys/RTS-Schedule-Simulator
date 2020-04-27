@@ -3,7 +3,6 @@ import json
 import pandas as pd
 from io import StringIO
 import LogLoader
-import numpy as np
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -12,7 +11,7 @@ import seaborn as sns
 def findIndexOfFrequency(freqList, freqTarget):
     indexCount = 0
     for freq in freqList:
-        if freq >= freqTarget:
+        if float(freq) >= freqTarget:
             return indexCount
         indexCount += 1
     return indexCount
@@ -22,22 +21,18 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     #parser.add_argument('--example', nargs='?', const=1, type=int, help="")
     parser.add_argument('-i', "--in", required=True, help="A schedule DFT analysis report file.")
-    # parser.add_argument('-t', "--taskset", required=False, help="A taskset file for the importing DFT analysis result.")
     parser.add_argument('-o', "--out", required=False, nargs="*", help="Output file name and format determined by its extension name.")
     parser.add_argument('-p', "--plot", action='store_true', help="Display the resulting DFT plot.")
-    parser.add_argument('-d', "--detail", action='store_true', help="Display all three types of plots.")
-
 
     args = vars(parser.parse_args())
-    # args = vars(parser.parse_args("--in /Users/jjs/Documents/myProject/RTS-Schedule-Simulator/experiments/test_cases/dft/aaa_.rtstft -p".split()))
+    # args = vars(parser.parse_args("--in /Users/jjs/Documents/myProject/RTS-Schedule-Simulator/experiments/test_cases/dft/a5v.rtstft -p".split()))
 
     # Argument variables
-    displayDetail = args["detail"]
     showPlot = args["plot"]
     inFileName = args["in"]
     outFileNames = args["out"] if args["out"] is not None else []
 
-    # Load .rtdft json
+    # Load .rtstft json
     try:
         jsonRoot = json.load(open(inFileName, 'r'))
     except:
@@ -52,14 +47,8 @@ if __name__ == '__main__':
     nsPerTick = jsonRoot['data']['tickUnitInNs']
 
 
-    ''' Plot display config '''
-    if displayDetail:
-        plt.rcParams['figure.figsize'] = 7, 4.5
-    else:
-        plt.rcParams['figure.figsize'] = 7, 2.5
-
-        # suggested settings for paper format
-        plt.rcParams['figure.figsize'] = 6, 3
+    # plt.rcParams['figure.figsize'] = 7, 2.5
+    plt.rcParams['figure.figsize'] = 6, 3     # suggested settings for paper format
 
     plt.rcParams["font.family"] = "Arial"
     plt.rcParams['font.size'] = 15
@@ -68,7 +57,7 @@ if __name__ == '__main__':
     plt.rcParams['ytick.labelsize'] = 10
     plt.rcParams['xtick.labelsize'] = 10
 
-    plt.rcParams['axes.linewidth'] = 1.25
+    # plt.rcParams['axes.linewidth'] = 1
     # plt.rcParams['axes.edgecolor'] = "0.8"
 
     # suggested settings for paper format
@@ -78,27 +67,21 @@ if __name__ == '__main__':
     # plt.rcParams['ytick.labelsize'] = 15
     # plt.rcParams['xtick.labelsize'] = 15
 
-
-    ''' Frequency Magnitude Spectrum Plot '''
-    if displayDetail:
-        ax = plt.subplot(211)
-    else:
-        ax = plt.subplot(111)
-
-
+    ''' Load CSV data to Pandas data frame '''
     df = pd.read_csv(StringIO(jsonRoot['data']['spectrumCSV']), skiprows=0, header=0, index_col=0).T#, usecols=range(0, 10))
     df = (df-df.min())/(df.max()-df.min())  # min-max normalization
-    sns.heatmap(df, cmap='Blues', cbar_kws={'label': 'Magnitude\n(Normalized)'})
+    # df.index.values are frequencies
+    # df.columns.values are timestamps
 
-
+    # draw the heatmap
+    ax = sns.heatmap(df, cmap='Blues', cbar_kws={'label': 'Magnitude\n(Normalized)'})
 
 
     ''' X-axis Settings '''
     # print(df.column.values)
     plt.xlabel('Time ($LCM(T_o, T_v)$)')
     ax.set_xticklabels([x*0.5 for x in range(1, len(df.columns.values)+1)])
-
-
+    ''' End of X-axis Settings '''
 
 
     ''' Y-axis Settings '''
@@ -106,78 +89,32 @@ if __name__ == '__main__':
 
     # Set Y-axis limit based on the largest frequency of all tasks
     freq_upper_limit = 100 * (int(taskSet.getLargestFreq() / 100) + 1)
-    # freq_upper_limit = 1000
+    idx_of_freq_upper_limit = findIndexOfFrequency(df.index.values, freq_upper_limit)
+    # print(df.index.values[idx_of_freq_upper_limit])
+    ax.set_ylim(-1, idx_of_freq_upper_limit+1)    # start with -1 since index=0 (freq=0) was removed beforehand
 
-    ax.set_ylabel(ylabel='Frequency (Hz)')
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(Y_AXIS_TICK_INTERVAL))
-    ax.set_ylim(0, freq_upper_limit)
-    ax.set_yticklabels([y*10 for y in range(-1, int(freq_upper_limit/10)+1)])
+    # ax.yaxis.labelpad = 3
+    # ax.xaxis.labelpad = 3
 
+    # Create a layer for Y-axis ticks and labels
+    ax2 = ax.twinx()
+    ax2.set_ylabel(ylabel='Frequency (Hz)')
+    ax2.yaxis.set_major_locator(ticker.MultipleLocator(Y_AXIS_TICK_INTERVAL))
+    ax2.set_ylim(-0.5, float(df.index.values[idx_of_freq_upper_limit])+0.5)
+    ax2.yaxis.tick_left()   # the same as ax2.yaxis.set_ticks_position('left')
+    ax2.yaxis.set_label_position("left")
 
-
-
-
-    # yaxis_limit = 1 # normalized # maxAmplitude if not normalized
-    # ax.set_ylim([0, yaxis_limit])
-
-    ax.yaxis.labelpad = 3
-    ax.xaxis.labelpad = 3
-
-    # get X and Y axis values (trimmed to the desired display range) to be displayed
-    # X
-    # xFreq_limitIndx = findIndexOfFrequency(xFreq, X_AXIS_FREQ_LIMIT)
-    # displayedFreq = xFreq[:xFreq_limitIndx]
-    # Y
-    # maxAmplitude = max(yMag[:xFreq_limitIndx])
-    # displayedAmplitude = [amp / maxAmplitude for amp in yMag[:xFreq_limitIndx]] # Normalized
-
-
-    ###
-
-    # Load CSV
-    # data_dict_base = np.genfromtxt(StringIO(jsonRoot['data']['spectrumCSV']), delimiter=',')
-    # data_dict_base = np.genfromtxt("/Users/jjs/Documents/myProject/RTS-Schedule-Simulator/experiments/test_cases/dft/abc2.csv", delimiter=',')
-    # df = pd.read_csv("/Users/jjs/Documents/myProject/RTS-Schedule-Simulator/experiments/test_cases/dft/abc.csv", skiprows=0, header=0, index_col=0, usecols=range(0, 100)).T#, usecols=range(0, 10))
-    # df = pd.read_csv(StringIO(jsonRoot['data']['spectrumCSV']), skiprows=0, header=0, index_col=0, usecols=range(0, 100)).T#, usecols=range(0, 10))
-    # print(df)
-
-
-    # freqs = df[0][1:]
-    # df.drop(df.index[0], inplace=True)
-    # df = df.T
-    # times = df
-    # print(df)
-    # df = df.drop(df.columns[0], axis=1).T
-
-    # plt.figure(figsize=(10, 5))
-    # fig, ax = plt.subplots()
-    # ax.set_xticklabels(x_labels)
-    # ax.set_yticklabels(list(y_labels))
-
-
-    # heatmap_data = np.zeros((6, 10))
-    # sns.heatmap(df, ax=ax, cmap='Blues')
-    # sns.heatmap(df, cmap='Blues', cbar_kws={'label': 'Inference Precision $E_v^o$'})
-
-    # ax.set_xticklabels([x*nsPerTick/1000_000_000 for x in x_labels])
-    # ax.set_yticklabels(list(y_labels))
-
-    # plt.show()
-    # exit(1)
-
-    ###
-
-
-
-    # plt.plot(displayedFreq, displayedAmplitude, color='navy', alpha=0.75, linewidth=1.5)
-    # plt.grid(linestyle=':')
-    # ax.spines['bottom'].set_color('0.5')
-    # ax.spines['bottom'].set_edgecolor('green')
-    for spine in ax.spines.values():
+    # ax2.set_frame_on(True)
+    # for spine in ax2.spines.values():
         # spine.set_edgecolor('green')
-        spine.set_linewidth(0.5)
-        spine.set_visible(True)
-    # plt.gcf().set_facecolor('green')
+        # spine.set_linewidth(0.5)
+        # spine.set_visible(True)
+
+    # Disable Y-axis ticks and labels
+    # ax.yaxis.set_ticks_position('none')
+    ax.tick_params(top=False, bottom=True, left=False, right=False, labelleft=False, labelbottom=True)
+    ''' End of Y-axis Settings '''
+
 
     '''Add ground truth lines'''
     # if taskSet is not None:

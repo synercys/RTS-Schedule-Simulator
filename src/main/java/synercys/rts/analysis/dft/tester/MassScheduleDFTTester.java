@@ -5,11 +5,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import synercys.rts.analysis.MassTester;
 import synercys.rts.framework.TaskSet;
+import synercys.rts.scheduler.SchedulerUtil;
 import synercys.rts.scheduler.TaskSetContainer;
 
 public class MassScheduleDFTTester extends MassTester {
     public static final String TEST_CASES_VARIED_SCHEDULE_LENGTH = "VARIED_SCHEDULE_LENGTH";
     public static final String TEST_CASES_STFT = "STFT";
+    public static final String TEST_CASES_STFT_SCHEDULEAK = "STFT_SCHEDULEAK";
 
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
@@ -18,15 +20,19 @@ public class MassScheduleDFTTester extends MassTester {
     }
 
     public boolean run(String testCase) {
+        boolean status;
         switch (testCase) {
             case TEST_CASES_STFT:
-                runSTFTTest();
+                status = runSTFTTest();
+                break;
+            case TEST_CASES_STFT_SCHEDULEAK:
+                status= runSTFTScheduLeakTest();
                 break;
             case TEST_CASES_VARIED_SCHEDULE_LENGTH: default:
-                runVariedScheduleLengthTest();
+                status = runVariedScheduleLengthTest();
                 break;
         }
-        return true;
+        return status;
     }
 
     protected boolean runVariedScheduleLengthTest() {
@@ -47,10 +53,36 @@ public class MassScheduleDFTTester extends MassTester {
     }
 
     protected boolean runSTFTTest() {
+        if (runDuration <= 0) {
+            loggerConsole.error("Test aborted: duration is negative or zero.");
+            return false;
+        }
+
         TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
         ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
-        stftTester.runScheduLeakAttackDuration(1);
+        stftTester.run(runDuration);
         stftTester.exportReport(getLogFullPathFileName());
+
+        return true;
+    }
+
+    protected boolean runSTFTScheduLeakTest() {
+        if (runDuration <= 0) {
+            loggerConsole.error("Test aborted: iteration (duration) is negative or zero.");
+            return false;
+        }
+
+        loggerConsole.info("------------------------------");
+        loggerConsole.info("Start STFT test ...");
+        loggerConsole.info("Set Scheduler: {}", schedulingPolicy);
+        loggerConsole.info("Variation: {}", executionVariation);
+
+        TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
+        ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
+        stftTester.runScheduLeakAttackDuration((int)runDuration);
+        stftTester.exportReport(getLogFullPathFileName());
+
+        loggerConsole.info("------------------------------");
 
         return true;
     }

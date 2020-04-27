@@ -2,6 +2,8 @@ package synercys.rts.analysis.dft.tester;
 
 import cy.utility.Umath;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import synercys.rts.analysis.dft.ScheduleSTFTAnalysisReport;
 import synercys.rts.analysis.dft.ScheduleSTFTAnalyzer;
 import synercys.rts.framework.Task;
@@ -13,6 +15,8 @@ import synercys.rts.util.JsonLogExporter;
 
 
 public class ScheduleSTFTTester {
+    private static final Logger loggerConsole = LogManager.getLogger("console");
+
     AdvanceableSchedulerInterface scheduler;
     TaskSet taskSet;
     ScheduleSTFTAnalysisReport report;
@@ -25,11 +29,29 @@ public class ScheduleSTFTTester {
         analyzer.setTaskSet(taskSet);
     }
 
+
+    public ScheduleSTFTAnalysisReport run(long duration) {
+        analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(duration).toBinaryScheduleDouble());
+        report = analyzer.compute((int)duration/10, (int)duration/20);
+        return report;
+    }
+
     public ScheduleSTFTAnalysisReport runScheduLeakAttackDuration(int iteration) {
+
+        loggerConsole.info("Used Scheduler: {}", SchedulerUtil.getSchedulerName(scheduler));
+
         Task[] observerVictimTasks = TaskSetGenerator.getDefaultObserverVictimTasks(taskSet);
         int lcmToTv = (int)Umath.lcm(observerVictimTasks[0].getPeriod(), observerVictimTasks[1].getPeriod());
-        analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(10*lcmToTv*iteration).toBinaryScheduleDouble());
-        report = analyzer.compute(lcmToTv, lcmToTv/2);
+        long runDuration = 10*lcmToTv*iteration;
+        int windowLength = lcmToTv;
+        int windowShift = lcmToTv/2;
+
+        loggerConsole.info("Simulation duration: {}", runDuration);
+        loggerConsole.info("STFT window size: {}", windowLength);
+        loggerConsole.info("STFT window shift: {}", windowShift);
+
+        analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(runDuration).toBinaryScheduleDouble());
+        report = analyzer.compute(windowLength, windowShift);
         return report;
     }
 

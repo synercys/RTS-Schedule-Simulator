@@ -42,8 +42,20 @@ public class SchedulerUtil {
             return new FixedPriorityScheduler(taskSet, executionVariation);
     }
 
-    static public ArrayList<String> getSchedulerNames() {
+    public static ArrayList<String> getSchedulerNames() {
         // This function is from cy.utility
         return Class.getPrefixMatchedVariableStringValues(SchedulerUtil.class, "SCHEDULER_");
+    }
+
+    public static String getSchedulerName(AdvanceableSchedulerInterface scheduler) {
+        if (scheduler instanceof TaskShufflerScheduler)
+            return SCHEDULER_TASKSHUFFLER;
+        if (scheduler instanceof ReorderScheduler)
+            return SCHEDULER_REORDER;
+        if (scheduler instanceof FixedPriorityScheduler)
+            return SCHEDULER_RM;
+        if (scheduler instanceof EdfScheduler)
+            return SCHEDULER_EDF;
+        return "Unknown";
     }
 }
