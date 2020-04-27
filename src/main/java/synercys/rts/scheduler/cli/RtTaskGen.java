@@ -46,6 +46,9 @@ public class RtTaskGen implements Callable {
     @Option(names = {"-r", "--read"}, required = false, description = "A taskset file to be read and printed. This option ignores other options.")
     String tasksetFileToBeReadAndPrinted = "";
 
+    @Option(names = {"--id"}, required = false, description = "The incremental ID number to be assigned to the first task set.")
+    int optionBeginId = 0;
+
     @Option(names = {"-c", "--config"}, required = false, description = "Create a configuration file with default configuration.")
     String generateDefaultConfigFile = "";
 
@@ -127,7 +130,7 @@ public class RtTaskGen implements Callable {
             ArrayList<TaskSetGenerator> taskSetGenerators = (ArrayList<TaskSetGenerator>) jsonLogLoader.getResult();
 
             int configIndex = 0;
-            int taskSetIdCounter = 0;
+            int taskSetIdCounter = optionBeginId;
             for (TaskSetGenerator taskSetGenerator : taskSetGenerators) {
                 configIndex++;
                 loggerConsole.info("Generating task sets for the #{} configuration.", configIndex);
@@ -175,11 +178,8 @@ public class RtTaskGen implements Callable {
             }
         }
 
-        int taskSetId = 0;
         for (TaskSet taskSet : taskSetContainerArrayList.get(0).getTaskSets()) {
-            taskSet.setId(taskSetId);
             loggerConsole.info(taskSet.toString());
-            taskSetId++;
         }
 
         loggerConsole.info("{} {} generated.", String.valueOf(taskSetContainerArrayList.get(0).size()), taskSetContainerArrayList.get(0).size()==1?"task set is":"task sets are");
