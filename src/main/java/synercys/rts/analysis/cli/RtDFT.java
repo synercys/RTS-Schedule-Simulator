@@ -36,7 +36,7 @@ public class RtDFT implements Callable {
     @CommandLine.Option(names = {"-d", "--duration"}, required = false, description = "Simulation duration in 0.1ms (e.g., 10 is 1ms).")
     protected long simDuration = 0;
 
-    @CommandLine.Option(names = {"-p", "--policy"}, required = false, description = "Scheduling policy (\"--option\" for detailed options). Default = \"RM\"")
+    @CommandLine.Option(names = {"-p", "--policy"}, required = false, description = "Scheduling policy (\"--options\" for detailed options). Default = \"RM\"")
     protected String schedulingPolicy = "";
 
     @CommandLine.Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
@@ -49,7 +49,7 @@ public class RtDFT implements Callable {
     public static void main(String... args) {
         CommandLine cmd = new CommandLine(new RtDFT());
 
-        if (args.length == 1) {
+        if (args.length == 0) {
             cmd.usage(cmd.getOut()); // Print help message
             System.exit(0);
         }
