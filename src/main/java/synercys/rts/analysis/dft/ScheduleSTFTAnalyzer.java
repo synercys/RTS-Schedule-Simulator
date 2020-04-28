@@ -47,4 +47,31 @@ public class ScheduleSTFTAnalyzer {
         return report;
     }
 
+    public ScheduleSTFTAnalysisReport computeCumulativeSTFT(int windowLength) {
+
+        report.timeFreqSpectrumMap.clear();
+
+        int maxScheduleLengthForAnalysis = binarySchedule.length - (binarySchedule.length % windowLength);
+
+        // TODO: include i=0?
+        for (int i=1; i*windowLength<=binarySchedule.length; i++) {
+
+            /* Record this time bin's exact value */
+            double thisTimeBin = i*windowLength;
+            // timeBins.add(thisTimeBin);
+
+            /* Prepare the windowed schedule data */
+            // default values in a double array are zeros
+            // (https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html)
+            double[] windowedSchedule = new double[maxScheduleLengthForAnalysis];   // use consistent length to get consistent frequency bins
+            System.arraycopy(binarySchedule, 0, windowedSchedule, 0, windowLength*i);
+
+            ScheduleDFTAnalyzer analyzer = new ScheduleDFTAnalyzer();
+            analyzer.setTaskSet(taskSet);   // it doesn't matter if taskSet is null
+            analyzer.setBinarySchedule(windowedSchedule);
+            report.timeFreqSpectrumMap.put(thisTimeBin, analyzer.computeFreqSpectrum());
+        }
+        return report;
+    }
+
 }

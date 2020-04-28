@@ -55,6 +55,19 @@ public class ScheduleSTFTTester {
         return report;
     }
 
+    public ScheduleSTFTAnalysisReport runScheduLeakVictimCumulativeSTFT(int simDurationFactor) {
+        long victimTaskPeriod = TaskSetGenerator.getDefaultObserverVictimTasks(taskSet)[1].getPeriod();
+        long simDuration = simDurationFactor*victimTaskPeriod;
+
+        loggerConsole.info("Used Scheduler: {}", SchedulerUtil.getSchedulerName(scheduler));
+        loggerConsole.info("Simulation duration: {}", simDuration);
+        loggerConsole.info("STFT window size: {}", victimTaskPeriod);
+
+        analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(simDuration).toBinaryScheduleDouble());
+        report = analyzer.computeCumulativeSTFT((int)victimTaskPeriod);
+        return report;
+    }
+
     public void exportReport(String filePath) {
         // Handle the file's full path + base name
         String fileFullPathBasePrefix = FilenameUtils.concat(FilenameUtils.getFullPath(filePath), FilenameUtils.getBaseName(filePath));

@@ -1,17 +1,16 @@
 package synercys.rts.analysis.dft.tester;
 
-import cy.utility.Class;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import synercys.rts.analysis.MassTester;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.scheduler.SchedulerUtil;
 import synercys.rts.scheduler.TaskSetContainer;
 
 public class MassScheduleDFTTester extends MassTester {
     public static final String TEST_CASES_VARIED_SCHEDULE_LENGTH = "VARIED_SCHEDULE_LENGTH";
     public static final String TEST_CASES_STFT = "STFT";
-    public static final String TEST_CASES_STFT_SCHEDULEAK = "STFT_SCHEDULEAK";
+    public static final String TEST_CASES_STFT_SCHEDULEAK_LCM = "STFT_SCHEDULEAK_LCM";
+    public static final String TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE = "STFT_SCHEDULEAK_VICTIM_CUMULATIVE";
 
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
@@ -25,8 +24,11 @@ public class MassScheduleDFTTester extends MassTester {
             case TEST_CASES_STFT:
                 status = runSTFTTest();
                 break;
-            case TEST_CASES_STFT_SCHEDULEAK:
+            case TEST_CASES_STFT_SCHEDULEAK_LCM:
                 status= runSTFTScheduLeakTest();
+                break;
+            case TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE:
+                status= runSTFTScheduLeakVictimCumulativeTest();
                 break;
             case TEST_CASES_VARIED_SCHEDULE_LENGTH: default:
                 status = runVariedScheduleLengthTest();
@@ -80,6 +82,27 @@ public class MassScheduleDFTTester extends MassTester {
         TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
         ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
         stftTester.runScheduLeakAttackDuration((int)runDuration);
+        stftTester.exportReport(getLogFullPathFileName());
+
+        loggerConsole.info("------------------------------");
+
+        return true;
+    }
+
+    protected boolean runSTFTScheduLeakVictimCumulativeTest() {
+        if (runDuration <= 0) {
+            loggerConsole.error("Test aborted: sim factor is negative or zero.");
+            return false;
+        }
+
+        loggerConsole.info("------------------------------");
+        loggerConsole.info("Start STFT test ...");
+        loggerConsole.info("Set Scheduler: {}", schedulingPolicy);
+        loggerConsole.info("Variation: {}", executionVariation);
+
+        TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
+        ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
+        stftTester.runScheduLeakVictimCumulativeSTFT((int)runDuration);
         stftTester.exportReport(getLogFullPathFileName());
 
         loggerConsole.info("------------------------------");
