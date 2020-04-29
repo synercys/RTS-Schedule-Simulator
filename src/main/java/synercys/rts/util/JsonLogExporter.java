@@ -191,18 +191,18 @@ public class JsonLogExporter extends FileHandler {
 
 
     protected String dftSpectrumToCSVString(Map<Double, Double> mapMagnitude, Map<Double, Double> mapPhase) {
-        String output = "";
+        StringBuilder output = new StringBuilder("");
 
         // title row
-        output += "frequency,magnitude,phase\n";
+        output.append("frequency,magnitude,phase\n");
 
         for (Double freq : mapMagnitude.keySet()) {
             double magnitude = mapMagnitude.get(freq);
             double phase = mapPhase.get(freq);
-            output += String.format("%.4f,%.4f,%.4f\n", freq, magnitude, phase);
+            output.append(String.format("%.4f,%.4f,%.4f\n", freq, magnitude, phase));
         }
 
-        return output;
+        return output.toString();
     }
 
 
@@ -213,25 +213,25 @@ public class JsonLogExporter extends FileHandler {
      *  t1, v10, v11, v12,...\n
      */
     protected String stftSpectrumToCSVString(Map<Double, Map<Double, Double>> mapTimeFreqMagnitude) {
-        String output = "";
+        StringBuilder output = new StringBuilder("");
 
         // y labels (Freq)
-        output += "0";
+        output.append("0");
         for (Double freq : mapTimeFreqMagnitude.values().iterator().next().keySet()) {
-            output += String.format(",%2f", freq);
+            output.append(String.format(",%2f", freq));
         }
-        output += "\n";
+        output.append("\n");
 
         // the first column in each row is the x label (Time)
         for (Double time : mapTimeFreqMagnitude.keySet()) {
-            output += String.format("%2f", time);
+            output.append(String.format("%2f", time));
             for (Double magnitude : mapTimeFreqMagnitude.get(time).values()) {
-                output += String.format(",%2f", magnitude);
+                output.append(String.format(",%2f", magnitude));
             }
-            output += "\n";
+            output.append("\n");
         }
 
-        return output;
+        return output.toString();
     }
 
 
