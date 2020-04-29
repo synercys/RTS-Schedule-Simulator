@@ -95,12 +95,13 @@ public class MassScheduleDFTTester extends MassTester {
             return false;
         }
 
+        TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
+
         loggerConsole.info("------------------------------");
-        loggerConsole.info("Start STFT test ...");
+        loggerConsole.info("[{}] Start STFT test ...", taskSet.getId());
         loggerConsole.info("Set Scheduler: {}", schedulingPolicy);
         loggerConsole.info("Variation: {}", executionVariation);
 
-        TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
         ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
         stftTester.runScheduLeakVictimCumulativeSTFT((int)runDuration);
 

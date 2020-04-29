@@ -61,7 +61,13 @@ public class ScheduleSTFTTester {
     }
 
     public ScheduleSTFTAnalysisReport runScheduLeakVictimCumulativeSTFT(int simDurationFactor) {
-        long victimTaskPeriod = TaskSetGenerator.getDefaultObserverVictimTasks(taskSet)[1].getPeriod();
+
+        long victimTaskPeriod;
+        if (taskSet.getRunnableTasksAsArray().size() == 1)
+            victimTaskPeriod = taskSet.getHighestPriorityTask().getPeriod();
+        else
+            victimTaskPeriod = TaskSetGenerator.getDefaultObserverVictimTasks(taskSet)[1].getPeriod();
+
         long simDuration = simDurationFactor*victimTaskPeriod;
 
         loggerConsole.info("Used Scheduler: {}", SchedulerUtil.getSchedulerName(scheduler));
@@ -71,17 +77,38 @@ public class ScheduleSTFTTester {
         analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(simDuration).toBinaryScheduleDouble());
         report = analyzer.computeCumulativeSTFT((int)victimTaskPeriod);
 
-        for (Map.Entry<Double, ScheduleDFTAnalysisReport> entry : report.getTimeFreqSpectrumMap().entrySet()) {
-            String outStr = "";
-            ArrayList<Double> peakFreqs = entry.getValue().getPeakFrequencies();
-            for (int i=0; i<10; i++) {
-                if (i!=0)
-                    outStr += ", ";
+        /* Print the top 10 peak frequencies for each time window */
+        // for (Map.Entry<Double, ScheduleDFTAnalysisReport> entry : report.getTimeFreqSpectrumMap().entrySet()) {
+        //     String outStr = "";
+        //     ArrayList<Double> peakFreqs = entry.getValue().getPeakFrequencies();
+        //     for (int i=0; i<10; i++) {
+        //         if (i!=0)
+        //             outStr += ", ";
+        //
+        //         outStr += String.format("%f", peakFreqs.get(i));
+        //     }
+        //     loggerConsole.info("[{}] {}", entry.getKey(), outStr);
+        // }
 
-                outStr += String.format("%f", peakFreqs.get(i));
-            }
-            loggerConsole.info("[{}] {}", entry.getKey(), outStr);
+        /* Find the frequency that's closest to the victim's frequency */
+        double victimFreq = 1.0/(victimTaskPeriod*RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER);
+        double closestFreq = 0;
+        for (double freq : report.getTimeFreqSpectrumMap().values().iterator().next().getFreqSpectrumAmplitudeMap().keySet()) {
+            if (Math.abs(victimFreq-freq) < Math.abs(victimFreq-closestFreq))
+                closestFreq = freq;
         }
+
+        /* Print the position of the victim frequency in each time window's sorted peak frequency list */
+        loggerConsole.info("Expected vs found freq: {} <> {}", victimFreq, closestFreq);
+        StringBuilder outStr = new StringBuilder("");
+        for (ScheduleDFTAnalysisReport dftReport : report.getTimeFreqSpectrumMap().values()) {
+            int indexOfClosestFreq = dftReport.getPeakFrequencies().indexOf(closestFreq) + 1;
+            outStr.append(String.format("%d, ", indexOfClosestFreq));
+        }
+        outStr.deleteCharAt(outStr.length()-1); // delete redundant ", "
+        outStr.deleteCharAt(outStr.length()-1);
+        loggerConsole.info("Victim's frequency peak ranking:");
+        loggerConsole.info(outStr.toString());
 
         return report;
     }
