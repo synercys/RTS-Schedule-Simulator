@@ -42,7 +42,7 @@ public class RtDFT implements Callable {
     @CommandLine.Option(names = {"-v", "--evar"}, required = false, description = "Enable execution time variation.")
     protected boolean optionExecutionVariation = false;
 
-    @CommandLine.Option(names = {"-c", "--case"}, required = false, description = "Test case (\"--option\" for detailed options).")
+    @CommandLine.Option(names = {"-c", "--case"}, required = false, description = "Test case (\"--options\" for detailed options).")
     String testCase = "";
 
 

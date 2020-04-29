@@ -103,6 +103,8 @@ public class MassScheduleDFTTester extends MassTester {
         TaskSet taskSet = taskSetContainer.getTaskSets().get(0);
         ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
         stftTester.runScheduLeakVictimCumulativeSTFT((int)runDuration);
+
+        loggerConsole.info("Export experiment results ...");
         stftTester.exportReport(getLogFullPathFileName());
 
         loggerConsole.info("------------------------------");

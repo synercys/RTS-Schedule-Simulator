@@ -1,8 +1,12 @@
 package synercys.rts.analysis.dft;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import synercys.rts.framework.TaskSet;
 
 public class ScheduleSTFTAnalyzer {
+    private static final Logger loggerConsole = LogManager.getLogger("console");
+
     ScheduleSTFTAnalysisReport report = new ScheduleSTFTAnalysisReport();
 
     double[] binarySchedule = null;
@@ -33,7 +37,8 @@ public class ScheduleSTFTAnalyzer {
         for (int i=0; i<timeSliceCount; i++) {
             /* Record this time bin's exact value */
             double thisTimeBin = i*shiftLength + (double)windowLength/2;
-            // timeBins.add(thisTimeBin);
+
+            loggerConsole.info("#{}\tBegin DFT analysis for the interval [{}, {}]...", i+1, i*shiftLength, i*shiftLength+windowLength);
 
             /* Prepare the windowed schedule data */
             double[] windowedSchedule = new double[windowLength];
@@ -58,7 +63,8 @@ public class ScheduleSTFTAnalyzer {
 
             /* Record this time bin's exact value */
             double thisTimeBin = i*windowLength;
-            // timeBins.add(thisTimeBin);
+
+            loggerConsole.info("#{}\tBegin DFT analysis for the interval [{}, {}]...", i, 0, thisTimeBin);
 
             /* Prepare the windowed schedule data */
             // default values in a double array are zeros

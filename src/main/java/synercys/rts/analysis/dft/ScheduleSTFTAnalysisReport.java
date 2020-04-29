@@ -27,4 +27,8 @@ public class ScheduleSTFTAnalysisReport {
         }
         return spectrumMap;
     }
+
+    public Map<Double, ScheduleDFTAnalysisReport> getTimeFreqSpectrumMap() {
+        return timeFreqSpectrumMap;
+    }
 }

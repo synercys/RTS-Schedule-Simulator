@@ -4,6 +4,8 @@ import cy.utility.Umath;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import synercys.rts.RtsConfig;
+import synercys.rts.analysis.dft.ScheduleDFTAnalysisReport;
 import synercys.rts.analysis.dft.ScheduleSTFTAnalysisReport;
 import synercys.rts.analysis.dft.ScheduleSTFTAnalyzer;
 import synercys.rts.framework.Task;
@@ -12,6 +14,9 @@ import synercys.rts.scheduler.AdvanceableSchedulerInterface;
 import synercys.rts.scheduler.SchedulerUtil;
 import synercys.rts.scheduler.TaskSetGenerator;
 import synercys.rts.util.JsonLogExporter;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 
 public class ScheduleSTFTTester {
@@ -42,15 +47,15 @@ public class ScheduleSTFTTester {
 
         Task[] observerVictimTasks = TaskSetGenerator.getDefaultObserverVictimTasks(taskSet);
         int lcmToTv = (int)Umath.lcm(observerVictimTasks[0].getPeriod(), observerVictimTasks[1].getPeriod());
-        long runDuration = 10*lcmToTv*iteration;
+        long simDuration = 10*lcmToTv*iteration;
         int windowLength = lcmToTv;
         int windowShift = lcmToTv/2;
 
-        loggerConsole.info("Simulation duration: {}", runDuration);
-        loggerConsole.info("STFT window size: {}", windowLength);
-        loggerConsole.info("STFT window shift: {}", windowShift);
+        loggerConsole.info("Simulation duration: {} ({}ms)", simDuration, simDuration*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
+        loggerConsole.info("STFT window size: {} ({}ms)", windowLength, windowLength*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
+        loggerConsole.info("STFT window shift: {} ({}ms)", windowShift, windowShift*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
 
-        analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(runDuration).toBinaryScheduleDouble());
+        analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(simDuration).toBinaryScheduleDouble());
         report = analyzer.compute(windowLength, windowShift);
         return report;
     }
@@ -60,11 +65,24 @@ public class ScheduleSTFTTester {
         long simDuration = simDurationFactor*victimTaskPeriod;
 
         loggerConsole.info("Used Scheduler: {}", SchedulerUtil.getSchedulerName(scheduler));
-        loggerConsole.info("Simulation duration: {}", simDuration);
-        loggerConsole.info("STFT window size: {}", victimTaskPeriod);
+        loggerConsole.info("Simulation duration: {} ({}ms)", simDuration, simDuration*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
+        loggerConsole.info("STFT window size: {} ({}ms)", victimTaskPeriod, victimTaskPeriod*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
 
         analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(simDuration).toBinaryScheduleDouble());
         report = analyzer.computeCumulativeSTFT((int)victimTaskPeriod);
+
+        for (Map.Entry<Double, ScheduleDFTAnalysisReport> entry : report.getTimeFreqSpectrumMap().entrySet()) {
+            String outStr = "";
+            ArrayList<Double> peakFreqs = entry.getValue().getPeakFrequencies();
+            for (int i=0; i<10; i++) {
+                if (i!=0)
+                    outStr += ", ";
+
+                outStr += String.format("%f", peakFreqs.get(i));
+            }
+            loggerConsole.info("[{}] {}", entry.getKey(), outStr);
+        }
+
         return report;
     }
 
@@ -77,10 +95,12 @@ public class ScheduleSTFTTester {
         }
 
         /* Export the task set and the STFT to a json file */
+        loggerConsole.info("Export to .rtstft ...");
         JsonLogExporter exporter = new JsonLogExporter(fileFullPathBasePrefix + ".rtstft");
         exporter.exportSTFTAnalysisReport(report);
 
         /* Export the STFT to a CSV file */
+        loggerConsole.info("Export to .csv ...");
         JsonLogExporter csvExporter = new JsonLogExporter(fileFullPathBasePrefix + ".csv");
         csvExporter.exportSTFTAnalysisReportToCSV(report);
     }
