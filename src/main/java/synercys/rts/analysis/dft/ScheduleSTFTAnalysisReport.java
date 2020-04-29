@@ -31,4 +31,18 @@ public class ScheduleSTFTAnalysisReport {
     public Map<Double, ScheduleDFTAnalysisReport> getTimeFreqSpectrumMap() {
         return timeFreqSpectrumMap;
     }
+
+    public ArrayList<Integer> getFrequencyRankingList(double targetFreq) {
+        ArrayList<Integer> freqRanking = new ArrayList<>();
+        boolean firstLoop = true;
+        double closestBinFreq = 0.0;
+        for (ScheduleDFTAnalysisReport report : timeFreqSpectrumMap.values()) {
+            if (firstLoop) {
+                closestBinFreq = report.getClosestBinFrequency(targetFreq);
+                firstLoop = false;
+            }
+            freqRanking.add(report.getPeakFrequencies().indexOf(closestBinFreq) + 1);
+        }
+        return freqRanking;
+    }
 }

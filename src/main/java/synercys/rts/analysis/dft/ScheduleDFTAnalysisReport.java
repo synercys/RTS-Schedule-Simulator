@@ -42,12 +42,22 @@ public class ScheduleDFTAnalysisReport {
 
     public ArrayList<Double> getPeakFrequencies() {
         if (peakFrequencies == null) {
+            peakFrequencies = new ArrayList<>();
             for (Double freq : sortMapByValueDescending(freqSpectrumAmplitudeMap).keySet()) {
                 peakFrequencies.add(freq);
             }
         }
 
         return peakFrequencies;
+    }
+
+    public double getClosestBinFrequency(double targetFreq) {
+        double closestFreq = 0;
+        for (double freq : freqSpectrumAmplitudeMap.keySet()) {
+            if (Math.abs(targetFreq-freq) < Math.abs(targetFreq-closestFreq))
+                closestFreq = freq;
+        }
+        return closestFreq;
     }
 
     /* This function is modified from https://mkyong.com/java/how-to-sort-a-map-in-java/
