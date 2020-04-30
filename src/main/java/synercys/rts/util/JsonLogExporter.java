@@ -168,7 +168,7 @@ public class JsonLogExporter extends FileHandler {
         // root - data - tickUnitNs
         jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
 
-        // root - data - ftft-report - taskSet
+        // root - data - stft-report - taskSet
         jsonData.put(JsonLogStr.STFT_REPORT_TASKSET, getJsonTaskSet(report.getTaskSet()));
 
         // root - data - stft-report - sampleCount
@@ -177,6 +177,26 @@ public class JsonLogExporter extends FileHandler {
         // root - data - stft-report - spectrumMagnitudeCSV
         jsonData.put(JsonLogStr.STFT_REPORT_SPECTRUM_CSV,
                 stftSpectrumToCSVString(report.getExpandedTimeFreqSpectrumAmplitudeMap()));
+
+        // root - data - stft-report - taskFreqRanking[]
+        JSONArray jsonFreqRankingArray = new JSONArray();
+        for (Task task : report.getTaskSet().getRunnableTasksAsArray()) {
+            JSONObject jsonTaskFreqRanking = new JSONObject(); // This will be added to jsonRoot in the end.
+
+            // root - data - stft-report - taskFreqRanking[] - id
+            jsonTaskFreqRanking.put(JsonLogStr.TASK_ID, task.getId());
+
+            // root - data - stft-report - taskFreqRanking[] - ranking[]
+            JSONArray jsonTaskFreqRankingArray = new JSONArray();
+            for (Integer ranking : report.getFrequencyRankingList(task.getFreq())) {
+                jsonTaskFreqRankingArray.put(ranking);
+            }
+            jsonTaskFreqRanking.put(JsonLogStr.STFT_REPORT_TASK_FREQ_RANKING_RANKING, jsonTaskFreqRankingArray);
+
+            jsonFreqRankingArray.put(jsonTaskFreqRanking);
+        }
+        jsonData.put(JsonLogStr.STFT_REPORT_TASK_FREQ_RANKING, jsonFreqRankingArray);
+
 
         jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
 

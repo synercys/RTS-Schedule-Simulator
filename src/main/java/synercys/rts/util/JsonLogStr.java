@@ -113,4 +113,6 @@ public class JsonLogStr {
     /* stft-report */
     public static String STFT_REPORT_TASKSET = "taskSet";
     public static String STFT_REPORT_SPECTRUM_CSV = "spectrumCSV";
+    public static String STFT_REPORT_TASK_FREQ_RANKING = "taskFreqRanking";
+    public static String STFT_REPORT_TASK_FREQ_RANKING_RANKING = "ranking";
 }
