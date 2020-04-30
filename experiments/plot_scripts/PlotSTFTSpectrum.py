@@ -237,6 +237,7 @@ if __name__ == '__main__':
 
         axr.grid(linestyle=':')
         axr.plot(taskFreqRanking, color='navy', linewidth=1, label="{}Hz Ranking".format(targetFreq))
+        axr.fill_between(range(len(taskFreqRanking)), taskFreqRanking, facecolor='navy', alpha=0.05)
         leg = axr.legend()
         leg.get_frame().set_edgecolor('w')
 
