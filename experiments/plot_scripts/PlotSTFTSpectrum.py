@@ -259,11 +259,11 @@ if __name__ == '__main__':
 
     ''' Save the plot to files with the specified format '''
     for outFileName in outFileNames:
-        print("Exporting the plot ...", end=" ")
+        print("Exporting the plot ...")
         outputFormat = outFileName.split('.')[-1]
         if outputFormat == "pdf" or outputFormat == "png":
+            print('Saving the plot to "{}" ...'.format(outFileName), end=" ")
             plt.savefig(outFileName, pad_inches=0.015, bbox_inches='tight')
-            print('Save the plot to "{}".'.format(outFileName))
         print("Done")
 
 
