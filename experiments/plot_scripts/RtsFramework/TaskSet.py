@@ -10,6 +10,12 @@ class TaskSet:
     def add(self, task):
         self.tasks.append(task)
 
+    def getTaskById(self, id):
+        for task in self.tasks:
+            if task.id == id:
+                return task
+        return None
+
     def getTaskByPriority(self, priority):
         for task in self.tasks:
             if task.priority == priority:
