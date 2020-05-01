@@ -14,6 +14,8 @@ import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.TaskSetContainer;
 import synercys.rts.scheduler.TaskSetGenerator;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -154,6 +156,39 @@ public class JsonLogExporter extends FileHandler {
     }
 
 
+    public void exportSTFTAnalysisReport_uneven(ScheduleSTFTAnalysisReport report) {
+        JSONObject jsonRoot = new JSONObject();
+
+        /* Basics */
+        // root - formatVersion
+        putVersion(jsonRoot);
+        // root - dataType
+        jsonRoot.put(JsonLogStr.ROOT_DATA_TYPE, JsonLogStr.DATA_TYPE_STFT_UNEVEN_REPORT);
+
+        /* root - data */
+        JSONObject jsonData = new JSONObject(); // This will be added to jsonRoot in the end.
+        // root - data - tickUnitNs
+        jsonData.put(JsonLogStr.TICK_UNIT, RtsConfig.TIMESTAMP_UNIT_NS);
+
+        // root - data - stft-report - taskSet
+        jsonData.put(JsonLogStr.STFT_REPORT_TASKSET, getJsonTaskSet(report.getTaskSet()));
+
+        // root - data - stft-report - sampleCount
+        // jsonData.put(JsonLogStr.STFT_REPORT_SAMPLE_COUNT, report.getDataLength());
+
+        // root - data - stft-uneven_report - unevenSpectrum
+        jsonData.put(JsonLogStr.STFT_UNEVEN_REPORT_SPECTRUM, getSTFTUnevenSpectrum(report));
+
+        // root - data - stft-report - taskFreqRanking[]
+        jsonData.put(JsonLogStr.STFT_REPORT_TASK_FREQ_RANKING, getSTFTTaskFrequencyRankings(report));
+
+
+        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
+
+        writeString(jsonRoot.toString(4));
+    }
+
+
     public void exportSTFTAnalysisReport(ScheduleSTFTAnalysisReport report) {
         JSONObject jsonRoot = new JSONObject();
 
@@ -174,11 +209,20 @@ public class JsonLogExporter extends FileHandler {
         // root - data - stft-report - sampleCount
         // jsonData.put(JsonLogStr.STFT_REPORT_SAMPLE_COUNT, report.getDataLength());
 
-        // root - data - stft-report - spectrumMagnitudeCSV
+        // root - data - stft-report - spectrumCSV
         jsonData.put(JsonLogStr.STFT_REPORT_SPECTRUM_CSV,
                 stftSpectrumToCSVString(report.getExpandedTimeFreqSpectrumAmplitudeMap()));
 
         // root - data - stft-report - taskFreqRanking[]
+        jsonData.put(JsonLogStr.STFT_REPORT_TASK_FREQ_RANKING, getSTFTTaskFrequencyRankings(report));
+
+
+        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
+
+        writeString(jsonRoot.toString(4));
+    }
+
+    public JSONArray getSTFTTaskFrequencyRankings(ScheduleSTFTAnalysisReport report) {
         JSONArray jsonFreqRankingArray = new JSONArray();
         for (Task task : report.getTaskSet().getRunnableTasksAsArray()) {
             JSONObject jsonTaskFreqRanking = new JSONObject(); // This will be added to jsonRoot in the end.
@@ -195,14 +239,35 @@ public class JsonLogExporter extends FileHandler {
 
             jsonFreqRankingArray.put(jsonTaskFreqRanking);
         }
-        jsonData.put(JsonLogStr.STFT_REPORT_TASK_FREQ_RANKING, jsonFreqRankingArray);
-
-
-        jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
-
-        writeString(jsonRoot.toString(4));
+        return jsonFreqRankingArray;
     }
 
+    public JSONArray getSTFTUnevenSpectrum(ScheduleSTFTAnalysisReport report) {
+        JSONArray jsonUnevenSpectrumArray = new JSONArray();
+
+        // To round the double numbers when exporting as strings
+        DecimalFormat df = new DecimalFormat("#.##");
+        df.setRoundingMode(RoundingMode.CEILING);
+
+        for (Map.Entry<Double, ScheduleDFTAnalysisReport> entry : report.getTimeFreqSpectrumMap().entrySet()) {
+            // <key: time, value: dft-report>
+
+            JSONArray jsonFreqArray = new JSONArray();
+            JSONArray jsonMagArray = new JSONArray();
+            for (Map.Entry<Double, Double> freqMag : entry.getValue().getFreqSpectrumAmplitudeMap().entrySet()) {
+                jsonFreqArray.put(Double.valueOf(df.format(freqMag.getKey())));
+                jsonMagArray.put(Double.valueOf(df.format(freqMag.getValue())));
+            }
+
+            JSONObject jsonThisSpectrum = new JSONObject();
+            jsonThisSpectrum.put(JsonLogStr.STFT_UNEVEN_REPORT_SPECTRUM_TIME, entry.getKey());
+            jsonThisSpectrum.put(JsonLogStr.STFT_UNEVEN_REPORT_SPECTRUM_FREQUENCIES, jsonFreqArray);
+            jsonThisSpectrum.put(JsonLogStr.STFT_UNEVEN_REPORT_SPECTRUM_MAGNITUDES, jsonMagArray);
+
+            jsonUnevenSpectrumArray.put(jsonThisSpectrum);
+        }
+        return jsonUnevenSpectrumArray;
+    }
 
     public void exportSTFTAnalysisReportToCSV(ScheduleSTFTAnalysisReport report) {
         writeString(stftSpectrumToCSVString(report.getExpandedTimeFreqSpectrumAmplitudeMap()));

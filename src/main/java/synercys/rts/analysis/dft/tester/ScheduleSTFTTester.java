@@ -5,7 +5,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import synercys.rts.RtsConfig;
-import synercys.rts.analysis.dft.ScheduleDFTAnalysisReport;
 import synercys.rts.analysis.dft.ScheduleSTFTAnalysisReport;
 import synercys.rts.analysis.dft.ScheduleSTFTAnalyzer;
 import synercys.rts.framework.Task;
@@ -16,7 +15,6 @@ import synercys.rts.scheduler.TaskSetGenerator;
 import synercys.rts.util.JsonLogExporter;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 
 public class ScheduleSTFTTester {
@@ -60,7 +58,7 @@ public class ScheduleSTFTTester {
         return report;
     }
 
-    public ScheduleSTFTAnalysisReport runScheduLeakVictimCumulativeSTFT(int simDurationFactor) {
+    public ScheduleSTFTAnalysisReport runScheduLeakVictimCumulativeSTFT(int simDurationFactor, boolean unevenSpectrum) {
 
         long victimTaskPeriod;
         if (taskSet.getRunnableTasksAsArray().size() == 1)
@@ -75,24 +73,17 @@ public class ScheduleSTFTTester {
         loggerConsole.info("STFT window size: {} ({}ms)", victimTaskPeriod, victimTaskPeriod*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
 
         analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(simDuration).toBinaryScheduleDouble());
-        report = analyzer.computeCumulativeSTFT((int)victimTaskPeriod);
-
-        /* Print the top 10 peak frequencies for each time window */
-        // for (Map.Entry<Double, ScheduleDFTAnalysisReport> entry : report.getTimeFreqSpectrumMap().entrySet()) {
-        //     String outStr = "";
-        //     ArrayList<Double> peakFreqs = entry.getValue().getPeakFrequencies();
-        //     for (int i=0; i<10; i++) {
-        //         if (i!=0)
-        //             outStr += ", ";
-        //
-        //         outStr += String.format("%f", peakFreqs.get(i));
-        //     }
-        //     loggerConsole.info("[{}] {}", entry.getKey(), outStr);
-        // }
+        if (unevenSpectrum)
+            report = analyzer.computeCumulativeSTFT_uneven((int)victimTaskPeriod);
+        else
+            report = analyzer.computeCumulativeSTFT_even((int)victimTaskPeriod);
 
         double victimFreq = 1.0/(victimTaskPeriod*RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER);
-        double closestFreq = report.getTimeFreqSpectrumMap().values().iterator().next().getClosestBinFrequency(victimFreq);
-        loggerConsole.info("Expected vs found freq: {} <> {}", victimFreq, closestFreq);
+
+        if (!unevenSpectrum) {
+            double closestFreq = report.getTimeFreqSpectrumMap().values().iterator().next().getClosestBinFrequency(victimFreq);
+            loggerConsole.info("Expected vs found freq: {} <> {}", victimFreq, closestFreq);
+        }
 
         ArrayList<Integer> victimFreqRanking = report.getFrequencyRankingList(victimFreq);
         StringBuilder outStr = new StringBuilder("");
@@ -102,7 +93,7 @@ public class ScheduleSTFTTester {
         outStr.deleteCharAt(outStr.length()-1); // delete redundant ", "
         outStr.deleteCharAt(outStr.length()-1);
 
-        loggerConsole.info("Victim's frequency peak ranking:");
+        loggerConsole.info("Victim's frequency {} peak ranking:", victimFreq);
         loggerConsole.info(outStr.toString());
 
         return report;
@@ -117,14 +108,19 @@ public class ScheduleSTFTTester {
         }
 
         /* Export the task set and the STFT to a json file */
-        loggerConsole.info("Export to .rtstft ...");
+        loggerConsole.info("Export to .rtstft (uneven = {}) ...", report.isUnevenSpectrum());
         JsonLogExporter exporter = new JsonLogExporter(fileFullPathBasePrefix + ".rtstft");
-        exporter.exportSTFTAnalysisReport(report);
+        if (report.isUnevenSpectrum())
+            exporter.exportSTFTAnalysisReport_uneven(report);
+        else
+            exporter.exportSTFTAnalysisReport(report);
 
         /* Export the STFT to a CSV file */
-        loggerConsole.info("Export to .csv ...");
-        JsonLogExporter csvExporter = new JsonLogExporter(fileFullPathBasePrefix + ".csv");
-        csvExporter.exportSTFTAnalysisReportToCSV(report);
+        // if (!report.isUnevenSpectrum()) {
+        //     loggerConsole.info("Export to .csv ...");
+        //     JsonLogExporter csvExporter = new JsonLogExporter(fileFullPathBasePrefix + ".csv");
+        //     csvExporter.exportSTFTAnalysisReportToCSV(report);
+        // }
     }
 
 

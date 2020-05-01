@@ -10,7 +10,8 @@ public class MassScheduleDFTTester extends MassTester {
     public static final String TEST_CASES_VARIED_SCHEDULE_LENGTH = "VARIED_SCHEDULE_LENGTH";
     public static final String TEST_CASES_STFT = "STFT";
     public static final String TEST_CASES_STFT_SCHEDULEAK_LCM = "STFT_SCHEDULEAK_LCM";
-    public static final String TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE = "STFT_SCHEDULEAK_VICTIM_CUMULATIVE";
+    public static final String TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE_UNEVEN = "STFT_SCHEDULEAK_VICTIM_CUMULATIVE_UNEVEN";
+    public static final String TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE_EVEN = "STFT_SCHEDULEAK_VICTIM_CUMULATIVE_EVEN";
 
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
@@ -27,8 +28,11 @@ public class MassScheduleDFTTester extends MassTester {
             case TEST_CASES_STFT_SCHEDULEAK_LCM:
                 status= runSTFTScheduLeakTest();
                 break;
-            case TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE:
-                status= runSTFTScheduLeakVictimCumulativeTest();
+            case TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE_UNEVEN:
+                status= runSTFTScheduLeakVictimCumulativeTest(true);
+                break;
+            case TEST_CASES_STFT_SCHEDULEAK_VICTIM_CUMULATIVE_EVEN:
+                status= runSTFTScheduLeakVictimCumulativeTest(false);
                 break;
             case TEST_CASES_VARIED_SCHEDULE_LENGTH: default:
                 status = runVariedScheduleLengthTest();
@@ -89,7 +93,7 @@ public class MassScheduleDFTTester extends MassTester {
         return true;
     }
 
-    protected boolean runSTFTScheduLeakVictimCumulativeTest() {
+    protected boolean runSTFTScheduLeakVictimCumulativeTest(boolean unevenSpectrum) {
         if (runDuration <= 0) {
             loggerConsole.error("Test aborted: sim factor is negative or zero.");
             return false;
@@ -103,7 +107,7 @@ public class MassScheduleDFTTester extends MassTester {
         loggerConsole.info("Variation: {}", executionVariation);
 
         ScheduleSTFTTester stftTester = new ScheduleSTFTTester(taskSet, schedulingPolicy, executionVariation);
-        stftTester.runScheduLeakVictimCumulativeSTFT((int)runDuration);
+        stftTester.runScheduLeakVictimCumulativeSTFT((int)runDuration, unevenSpectrum);
 
         loggerConsole.info("Export experiment results ...");
         stftTester.exportReport(getLogFullPathFileName());

@@ -12,6 +12,7 @@ public class JsonLogStr {
     public static String DATA_TYPE_RT_SIM_RAW_SCHEDULE = "rtSim raw schedule";
     public static String DATA_TYPE_DFT_REPORT = "dft-report";
     public static String DATA_TYPE_STFT_REPORT = "stft-report";
+    public static String DATA_TYPE_STFT_UNEVEN_REPORT = "stft-uneven_report";
 
     /* key names */
     /* root */
@@ -115,4 +116,11 @@ public class JsonLogStr {
     public static String STFT_REPORT_SPECTRUM_CSV = "spectrumCSV";
     public static String STFT_REPORT_TASK_FREQ_RANKING = "taskFreqRanking";
     public static String STFT_REPORT_TASK_FREQ_RANKING_RANKING = "ranking";
+
+    /* stft-uneven_report */
+    public static String STFT_UNEVEN_REPORT_SPECTRUM = "unevenSpectrum";
+    public static String STFT_UNEVEN_REPORT_SPECTRUM_TIME = "time";
+    public static String STFT_UNEVEN_REPORT_SPECTRUM_FREQUENCIES = "frequencies";
+    public static String STFT_UNEVEN_REPORT_SPECTRUM_MAGNITUDES = "magnitudes";
+
 }

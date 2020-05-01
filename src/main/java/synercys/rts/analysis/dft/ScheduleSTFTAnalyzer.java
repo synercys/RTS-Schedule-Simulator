@@ -52,9 +52,10 @@ public class ScheduleSTFTAnalyzer {
         return report;
     }
 
-    public ScheduleSTFTAnalysisReport computeCumulativeSTFT(int windowLength) {
+    public ScheduleSTFTAnalysisReport computeCumulativeSTFT_even(int windowLength) {
 
         report.timeFreqSpectrumMap.clear();
+        report.unevenSpectrum = false;
 
         int maxScheduleLengthForAnalysis = binarySchedule.length - (binarySchedule.length % windowLength);
 
@@ -64,12 +65,40 @@ public class ScheduleSTFTAnalyzer {
             /* Record this time bin's exact value */
             double thisTimeBin = i*windowLength;
 
-            loggerConsole.info("#{}\tBegin DFT analysis for the interval [{}, {}]...", i, 0, thisTimeBin);
+            loggerConsole.info("#{}\tBegin DFT analysis for the interval [{}, {}] (with padding zeros) ...", i, 0, thisTimeBin);
 
             /* Prepare the windowed schedule data */
             // default values in a double array are zeros
             // (https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html)
             double[] windowedSchedule = new double[maxScheduleLengthForAnalysis];   // use consistent length to get consistent frequency bins
+            System.arraycopy(binarySchedule, 0, windowedSchedule, 0, windowLength*i);
+
+            ScheduleDFTAnalyzer analyzer = new ScheduleDFTAnalyzer();
+            analyzer.setTaskSet(taskSet);   // it doesn't matter if taskSet is null
+            analyzer.setBinarySchedule(windowedSchedule);
+            report.timeFreqSpectrumMap.put(thisTimeBin, analyzer.computeFreqSpectrum());
+        }
+        return report;
+    }
+
+
+    public ScheduleSTFTAnalysisReport computeCumulativeSTFT_uneven(int windowLength) {
+
+        report.timeFreqSpectrumMap.clear();
+        report.unevenSpectrum = true;
+
+        // int maxScheduleLengthForAnalysis = binarySchedule.length - (binarySchedule.length % windowLength);
+
+        // TODO: include i=0?
+        for (int i=1; i*windowLength<=binarySchedule.length; i++) {
+
+            /* Record this time bin's exact value */
+            double thisTimeBin = i*windowLength;
+
+            loggerConsole.info("#{}\tBegin DFT analysis for the interval [{}, {}] (without padding zeros) ...", i, 0, thisTimeBin);
+
+            /* Prepare the windowed schedule data */
+            double[] windowedSchedule = new double[windowLength*i];
             System.arraycopy(binarySchedule, 0, windowedSchedule, 0, windowLength*i);
 
             ScheduleDFTAnalyzer analyzer = new ScheduleDFTAnalyzer();
