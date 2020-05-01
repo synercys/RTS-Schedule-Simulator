@@ -53,7 +53,9 @@ class TaskSet:
     '''
     def getScheduLeakObserverVictimTask(self):
         numTasks = len(self.tasks)
-        if numTasks == 3:
+        if numTasks == 1:
+            observerPriority = victimPriority = 1
+        elif numTasks == 3:
             observerPriority = 1
             victimPriority = 3
         else:

@@ -151,13 +151,12 @@ if __name__ == '__main__':
 
     ''' ax Y-axis Settings '''
     print("Setting Y-axis ...", end=" ")
-    Y_AXIS_TICK_INTERVAL = 10
-
     # Set Y-axis limit based on the largest frequency of all tasks
     freq_upper_limit = 100 * (int(taskSet.getLargestFreq() / 100) + 1)
     idx_of_freq_upper_limit = findIndexOfFrequency(df.index.values, freq_upper_limit)
     # print(df.index.values[idx_of_freq_upper_limit])
     ax.set_ylim(-1, idx_of_freq_upper_limit+1)    # start with -1 since index=0 (freq=0) was removed beforehand
+    Y_AXIS_TICK_INTERVAL = freq_upper_limit/10
 
     # Disable Y-axis ticks and labels
     # ax.yaxis.set_ticks_position('none')
@@ -215,8 +214,37 @@ if __name__ == '__main__':
     if displayFreqRanking:
         print("Plotting frequency ranking ...", end=" ")
 
-        targetFreq = round(taskSet.getTaskById(taskRankingsObject[0]['id']).frequency, 2)
-        taskFreqRanking = taskRankingsObject[0]['ranking']
+        SHOWALL = False
+        if SHOWALL:
+            for tempObject in taskRankingsObject:
+                taskFreqRanking = tempObject['ranking']
+                targetFreq = round(taskSet.getTaskById(tempObject['id']).frequency,2)
+                axr.plot(taskFreqRanking, color='navy', linewidth=1, label="{}Hz Ranking".format(targetFreq))
+                axr.fill_between(range(len(taskFreqRanking)), taskFreqRanking, facecolor='navy', alpha=0.05)
+
+                # Now let's draw the ground truth arrow
+                ax_arrow.arrow(1, targetFreq / freq_upper_limit, -0.5, 0, head_width=0.05, head_length=0.5,
+                               color='navy')
+                ax_arrow.text(0.25, targetFreq / freq_upper_limit + 0.07, str(targetFreq) + "Hz", rotation=90, size=12,
+                              color='navy')
+        else:
+            # get the victim task
+            targetTask = taskSet.getScheduLeakObserverVictimTask()[1]
+            targetFreq = round(targetTask.frequency, 2)
+
+            taskFreqRanking = taskRankingsObject[0]['ranking'] # give a default list in case exceptions
+            for tempObject in taskRankingsObject:
+                if tempObject['id'] == targetTask.id:
+                    taskFreqRanking = tempObject['ranking']
+
+            axr.plot(taskFreqRanking, color='navy', linewidth=1, label="{}Hz Ranking".format(targetFreq))
+            axr.fill_between(range(len(taskFreqRanking)), taskFreqRanking, facecolor='navy', alpha=0.05)
+
+            # Now let's draw the ground truth arrow
+            ax_arrow.arrow(1, targetFreq/freq_upper_limit, -0.5, 0, head_width=0.05, head_length=0.5, color='navy')
+            ax_arrow.text(0.25, targetFreq/freq_upper_limit + 0.07, str(targetFreq) + "Hz", rotation=90, size=12, color='navy')
+
+
 
         axr.tick_params(top=True, bottom=True, left=True, right=False, labelleft=True, labelbottom=False, labeltop=False)
 
@@ -236,18 +264,13 @@ if __name__ == '__main__':
         axr.yaxis.set_minor_formatter(ticker.NullFormatter())
 
         axr.grid(linestyle=':')
-        axr.plot(taskFreqRanking, color='navy', linewidth=1, label="{}Hz Ranking".format(targetFreq))
-        axr.fill_between(range(len(taskFreqRanking)), taskFreqRanking, facecolor='navy', alpha=0.05)
         leg = axr.legend()
         leg.get_frame().set_edgecolor('w')
 
-
-        # Now let's draw the ground truth arrow
+        # Configurations for the arrow axis
         ax_arrow.set_frame_on(False)
         ax_arrow.tick_params(top=False, bottom=False, left=False, right=False, labelleft=False, labelbottom=False,
                         labeltop=False)
-        ax_arrow.arrow(1, targetFreq/freq_upper_limit, -0.5, 0, head_width=0.05, head_length=0.5, color='navy')
-        ax_arrow.text(0.25, targetFreq/freq_upper_limit + 0.07, str(targetFreq) + "Hz", rotation=90, size=12, color='navy')
 
         print("Done")
 
@@ -262,7 +285,7 @@ if __name__ == '__main__':
     for outFileName in outFileNames:
         print("Exporting the plot ...")
         outputFormat = outFileName.split('.')[-1]
-        if outputFormat == "pdf" or outputFormat == "png":
+        if outputFormat == "pdf" or outputFormat == "png" or True:
             print('Saving the plot to "{}" ...'.format(outFileName), end=" ")
             plt.savefig(outFileName, pad_inches=0.015, bbox_inches='tight')
         print("Done")
