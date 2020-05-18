@@ -21,6 +21,9 @@ public class MassScheduleEntropyTester {
     public static final String TEST_CASES_PARTIAL_HP_025 = "PARTIAL_HP_025";
     public static final String TEST_CASES_PARTIAL_HP_050 = "PARTIAL_HP_050";
     public static final String TEST_CASES_PARTIAL_HP_075 = "PARTIAL_HP_075";
+    public static final String TEST_CASES_PARTIAL_HP_100 = "PARTIAL_HP_100";
+    public static final String TEST_CASES_PARTIAL_HP_200 = "PARTIAL_HP_200";
+    public static final String TEST_CASES_PARTIAL_HP_300 = "PARTIAL_HP_300";
     public static final String TEST_CASES_LCM = "LCM";
 
     TaskSetContainer taskSetContainer = null;
@@ -38,7 +41,7 @@ public class MassScheduleEntropyTester {
     }
 
     public boolean run(String testCase) {
-        if (testCase.equalsIgnoreCase(TEST_CASES_FULL_HP)) {
+        if (testCase.equalsIgnoreCase(TEST_CASES_FULL_HP) || testCase.equalsIgnoreCase(TEST_CASES_PARTIAL_HP_100)) {
             return runFullHyperPeriodTest();
         } else if (testCase.equalsIgnoreCase(TEST_CASES_PARTIAL_HP_025)) {
             return runPartialHyperPeriodTest(0.25);
@@ -46,6 +49,10 @@ public class MassScheduleEntropyTester {
             return runPartialHyperPeriodTest(0.5);
         }  else if (testCase.equalsIgnoreCase(TEST_CASES_PARTIAL_HP_075)) {
             return runPartialHyperPeriodTest(0.75);
+        }  else if (testCase.equalsIgnoreCase(TEST_CASES_PARTIAL_HP_200)) {
+            return runPartialHyperPeriodTest(2.0);
+        }  else if (testCase.equalsIgnoreCase(TEST_CASES_PARTIAL_HP_300)) {
+            return runPartialHyperPeriodTest(3.0);
         } else if (testCase.equalsIgnoreCase(TEST_CASES_LCM)) {
             return runLcmTest();
         } else {
