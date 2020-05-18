@@ -288,12 +288,12 @@ public class EventContainer {
             }
 
             for (long i=lastTimestamp; i<thisEvent.orgBeginTimestamp; i++) {
-                binarySchedule.add(0.0);
+                binarySchedule.add(-1.0);
             }
 
             double valueToBeAdded;
             if (thisEvent.getTask().isIdleTaskType()) {
-                valueToBeAdded = 0.0;
+                valueToBeAdded = -1.0;
             } else {
                 valueToBeAdded = 1.0;
             }
@@ -320,10 +320,10 @@ public class EventContainer {
         for (SchedulerIntervalEvent thisEvent : schedulerEvents) {
             while (currentTimestamp < endTimestamp) {
                 if (currentTimestamp < thisEvent.getOrgBeginTimestamp())
-                    binarySchedule.add(0.0);
+                    binarySchedule.add(-1.0);
                 else if (currentTimestamp < thisEvent.getOrgEndTimestamp()) {
                     if (thisEvent.getTask().isIdleTaskType()) {
-                        binarySchedule.add(0.0);
+                        binarySchedule.add(-1.0);
                     } else {
                         binarySchedule.add(1.0);
                     }
@@ -336,7 +336,7 @@ public class EventContainer {
         }
 
         for (; currentTimestamp<endTimestamp; currentTimestamp++) {
-            binarySchedule.add(0.0);
+            binarySchedule.add(-1.0);
         }
 
         // convert the resulting ArrayList<Double> to primitive double[]
