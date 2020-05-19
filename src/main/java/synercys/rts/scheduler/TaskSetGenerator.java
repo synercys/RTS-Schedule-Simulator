@@ -441,6 +441,11 @@ public class TaskSetGenerator {
         return new Task[] {taskSet.getOneTaskByPriority(observerVictimPriorities[0]), taskSet.getOneTaskByPriority(observerVictimPriorities[1])};
     }
 
+    static public long getLCMDurationOfDefaultObserverVictimTasks(TaskSet taskSet) {
+        Task[] observerVictim = getDefaultObserverVictimTasks(taskSet);
+        return Umath.lcm(observerVictim[0].getPeriod(), observerVictim[1].getPeriod());
+    }
+
     int getRandomDivisor(ArrayList<Long> inFactors, int numOfChosenFactors) {
         ArrayList<Long> factors = (ArrayList<Long>) inFactors.clone();
         int resultDivisor = 1;

@@ -54,6 +54,20 @@ public class SchedulerIntervalEvent extends IntervalEvent {
         return beginTimeScheduleState;
     }
 
+    public boolean isStartEvent() {
+        if (beginTimeScheduleState == SCHEDULE_STATE_START)
+            return true;
+        else
+            return false;
+    }
+
+    public boolean isEndEvent() {
+        if (endTimeScheduleState == SCHEDULE_STATE_END)
+            return true;
+        else
+            return false;
+    }
+
     public int getEndTimeScheduleState() {
         return endTimeScheduleState;
     }
