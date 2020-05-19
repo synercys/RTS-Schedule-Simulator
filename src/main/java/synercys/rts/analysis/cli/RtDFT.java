@@ -3,6 +3,7 @@ package synercys.rts.analysis.cli;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
+import synercys.rts.analysis.MassTester;
 import synercys.rts.analysis.dft.tester.MassScheduleDFTTester;
 import synercys.rts.analysis.dft.tester.ScheduleDFTTester;
 import synercys.rts.framework.TaskSet;
@@ -72,7 +73,7 @@ public class RtDFT implements Callable {
         if (optionShowOptionNames) {
             loggerConsole.info("All supported options:");
             loggerConsole.info("Scheduling Algorithms = {}", SchedulerUtil.getSchedulerNames());
-            loggerConsole.info("Test Case = {}", MassScheduleDFTTester.getTestCaseNames());
+            loggerConsole.info("Test Case = {}", MassTester.getTestCaseNames(MassScheduleDFTTester.class));
             return EXIT_CODE_NORMAL;
         }
 

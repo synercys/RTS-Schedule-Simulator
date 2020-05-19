@@ -3,7 +3,6 @@ package synercys.rts.analysis;
 import cy.utility.Class;
 import cy.utility.file.FileHandler;
 import org.apache.commons.io.FilenameUtils;
-import synercys.rts.analysis.dft.tester.MassScheduleDFTTester;
 import synercys.rts.scheduler.TaskSetContainer;
 
 import java.nio.file.Paths;
@@ -41,9 +40,9 @@ public abstract class MassTester {
         this.executionVariation = executionVariation;
     }
 
-    static public ArrayList<String> getTestCaseNames() {
+    static public ArrayList<String> getTestCaseNames(java.lang.Class targetClass) {
         // This function is from cy.utility
-        return Class.getPrefixMatchedVariableStringValues(MassScheduleDFTTester.class, "TEST_CASES_");
+        return Class.getPrefixMatchedVariableStringValues(targetClass, "TEST_CASES_");
     }
 
     protected boolean setLogFilePrefixPath(String logFilePrefixPath) {
