@@ -1,4 +1,5 @@
 import argparse
+import matplotlib.pyplot as plt
 
 
 def parse_arguments():
@@ -6,7 +7,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', "--in", required=True, action='append',
                         help="One or more CSV files with data to be plotted.")
-    parser.add_argument('-o', "--out", required=False, help="Save the plot as a PDF file with the specified file name.")
+    parser.add_argument('-o', "--out", required=False, action='append', help="Save the plot as a PDF file with the specified file name.")
+    parser.add_argument('-l', "--label", required=False, action='append', help="Set line label(s).")
     parser.add_argument("--hide", action='store_true', help="Do not display the resulting plot.")
     # parser.add_argument('-c', "--case", required=True, help='Test case to be plotted ["duration", "histogram", "tasknums", "trial"].')
 
@@ -16,10 +18,12 @@ def parse_arguments():
 
     ''' Argument variables '''
     param_show_plot = not args["hide"]
-    param_out_filename = args["out"] if args["out"] is not None else ""
+    param_out_file_list = args["out"] if args["out"] is not None else []
     param_csv_file_list = args["in"]
+    param_label_list = args["label"] if args["label"] is not None else []
 
-    return param_show_plot, param_csv_file_list, param_out_filename
+
+    return param_show_plot, param_csv_file_list, param_out_file_list, param_label_list
 
 
 def config_plot(plt):
