@@ -28,6 +28,19 @@ def plot_context_switch_increase_ratio(show_plot, in_csv_file_list, out_plot_fil
     x = data_dict1['Utilization']
     y = data_dict2['Context_Switches']/data_dict1['Context_Switches'] # context switch ratio
 
+    x_mean = []
+    y_mean = []
+    y_error = []
+    for u in range(10):
+        util = u/10
+        matched_values = np.array([])
+        for i in range(len(y)):
+            if x[i]>=util and x[i]<(util+0.1):
+                matched_values = np.append(matched_values, y[i])
+        x_mean.append(u/10 + 0.05)
+        y_mean.append(matched_values.mean())
+        y_error.append(matched_values.std())
+
 
     # plot general config
     # plt.title('Interesting Graph\nCheck it out')
@@ -58,7 +71,8 @@ def plot_context_switch_increase_ratio(show_plot, in_csv_file_list, out_plot_fil
     # data points
     markerSize = 30
     plt.scatter(x, y, marker='o', facecolors='none', color='DodgerBlue', alpha=0.7, s=[markerSize for i in range(len(y))])
-    # plt.scatter(x, y1, marker='o', facecolors='none', color='grey', alpha=0.5, s=[markerSize for i in range(len(y1))], label=plot_labels[0])
+
+    plt.errorbar(x_mean,y_mean,y_error,color="black",marker='o')
 
 
     # Post plot configurations
