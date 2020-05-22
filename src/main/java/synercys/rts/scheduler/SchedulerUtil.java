@@ -10,6 +10,7 @@ public class SchedulerUtil {
     public static String SCHEDULER_EDF = "EDF";
     public static String SCHEDULER_TASKSHUFFLER = "TaskShuffler";
     public static String SCHEDULER_REORDER = "ReOrder";
+    public static String SCHEDULER_LAPLACE = "Laplace";
 
     public static AdvanceableSchedulerInterface getScheduler(String schedulingPolicy, TaskSet taskSet, boolean executionVariation) {
         if (schedulingPolicy.isEmpty() || schedulingPolicy.equalsIgnoreCase("RM") || schedulingPolicy.equalsIgnoreCase("TaskShuffler0"))
@@ -27,6 +28,8 @@ public class SchedulerUtil {
             ReorderScheduler scheduler = new ReorderScheduler(taskSet, executionVariation);
             scheduler.setRandomizationLevel(randomizationLevel);
             return scheduler;
+        } else if (schedulingPolicy.substring(0,"Laplace".length()).equalsIgnoreCase("Laplace")) {
+            return new LaplaceScheduler(taskSet, executionVariation);
         } else if (schedulingPolicy.substring(0,"TaskShuffler".length()).equalsIgnoreCase("TaskShuffler")) {  // TaskShuffler1, 2, 3, 4
             String randomizationLevelStr = schedulingPolicy.substring("TaskShuffler".length());
             int randomizationLevel;
@@ -48,6 +51,8 @@ public class SchedulerUtil {
     }
 
     public static String getSchedulerName(AdvanceableSchedulerInterface scheduler) {
+        if (scheduler instanceof LaplaceScheduler)
+            return SCHEDULER_LAPLACE;
         if (scheduler instanceof TaskShufflerScheduler)
             return SCHEDULER_TASKSHUFFLER;
         if (scheduler instanceof ReorderScheduler)
