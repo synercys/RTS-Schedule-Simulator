@@ -50,3 +50,20 @@ palletFor2 = [{'color': 'lightgrey',
 pallet = [{'color': 'DodgerBlue',
            'hatch': '',
            'alpha': 0.7}]
+
+palletForMany = plt.cm.tab10.colors
+pattern_list = ['-', '+', 'x', '\\', '*', 'o', 'O', '.']
+hatch_list = ['', '.....', '/////']
+line_style_list = ['-', '--', '-.', ':']
+# palletForManyCustom = [{'color': palletForMany[0],
+#                'hatch': '',  # .....
+#                'alpha': 0.8},
+#               {'color': colormap[1],
+#                'hatch': '/////',
+#                'alpha': 0.7},
+#               {'color': colormap[2],
+#                'hatch': '/////',
+#                'alpha': 0.7},
+#               {'color': colormap[3],
+#                'hatch': '/////',
+#                'alpha': 0.7}]
