@@ -131,12 +131,12 @@ if __name__ == '__main__':
         # print(true_top_freq, idx_of_freq_upper_limit)
 
         axx = ax.inset_axes([i*heatmapWidth, 0, heatmapWidth, true_top_freq/freq_upper_limit])
-        df = df = pd.DataFrame(jsonRoot['data']['unevenSpectrum'][i]['magnitudes'])
-        df = (df-df.min())/(df.max()-df.min())  # min-max normalization
-        sns.heatmap(df, cmap='Blues', cbar_kws={'label': 'Magnitude', 'aspect': 0.01}, ax=axx, cbar_ax=ax_cbar)
+        df = pd.DataFrame(jsonRoot['data']['unevenSpectrum'][i]['magnitudes'])
+        df_max_min_range = 1 if (df.max()-df.min()).max()==0 else (df.max()-df.min()) # in case if divisor is zero
+        df = (df-df.min())/(df_max_min_range)  # min-max normalization
+        sns.heatmap(df, cmap='Blues', cbar_kws={'label': 'Amplitude', 'aspect': 0.01}, ax=axx, cbar_ax=ax_cbar)
         axx.tick_params(top=False, bottom=False, left=False, right=False, labelleft=False, labelbottom=False)
         axx.set_ylim(-1, idx_of_freq_upper_limit+1)
-
 
 
     ''' Load CSV data to Pandas data frame '''
@@ -222,7 +222,7 @@ if __name__ == '__main__':
 
     # Display X-axis as time in T_v
     ax3 = ax2.twiny()
-    ax3.set_xlabel(xlabel='Duration ($T_v$)')
+    ax3.set_xlabel(xlabel='Length of Observed Schedule ($T_v$)')
     ax3.xaxis.set_label_position("bottom")
     ax3.xaxis.labelpad = 0
     ax3.xaxis.set_major_locator(ticker.MaxNLocator(10))
@@ -320,6 +320,10 @@ if __name__ == '__main__':
     ''' Save the plot to files with the specified format '''
     for outFileName in outFileNames:
         print("Exporting the plot ...")
+
+        if outFileName == "png" or outFileName == "pdf":
+            outFileName = "{}.{}".format(inFileName.split('.')[0], outFileName)
+
         outputFormat = outFileName.split('.')[-1]
         if outputFormat == "pdf" or outputFormat == "png" or True:
             print('Saving the plot to "{}" ...'.format(outFileName), end=" ")
