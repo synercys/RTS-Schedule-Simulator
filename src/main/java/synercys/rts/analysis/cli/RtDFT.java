@@ -113,17 +113,29 @@ public class RtDFT implements Callable {
             ScheduleDFTTester dftTester = new ScheduleDFTTester(taskSet, schedulingPolicy, optionExecutionVariation);
             dftTester.run(simDuration);
 
+
+
             loggerConsole.info("");
             loggerConsole.info("------------------------------");
             loggerConsole.info("DFT Results");
             loggerConsole.info("------------------------------");
             loggerConsole.info("Peak Frequencies (first 10):");
             ArrayList<Double> peakFrequencies = dftTester.getReport().getPeakFrequencies();
-            for (int i=0; i<10; i++) {
+            for (int i=0; i<10 && i<peakFrequencies.size(); i++) {
                 double thisPeakFreq = peakFrequencies.get(i);
                 double thisPeakFreqMag = dftTester.getReport().getFreqSpectrumAmplitudeMap().get(thisPeakFreq);
                 loggerConsole.info(String.format("    [%d] %.2f Hz \t(%.2f)", i+1, thisPeakFreq, thisPeakFreqMag));
             }
+            loggerConsole.info("Peak Frequency Count: {}}", peakFrequencies.size());
+
+            loggerConsole.info("Sorted Raw Frequencies (first 10):");
+            ArrayList<Double> sortedFrequencies = dftTester.getReport().getFrequenciesSortedByAmplitudes();
+            for (int i=0; i<10 && i<sortedFrequencies.size(); i++) {
+                double thisPeakFreq = sortedFrequencies.get(i);
+                double thisPeakFreqMag = dftTester.getReport().getFreqSpectrumAmplitudeMap().get(thisPeakFreq);
+                loggerConsole.info(String.format("    [%d] %.2f Hz \t(%.2f)", i+1, thisPeakFreq, thisPeakFreqMag));
+            }
+
 
             if (!outputFilePrefixPath.isEmpty()) {
                 loggerConsole.info("Storing DFT analysis results into files.");

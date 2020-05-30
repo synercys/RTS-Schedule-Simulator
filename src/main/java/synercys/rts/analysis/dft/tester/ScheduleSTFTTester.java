@@ -35,7 +35,25 @@ public class ScheduleSTFTTester {
 
     public ScheduleSTFTAnalysisReport run(long duration) {
         analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(duration).toBinaryScheduleDouble());
-        report = analyzer.compute((int)duration/10, (int)duration/20);
+        report = analyzer.compute((int) duration / 10, (int) duration / 20);
+        return report;
+    }
+    public ScheduleSTFTAnalysisReport runCumulativeSTFTDurationByLargestPeriod(long simDurationFactor, boolean unevenSpectrum) {
+        long simDuration = taskSet.getLargestPeriod()*simDurationFactor;
+        long windowLength = taskSet.getLargestPeriod();
+        // long windowShift = windowLength/2;
+
+        loggerConsole.info("Used Scheduler: {}", SchedulerUtil.getSchedulerName(scheduler));
+        loggerConsole.info("Simulation duration: {} ({}ms)", simDuration, simDuration*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
+        loggerConsole.info("STFT window size: {} ({}ms)", windowLength, windowLength*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
+        // loggerConsole.info("STFT window shift: {} ({}ms)", windowShift, windowShift*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
+
+        analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(simDuration).toBinaryScheduleDouble());
+        if (unevenSpectrum)
+            report = analyzer.computeCumulativeSTFT_uneven((int)windowLength);
+        else
+            report = analyzer.computeCumulativeSTFT_even((int)windowLength);
+
         return report;
     }
 

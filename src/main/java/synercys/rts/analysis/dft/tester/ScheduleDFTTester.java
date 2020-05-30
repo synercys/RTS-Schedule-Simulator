@@ -1,6 +1,8 @@
 package synercys.rts.analysis.dft.tester;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import synercys.rts.analysis.dft.ScheduleDFTAnalysisReport;
 import synercys.rts.analysis.dft.ScheduleDFTAnalyzer;
 import synercys.rts.framework.Task;
@@ -10,6 +12,8 @@ import synercys.rts.scheduler.SchedulerUtil;
 import synercys.rts.util.JsonLogExporter;
 
 public class ScheduleDFTTester {
+    private static final Logger loggerConsole = LogManager.getLogger("console");
+
     AdvanceableSchedulerInterface scheduler;
     TaskSet taskSet;
     ScheduleDFTAnalysisReport report;
@@ -22,6 +26,7 @@ public class ScheduleDFTTester {
     }
 
     public ScheduleDFTAnalysisReport run(long simDuration) {
+        loggerConsole.info("Used Scheduler: {}", SchedulerUtil.getSchedulerName(scheduler));
         analyzer.setBinarySchedule(scheduler.runSimWithDefaultOffset(simDuration));
         report = analyzer.computeFreqSpectrum();
         return report;
@@ -40,5 +45,9 @@ public class ScheduleDFTTester {
 
     public ScheduleDFTAnalysisReport getReport() {
         return report;
+    }
+
+    public AdvanceableSchedulerInterface getScheduler() {
+        return scheduler;
     }
 }
