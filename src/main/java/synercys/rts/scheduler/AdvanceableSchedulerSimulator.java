@@ -24,6 +24,7 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
     protected HashMap<Task, Job> nextJobOfATask = new HashMap<>();
 
     protected boolean genIdleTimeEvents = true; // Should the scheduler log idle time intervals?
+    protected boolean assertOnDeadlineMiss = true;
 
     public AdvanceableSchedulerSimulator(TaskSet taskSet, boolean runTimeVariation, String schedulingPolicy) {
         super(taskSet, runTimeVariation, schedulingPolicy);
@@ -151,8 +152,15 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
             /* This job is finished. */
             long runJobFinishTime = tick + runJob.remainingExecTime;
 
+            int jobEndState = SchedulerIntervalEvent.SCHEDULE_STATE_END;
             if (runJobFinishTime > runJob.absoluteDeadline) {
-                throw new AssertionError("A job (" + runJob.task.toString() + ") missed its deadline: deadline=" + runJob.absoluteDeadline + ", finishedTime=" + runJobFinishTime);
+                if (assertOnDeadlineMiss) {
+                    throw new AssertionError("A job (" + runJob.task.toString() + ") missed its deadline: deadline=" + runJob.absoluteDeadline + ", finishedTime=" + runJobFinishTime);
+                }
+
+                runJobFinishTime = runJob.absoluteDeadline;
+                jobEndState = SchedulerIntervalEvent.SCHEDULE_STATE_END_DEADLINE_MISSED;
+                // TODO: Log the deadline miss
             }
 
             runJob.remainingExecTime = 0;
@@ -162,9 +170,9 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
             SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, runJobFinishTime, runJob.task, "");
             if ( runJob.hasStarted == false ) { // Check this job's starting state.
                 runJob.hasStarted = true;
-                currentJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_START, SchedulerIntervalEvent.SCHEDULE_STATE_END);
+                currentJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_START, jobEndState);
             } else {
-                currentJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_RESUME, SchedulerIntervalEvent.SCHEDULE_STATE_END);
+                currentJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_RESUME, jobEndState);
             }
             simEventContainer.add(currentJobEvent);
 

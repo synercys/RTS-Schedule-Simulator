@@ -463,6 +463,8 @@ public class JsonLogExporter extends FileHandler {
             return JsonLogStr.SCHEDULE_INTERVAL_EVENT_STATE_SUSPEND;
         else if (SchedulerIntervalEvent.SCHEDULE_STATE_END == inScheduleStateIndex)
             return JsonLogStr.SCHEDULE_INTERVAL_EVENT_STATE_END;
+        else if (SchedulerIntervalEvent.SCHEDULE_STATE_END_DEADLINE_MISSED == inScheduleStateIndex)
+            return JsonLogStr.SCHEDULE_INTERVAL_EVENT_STATE_END_DEADLINE_MISSED;
         else //if (SchedulerIntervalEvent.SCHEDULE_STATE_UNKNOWN == inScheduleStateIndex)
             return JsonLogStr.SCHEDULE_INTERVAL_EVENT_STATE_UNKNOWN;
 

@@ -166,7 +166,7 @@ public class BusyIntervalEventContainer {
                         isConstructingBi = true;
                     } else {
                         // The end of the observer task.
-                        if (thisEvent.getEndTimeScheduleState() != SchedulerIntervalEvent.SCHEDULE_STATE_END)
+                        if (!thisEvent.isEndEvent())
                             throw new AssertionError();
 
                         isConstructingBi = false;

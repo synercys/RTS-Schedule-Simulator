@@ -73,6 +73,7 @@ public class JsonLogStr {
     public static String SCHEDULE_INTERVAL_EVENT_STATE_RESUME = "resume";
     public static String SCHEDULE_INTERVAL_EVENT_STATE_SUSPEND = "suspend";
     public static String SCHEDULE_INTERVAL_EVENT_STATE_END = "end";
+    public static String SCHEDULE_INTERVAL_EVENT_STATE_END_DEADLINE_MISSED = "endDeadlineMissed";
 
     /* taskInstantEvents */
     public static String TASK_INSTANT_EVENT_TASK_ID = "taskId";

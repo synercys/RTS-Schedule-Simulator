@@ -11,6 +11,7 @@ public class SchedulerIntervalEvent extends IntervalEvent {
     public static int SCHEDULE_STATE_RESUME = 2;
     public static int SCHEDULE_STATE_SUSPEND = 3;
     public static int SCHEDULE_STATE_END = 4;
+    public static int SCHEDULE_STATE_END_DEADLINE_MISSED = 5;
 
     private Task task = null;
     private int beginTimeScheduleState = SCHEDULE_STATE_UNKNOWN;
@@ -62,7 +63,7 @@ public class SchedulerIntervalEvent extends IntervalEvent {
     }
 
     public boolean isEndEvent() {
-        if (endTimeScheduleState == SCHEDULE_STATE_END)
+        if (endTimeScheduleState == SCHEDULE_STATE_END || endTimeScheduleState == SCHEDULE_STATE_END_DEADLINE_MISSED)
             return true;
         else
             return false;
