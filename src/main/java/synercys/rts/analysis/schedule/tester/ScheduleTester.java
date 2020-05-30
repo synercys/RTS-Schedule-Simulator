@@ -29,9 +29,13 @@ public class ScheduleTester extends Tester {
     public Report run(long simDuration) {
         HashMap<Task, Interval> taskMinMaxExecutionSlots = new HashMap<>();
         HashMap<Task, List<Double>> rawResponseTimeRatioToPeriod = new HashMap<>();
+        HashMap<Task, Integer> taskPeriodCount = new HashMap<>();
+        HashMap<Task, Integer> taskDeadlineMissCount = new HashMap<>();
         for (Task task : taskSet.getRunnableTasksAsArray()) {
             // taskMinMaxExecutionSlots.put(task, new Interval(task.getPeriod(), 0));
             rawResponseTimeRatioToPeriod.put(task, new ArrayList<>());
+            taskPeriodCount.put(task, 0);
+            taskDeadlineMissCount.put(task, 0);
         }
         HashMap<Task, SchedulerIntervalEvent> currentTaskJobBeginEvent = new HashMap<>();
         int contextSwitchCount = 0;
@@ -50,6 +54,8 @@ public class ScheduleTester extends Tester {
                 contextSwitchCount++;
 
             if (event.isStartEvent()) {
+                taskPeriodCount.put(task, taskPeriodCount.get(task)+1);
+
                 // for determining response time
                 currentTaskJobBeginEvent.put(task, event);
 
@@ -80,6 +86,11 @@ public class ScheduleTester extends Tester {
                     taskMinMaxExecutionSlots.get(task).setEnd(jobEndSlot);
                 }
 
+                // record deadline misses
+                if (event.isDeadlineMissed()) {
+                    taskDeadlineMissCount.put(task, taskDeadlineMissCount.get(task) + 1);
+                }
+
                 currentTaskJobBeginEvent.remove(task); // so that we can detect an error if begin and end do not match.
             }
         }
@@ -89,6 +100,7 @@ public class ScheduleTester extends Tester {
         ((ScheduleAnalysisReport)report).rawResponseTimeRatioToPeriod = rawResponseTimeRatioToPeriod;
         ((ScheduleAnalysisReport)report).meanResponseTimeRatioToPeriod = new HashMap<>();
         ((ScheduleAnalysisReport)report).taskExecutionRangeRatioToPeriod = new HashMap<>();
+        ((ScheduleAnalysisReport)report).taskDeadlineMissRate = new HashMap<>();
         for (Task task : taskSet.getRunnableTasksAsArray()) {
 
             // for response time
@@ -107,6 +119,9 @@ public class ScheduleTester extends Tester {
             // for execution range
             double executionRangeRatio = (double)taskMinMaxExecutionSlots.get(task).getLength()/(double)task.getPeriod();
             ((ScheduleAnalysisReport)report).taskExecutionRangeRatioToPeriod.put(task, executionRangeRatio);
+
+            // for deadline miss rate
+            ((ScheduleAnalysisReport) report).taskDeadlineMissRate.put(task, (double)taskDeadlineMissCount.get(task)/taskPeriodCount.get(task));
         }
 
 

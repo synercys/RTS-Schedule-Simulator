@@ -12,6 +12,7 @@ import synercys.rts.scheduler.TaskSetGenerator;
 public class MassScheduleTester extends MassTester {
     // This test takes -d parameter in the unit of "the number of LCM"
     // This test yields "mean response time ratio to period" and "mean execution range ratio to period" for each task set
+    public static final String TEST_CASES_DURATION = "DURATION";
     public static final String TEST_CASES_SCHEDULEAK_DURATION = "SLEAK_DURATION";
 
     private static final Logger loggerConsole = LogManager.getLogger("console");
@@ -22,14 +23,15 @@ public class MassScheduleTester extends MassTester {
 
     @Override
     public boolean run(String testCase) {
-        return runScheduLeakDurationTest();
+        return runDurationTest(testCase);
         // return false;
     }
 
-    protected boolean runScheduLeakDurationTest() {
+    protected boolean runDurationTest(String testCase) {
         loggerConsole.info("Scheduler: {}", schedulingPolicy);
 
-        FileHandler fileTestLog = openLogFileToWrite("sleaklcm", "csv");
+        String suffix = testCase.equalsIgnoreCase(TEST_CASES_SCHEDULEAK_DURATION)?"sleaklcm":"duration";
+        FileHandler fileTestLog = openLogFileToWrite(suffix, "csv");
 
         // title row
         fileTestLog.writeString(
@@ -40,6 +42,7 @@ public class MassScheduleTester extends MassTester {
                         + "Hyper Period,"
                         + "Test Length,"
                         + "Context Switches,"
+                        + "Mean Deadline Miss Rate,"
                         + "Mean Response Time Ratio To Period,"
                         + "Mean Execution Range Ratio To Period"
         );
@@ -47,16 +50,20 @@ public class MassScheduleTester extends MassTester {
 
         int taskSetCount = 0;
         int totalNumberOfTaskSet = taskSetContainer.size();
-        long lcmCount = runDuration;
+        long lcmCount = runDuration;    // for the test case TEST_CASES_SCHEDULEAK_DURATION
         for (TaskSet taskSet : taskSetContainer.getTaskSets()) {
             taskSetCount++;
             loggerConsole.info("Testing TaskSet #{}\t{}/{} ...", taskSet.getId(), taskSetCount, totalNumberOfTaskSet);
 
             ScheduleTester tester = new ScheduleTester(taskSet, schedulingPolicy, executionVariation);
-            runDuration = TaskSetGenerator.getLCMDurationOfDefaultObserverVictimTasks(taskSet)*lcmCount; // from lcm to ticks
+
+            if (testCase.equalsIgnoreCase(TEST_CASES_SCHEDULEAK_DURATION))
+                runDuration = TaskSetGenerator.getLCMDurationOfDefaultObserverVictimTasks(taskSet)*lcmCount; // from lcm to ticks
+
             ScheduleAnalysisReport report = (ScheduleAnalysisReport)tester.run(runDuration);
             double meanResponseTimeRatioToPeriod = report.getMeanResponseTimeRatioToPeriod();
             double meanExecutionRangeRatioToPeriod = report.getMeanTaskExecutionRangeRatioToPeriod();
+            double meanDeadlineMissRate = report.getMeanDeadlineMissRate();
 
             fileTestLog.writeString(taskSetCount + ",");
             fileTestLog.writeString(taskSet.getId() + ",");
@@ -65,12 +72,14 @@ public class MassScheduleTester extends MassTester {
             fileTestLog.writeString(taskSet.calHyperPeriod() + ",");
             fileTestLog.writeString(runDuration + ",");
             fileTestLog.writeString(report.contextSwitches + ",");
+            fileTestLog.writeString(meanDeadlineMissRate + ",");
             fileTestLog.writeString(String.format("%.4f", meanResponseTimeRatioToPeriod) + ",");
             fileTestLog.writeString(String.format("%.4f", meanExecutionRangeRatioToPeriod) + "\n");
 
-            loggerConsole.info("\tDone: MeanResponseTimeRatio={},\tMeanExecutionRangeRatio={},\tContextSwitchCount={}",
+            loggerConsole.info("\tDone: MeanResponseTimeRatio={},\tMeanExecutionRangeRatio={},\tDeadlineMissRate={},\tContextSwitchCount={}",
                     String.format("%.4f", meanResponseTimeRatioToPeriod),
                     String.format("%.4f", meanExecutionRangeRatioToPeriod),
+                    String.format("%.4f", meanDeadlineMissRate),
                     report.contextSwitches);
 
         }

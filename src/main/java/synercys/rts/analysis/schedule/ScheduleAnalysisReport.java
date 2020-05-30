@@ -15,6 +15,7 @@ public class ScheduleAnalysisReport extends Report {
     public HashMap<Task, List<Double>> rawResponseTimeRatioToPeriod;
     public HashMap<Task, Double> meanResponseTimeRatioToPeriod;
     public HashMap<Task, Double> taskExecutionRangeRatioToPeriod;
+    public HashMap<Task, Double> taskDeadlineMissRate;
 
     public double getMeanResponseTimeRatioToPeriod() {
         int ratioLength = 0;
@@ -43,5 +44,13 @@ public class ScheduleAnalysisReport extends Report {
         }
         geometricMean = Math.pow(geometricMean, 1.0/length);
         return geometricMean;
+    }
+
+    public double getMeanDeadlineMissRate() {
+        double sum = 0;
+        for (Task task : taskSet.getRunnableTasksAsArray()) {
+            sum += taskDeadlineMissRate.get(task);
+        }
+        return sum/taskDeadlineMissRate.size();
     }
 }
