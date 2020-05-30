@@ -41,6 +41,10 @@ public class Task {
 
     protected boolean isSporadicTask = false;
 
+    /* Extended Task Model */
+    protected long admissiblePeriodUpper = 0;
+    private long admissiblePeriodLower = 0;
+
     public Task(){}
 
     public Task(int inTaskId, String inTitle, String inType, long inPeriod, long inDeadline, long inWCET, int inPriority)
@@ -171,6 +175,22 @@ public class Task {
 
     public double getFreq() {
         return 1.0 / ((double)period * RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER);
+    }
+
+    public long getAdmissiblePeriodUpper() {
+        return admissiblePeriodUpper;
+    }
+
+    public void setAdmissiblePeriodUpper(long admissiblePeriodUpper) {
+        this.admissiblePeriodUpper = admissiblePeriodUpper;
+    }
+
+    public long getAdmissiblePeriodLower() {
+        return admissiblePeriodLower;
+    }
+
+    public void setAdmissiblePeriodLower(long admissiblePeriodLower) {
+        this.admissiblePeriodLower = admissiblePeriodLower;
     }
 
     @Override

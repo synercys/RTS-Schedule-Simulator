@@ -1,6 +1,5 @@
 package synercys.rts.scheduler;
 
-import cy.utility.Umath;
 import org.apache.commons.math3.distribution.LaplaceDistribution;
 import synercys.rts.RtsConfig;
 import synercys.rts.framework.Job;
@@ -12,32 +11,68 @@ import java.util.Random;
 
 public class LaplaceScheduler extends EdfScheduler {
     HashMap<Task, LaplaceDistribution> taskLaplaceInterArrivalTimeGenerator = new HashMap<>();
-    HashMap<Task, Long> taskMaxInterArrivalTime = new HashMap<>();
+    // HashMap<Task, Long> taskMaxInterArrivalTime = new HashMap<>();
 
     HashMap<Task, Double> taskEpsilon = new HashMap<>();
-    HashMap<Task, Double> taskJ = new HashMap<>();
-    HashMap<Task, Double> taskSensitivity = new HashMap<>();
+    HashMap<Task, Long> taskJ = new HashMap<>();
+    HashMap<Task, Long> taskSensitivity = new HashMap<>();
 
 
     // protected LaplaceDistribution laplaceDistribution;
     Random rand = new Random();
     int i=0;
 
+    // By default J for each task will be 1.
+    public LaplaceScheduler(TaskSet taskSet, boolean runTimeVariation, double epsilon) {
+        this(taskSet, runTimeVariation, 1, epsilon);
+    }
 
-    public LaplaceScheduler(TaskSet taskSet, boolean runTimeVariation) {
+    public LaplaceScheduler(TaskSet taskSet, boolean runTimeVariation, long protectionTime, double epsilon) {
         super(taskSet, runTimeVariation);
 
-        for (Task task : taskSet.getRunnableTasksAsArray()) {
-            long maxInterArrivalTime = task.getPeriod()*3;
-            taskMaxInterArrivalTime.put(task, maxInterArrivalTime);
+        this.assertOnDeadlineMiss = false;
 
-            double mu = task.getPeriod() + (maxInterArrivalTime - task.getPeriod())/2.0; // location
-            double beta = 100; // b is sometimes referred to as the diversity, is a scale parameter.
-            taskLaplaceInterArrivalTimeGenerator.put(task, new LaplaceDistribution(mu, beta));
+        long globalSensitivity = taskSet.getLargestPeriod() - taskSet.getSmallestPeriod();
+        for (Task task : taskSet.getRunnableTasksAsArray()) {
+            // long maxInterArrivalTime = task.getPeriod()*3;
+            // taskMaxInterArrivalTime.put(task, maxInterArrivalTime);
+
+            taskEpsilon.put(task, epsilon);
+            taskSensitivity.put(task, globalSensitivity);
+            updateTaskJByDuration(task, protectionTime);
+
+            updateTaskLaplaceNoise(task);
+
+            if (task.getAdmissiblePeriodUpper() == 0) {
+                // task.setAdmissiblePeriodUpper((long)(task.getPeriod()*1.2));
+                task.setAdmissiblePeriodUpper(Math.max(100*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER, (long)(task.getPeriod()*1.2)));   // 10Hz
+            }
+
+            if (task.getAdmissiblePeriodLower() == 0) {
+                // task.setAdmissiblePeriodLower((long)(task.getPeriod()*0.8));
+                task.setAdmissiblePeriodLower(Math.min(10*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER, (long)(task.getPeriod()*0.8)));   // 100Hz
+            }
         }
 
-        /* Add noisy tasks if needed */
+        System.out.println("Epsilon = " + epsilon);
 
+    }
+
+    protected void updateTaskJByDuration(Task task, long protectionTime) {
+        taskJ.put(task, (long)Math.ceil((double)protectionTime/task.getPeriod()));
+    }
+
+    protected void updateTaskLaplaceNoise(Task task) {
+        double mu = task.getPeriod(); // location
+        double beta = 2*taskJ.get(task)*taskSensitivity.get(task)/taskEpsilon.get(task); // b is sometimes referred to as the diversity, is a scale parameter.
+        taskLaplaceInterArrivalTimeGenerator.put(task, new LaplaceDistribution(mu, beta));
+    }
+
+    public void updateTaskSetLaplaceNoiseByProtectionDuration(long protectionTime) {
+        for (Task task : taskSet.getRunnableTasksAsArray()) {
+            updateTaskJByDuration(task, protectionTime);
+            updateTaskLaplaceNoise(task);
+        }
     }
 
     @Override
@@ -57,17 +92,9 @@ public class LaplaceScheduler extends EdfScheduler {
 
 
         /* Determine next arrival time. */
-        long nextArrivalTime;
-        if (taskLaplaceInterArrivalTimeGenerator.containsKey(task)) {
-            long interArrivalTime = getLaplaceInterArrivalTime(task);
-            nextArrivalTime = nextJobOfATask.get(task).releaseTime + interArrivalTime;
-            // System.out.println(1.0/(interArrivalTime*RtsConfig.TIMESTAMP_UNIT_TO_S_MULTIPLIER));
-            System.out.println(interArrivalTime*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
-        } else if (task.isSporadicTask()) {
-            nextArrivalTime = nextJobOfATask.get(task).releaseTime + getVariedInterArrivalTime(task);
-        } else {
-            nextArrivalTime = nextJobOfATask.get(task).releaseTime + task.getPeriod();
-        }
+        long interArrivalTime = getLaplaceInterArrivalTime(task);
+        long nextArrivalTime = nextJobOfATask.get(task).releaseTime + interArrivalTime;
+        // System.out.println(interArrivalTime*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
 
         /* Determine the execution time. */
         long executionTime;
@@ -132,24 +159,15 @@ public class LaplaceScheduler extends EdfScheduler {
     }
 
     protected long getLaplaceInterArrivalTime(Task task) {
-        if (!taskLaplaceInterArrivalTimeGenerator.containsKey(task)) {
-            return task.getPeriod();
-
+        long interArrivalTime;
+        while (true) {
+            interArrivalTime = (long) taskLaplaceInterArrivalTimeGenerator.get(task).sample();
+            if (interArrivalTime>=task.getAdmissiblePeriodLower() && interArrivalTime<=task.getAdmissiblePeriodUpper())
+                break;
         }
-
-        long interArrivalTime = (long) taskLaplaceInterArrivalTimeGenerator.get(task).sample();
-        if (interArrivalTime<task.getPeriod())
-            interArrivalTime = task.getPeriod();
-        else if (interArrivalTime>taskMaxInterArrivalTime.get(task))
-            interArrivalTime = taskMaxInterArrivalTime.get(task);
-
         return interArrivalTime;
     }
 
-    public void setMode(int mode) {
-        if (mode <= 1) {   // 0 or 1 (or below)
-        }
-    }
 
 
     protected int getUniformNoise() {

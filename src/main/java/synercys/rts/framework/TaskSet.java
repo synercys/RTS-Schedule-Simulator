@@ -433,6 +433,20 @@ public class TaskSet {
         return largestPeriod;
     }
 
+    public long getSmallestPeriod() {
+        long smallestPeriod = 0;
+        boolean firstLoop = true;
+        for (Task task : tasks.values()) {
+            if (firstLoop) {
+                firstLoop = false;
+                smallestPeriod = task.getPeriod();
+                continue;
+            }
+            smallestPeriod = (task.getPeriod() < smallestPeriod) ? task.getPeriod() : smallestPeriod;
+        }
+        return smallestPeriod;
+    }
+
     public Task getLargestPeriodTask() {
         Task largestPeriodTask = null;
         boolean firstLoop = true;

@@ -29,7 +29,15 @@ public class SchedulerUtil {
             scheduler.setRandomizationLevel(randomizationLevel);
             return scheduler;
         } else if (schedulingPolicy.substring(0,"Laplace".length()).equalsIgnoreCase("Laplace")) {
-            return new LaplaceScheduler(taskSet, executionVariation);
+            // It could be "Laplace0.01" where "0.01" will be taken as epsilon value
+            String epsilonString = schedulingPolicy.substring("Laplace".length());
+            double epsilon;
+            if (epsilonString.equalsIgnoreCase("")) {
+                epsilon = 100.0;    // default value
+            } else {
+                epsilon = Double.valueOf(epsilonString);
+            }
+            return new LaplaceScheduler(taskSet, executionVariation, epsilon);
         } else if (schedulingPolicy.substring(0,"TaskShuffler".length()).equalsIgnoreCase("TaskShuffler")) {  // TaskShuffler1, 2, 3, 4
             String randomizationLevelStr = schedulingPolicy.substring("TaskShuffler".length());
             int randomizationLevel;
