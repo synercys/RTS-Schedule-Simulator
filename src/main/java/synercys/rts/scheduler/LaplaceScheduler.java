@@ -17,14 +17,15 @@ public class LaplaceScheduler extends EdfScheduler {
     HashMap<Task, Long> taskJ = new HashMap<>();
     HashMap<Task, Long> taskSensitivity = new HashMap<>();
 
+    long globalSensitivity = 90*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER;    // 90ms
 
     // protected LaplaceDistribution laplaceDistribution;
     Random rand = new Random();
     int i=0;
 
-    // By default J for each task will be 1.
+    // By default J for each task will be 500ms.
     public LaplaceScheduler(TaskSet taskSet, boolean runTimeVariation, double epsilon) {
-        this(taskSet, runTimeVariation, 1, epsilon);
+        this(taskSet, runTimeVariation, 500*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER, epsilon);
     }
 
     public LaplaceScheduler(TaskSet taskSet, boolean runTimeVariation, long protectionTime, double epsilon) {
@@ -32,7 +33,7 @@ public class LaplaceScheduler extends EdfScheduler {
 
         this.assertOnDeadlineMiss = false;
 
-        long globalSensitivity = taskSet.getLargestPeriod() - taskSet.getSmallestPeriod();
+        // long globalSensitivity = taskSet.getLargestPeriod() - taskSet.getSmallestPeriod();
         for (Task task : taskSet.getRunnableTasksAsArray()) {
             // long maxInterArrivalTime = task.getPeriod()*3;
             // taskMaxInterArrivalTime.put(task, maxInterArrivalTime);
@@ -45,12 +46,12 @@ public class LaplaceScheduler extends EdfScheduler {
 
             if (task.getAdmissiblePeriodUpper() == 0) {
                 // task.setAdmissiblePeriodUpper((long)(task.getPeriod()*1.2));
-                task.setAdmissiblePeriodUpper(Math.max(100*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER, (long)(task.getPeriod()*1.2)));   // 10Hz
+                task.setAdmissiblePeriodUpper(100*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER);   // 10Hz
             }
 
             if (task.getAdmissiblePeriodLower() == 0) {
                 // task.setAdmissiblePeriodLower((long)(task.getPeriod()*0.8));
-                task.setAdmissiblePeriodLower(Math.min(10*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER, (long)(task.getPeriod()*0.8)));   // 100Hz
+                task.setAdmissiblePeriodLower(10*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER);   // 100Hz
             }
         }
 
