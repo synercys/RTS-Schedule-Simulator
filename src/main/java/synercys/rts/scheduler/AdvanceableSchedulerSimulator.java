@@ -167,7 +167,7 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
             runJobExecutedHook(runJob, runJobFinishTime,runJobFinishTime - tick);
 
             /* Log the job interval. */
-            SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, runJobFinishTime, runJob.task, "");
+            SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, runJobFinishTime, runJob.releaseTime, runJob.task, "");
             if ( runJob.hasStarted == false ) { // Check this job's starting state.
                 runJob.hasStarted = true;
                 currentJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_START, jobEndState);
@@ -195,7 +195,7 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
             runJobExecutedHook(runJob, earliestPreemptingTick, earliestPreemptingTick - tick);
 
             /* Log the job interval. */
-            SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, earliestPreemptingTick, runJob.task, "");
+            SchedulerIntervalEvent currentJobEvent = new SchedulerIntervalEvent(tick, earliestPreemptingTick, runJob.releaseTime, runJob.task, "");
             if ( runJob.hasStarted == false ) { // Check this job's starting state.
                 runJob.hasStarted = true;
                 currentJobEvent.setScheduleStates(SchedulerIntervalEvent.SCHEDULE_STATE_START, SchedulerIntervalEvent.SCHEDULE_STATE_SUSPEND);
