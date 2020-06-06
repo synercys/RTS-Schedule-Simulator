@@ -16,6 +16,7 @@ public class SchedulerIntervalEvent extends IntervalEvent {
     private Task task = null;
     private int beginTimeScheduleState = SCHEDULE_STATE_UNKNOWN;
     private int endTimeScheduleState = SCHEDULE_STATE_UNKNOWN;
+    private long jobInitialArrivalTime = 0;
 
     public SchedulerIntervalEvent(long inTimeStamp, Task inTask, String inNote)
     {
@@ -30,6 +31,11 @@ public class SchedulerIntervalEvent extends IntervalEvent {
 
         // Since the end time is not specified, it is an incomplete event.
         eventCompleted = false;
+    }
+
+    public SchedulerIntervalEvent(long inBeginTimeStamp, long inEndTimeStamp, long inInitialArrivalTime, Task inTask, String inNote) {
+        this(inBeginTimeStamp, inEndTimeStamp, inTask, inNote);
+        jobInitialArrivalTime = inInitialArrivalTime;
     }
 
     public SchedulerIntervalEvent(long inBeginTimeStamp, long inEndTimeStamp, Task inTask, String inNote)
@@ -64,6 +70,17 @@ public class SchedulerIntervalEvent extends IntervalEvent {
 
     public boolean isEndEvent() {
         if (endTimeScheduleState == SCHEDULE_STATE_END || endTimeScheduleState == SCHEDULE_STATE_END_DEADLINE_MISSED)
+            return true;
+        else
+            return false;
+    }
+
+    public long getJobInitialArrivalTime() {
+        return jobInitialArrivalTime;
+    }
+
+    public boolean isDeadlineMissed() {
+        if (endTimeScheduleState == SCHEDULE_STATE_END_DEADLINE_MISSED)
             return true;
         else
             return false;

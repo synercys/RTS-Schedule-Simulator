@@ -7,14 +7,13 @@ public class Job {
     public long seqNo;
     public Task task;
     public long remainingExecTime;
-    public long releaseTime;
+    public long releaseTime;    // job arrival time
     public long absoluteDeadline;
-    //public long responseTime;
     public boolean hasStarted;
 
     public Job(){}
 
-    public Job( Task inTask, long inReleaseTime, long inRemainingExecTime )
+    public Job(Task inTask, long inReleaseTime, long inRemainingExecTime)
     {
         task = inTask;
         releaseTime = inReleaseTime;

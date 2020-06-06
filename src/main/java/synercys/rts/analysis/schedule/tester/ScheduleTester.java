@@ -60,7 +60,7 @@ public class ScheduleTester extends Tester {
                 currentTaskJobBeginEvent.put(task, event);
 
                 // for determining execution range (left)
-                long jobBeginSlot = (event.getOrgBeginTimestamp()-task.getInitialOffset())%task.getPeriod();
+                long jobBeginSlot = event.getOrgBeginTimestamp() - event.getJobInitialArrivalTime();
                 if (!taskMinMaxExecutionSlots.containsKey(task)) {
                     taskMinMaxExecutionSlots.put(task, new Interval(jobBeginSlot, jobBeginSlot));
                 } else if (jobBeginSlot < taskMinMaxExecutionSlots.get(task).getBegin()) {
@@ -76,12 +76,12 @@ public class ScheduleTester extends Tester {
                 }
 
                 // for determining response time
-                long jobArrivalTime = ((event.getOrgEndTimestamp()-task.getInitialOffset())/task.getPeriod())*task.getPeriod() + task.getInitialOffset();
+                long jobArrivalTime = event.getJobInitialArrivalTime();
                 long responseTime = event.getOrgEndTimestamp()-jobArrivalTime;
                 rawResponseTimeRatioToPeriod.get(task).add((double)responseTime/(double)task.getPeriod());
 
                 // for determining execution range (right)
-                long jobEndSlot = (event.getOrgEndTimestamp()-task.getInitialOffset())%task.getPeriod();
+                long jobEndSlot = event.getOrgEndTimestamp() - event.getJobInitialArrivalTime();
                 if (jobEndSlot > taskMinMaxExecutionSlots.get(task).getEnd()) {
                     taskMinMaxExecutionSlots.get(task).setEnd(jobEndSlot);
                 }
