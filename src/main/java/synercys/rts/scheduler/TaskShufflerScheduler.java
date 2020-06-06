@@ -1,5 +1,7 @@
 package synercys.rts.scheduler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
@@ -12,6 +14,7 @@ import java.util.Random;
 import static synercys.rts.framework.TaskSet.myCeil;
 
 public class TaskShufflerScheduler extends FixedPriorityScheduler {
+    private static final Logger loggerConsole = LogManager.getLogger("scheduler");
 
     protected boolean idleTimeShuffleEnabled = true;
     protected boolean fineGrainedShuffleEnabled = true;
@@ -31,13 +34,17 @@ public class TaskShufflerScheduler extends FixedPriorityScheduler {
         simEventContainer.setSchedulingPolicy(EventContainer.SCHEDULING_POLICY_TASKSHUFFLER);
 
         /* initialize taskWCIB and jobRIB */
+        loggerConsole.info("Task WCIBs:");
         for (Task task : taskSet.getAppTasksAsArray()) {
             taskWCIB.put(task, computeTaskWCIB(task));
             jobRIB.put(task, taskWCIB.get(task));
+            loggerConsole.info("\tTask ID#{}: {}", task.getId(), taskWCIB.get(task));
         }
         /* initialize taskM */
+        loggerConsole.info("Task Min Inversion Priority:");
         for (Task task : taskSet.getAppTasksAsArray()) {
             taskM.put(task, computeTaskMinInversionPriority(task));
+            loggerConsole.info("\tTask ID#{}: {}", task.getId(), taskM.get(task));
         }
 
         /* initialize jobUnusedTime */

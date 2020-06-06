@@ -1,5 +1,7 @@
 package synercys.rts.scheduler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class ReorderScheduler extends EdfScheduler {
+    private static final Logger loggerConsole = LogManager.getLogger("scheduler");
 
     protected boolean idleTimeShuffleEnabled = true;
     protected boolean fineGrainedShuffleEnabled = true;
@@ -28,10 +31,12 @@ public class ReorderScheduler extends EdfScheduler {
         simEventContainer.setSchedulingPolicy(EventContainer.SCHEDULING_POLICY_REORDER);
 
         /* initialize taskWCIB and jobRIB */
+        loggerConsole.info("Task WCIBs:");
         long LCap = calculateLCap(taskSet);
         for (Task task : taskSet.getAppTasksAsArray()) {
             taskWCIB.put(task, computeTaskWCIB(task, LCap));
             jobRIB.put(task, taskWCIB.get(task));
+            loggerConsole.info("\tTask ID#{}: {}", task.getId(), taskWCIB.get(task));
         }
 
         /* initialize jobUnusedTime */
