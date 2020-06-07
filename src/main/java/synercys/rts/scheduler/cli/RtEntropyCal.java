@@ -4,6 +4,7 @@ import cy.utility.Sys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
+import synercys.rts.analysis.MassTester;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.*;
 import synercys.rts.scheduler.entropy.*;
@@ -76,7 +77,7 @@ public class RtEntropyCal implements Callable {
             loggerConsole.info("All supported options:");
             loggerConsole.info("Scheduling Algorithms = {}", SchedulerUtil.getSchedulerNames());
             loggerConsole.info("Entropy Algorithms = {}", EntropyCalculatorUtility.getEntropyNames());
-            loggerConsole.info("Test Case = {}", MassScheduleEntropyTester.getTestCaseNames());
+            loggerConsole.info("Test Case = {}", MassTester.getTestCaseNames(MassScheduleEntropyTester.class));
             return null;
         }
 

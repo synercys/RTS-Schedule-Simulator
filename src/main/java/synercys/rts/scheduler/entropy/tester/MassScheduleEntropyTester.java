@@ -2,19 +2,15 @@ package synercys.rts.scheduler.entropy.tester;
 
 import cy.utility.Umath;
 import cy.utility.file.FileHandler;
-import cy.utility.Class;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import synercys.rts.analysis.MassTester;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.TaskSetContainer;
-
-import java.nio.file.Paths;
-import java.util.ArrayList;
-
 import static synercys.rts.scheduler.TaskSetGenerator.computeDefaultObserverAndVictimTaskPriorities;
 
-public class MassScheduleEntropyTester {
+
+public class MassScheduleEntropyTester extends MassTester {
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
     public static final String TEST_CASES_FULL_HP = "FULL_HP";
@@ -26,18 +22,12 @@ public class MassScheduleEntropyTester {
     public static final String TEST_CASES_PARTIAL_HP_300 = "PARTIAL_HP_300";
     public static final String TEST_CASES_LCM = "LCM";
 
-    TaskSetContainer taskSetContainer = null;
-    String schedulingPolicy = "";
     String entropyAlgorithm = "";
-    boolean executionVariation = false;
     int testRounds = 0;
 
-    String logFileFolderPath = "";
-    String logFileNamePrefix = "";
 
     public MassScheduleEntropyTester(String logFilePath, TaskSetContainer taskSetContainer) {
-        setLogFilePrefixPath(logFilePath);
-        this.taskSetContainer = taskSetContainer;
+        super(logFilePath, taskSetContainer);
     }
 
     public boolean run(String testCase) {
@@ -71,14 +61,14 @@ public class MassScheduleEntropyTester {
             return false;
         }
 
-        FileHandler fileTestConfig = openWriteLogFile("full_hyperperiod_config");
+        FileHandler fileTestConfig = openLogFileToWrite("full_hyperperiod_config", "txt");
         fileTestConfig.writeString("Test Case = " + TEST_CASES_FULL_HP + "\n");
         fileTestConfig.writeString("Test Rounds = " + testRounds + "\n");
         fileTestConfig.writeString("Entropy Algorithm = " + entropyAlgorithm + "\n");
         fileTestConfig.writeString("Scheduling Algorithm = " + schedulingPolicy + "\n");
         /* TODO: write test config details to the fileTestConfig file. */
 
-        FileHandler fileTestLog = openWriteLogFile("full_hyperperiod");
+        FileHandler fileTestLog = openLogFileToWrite("full_hyperperiod", "csv");
 
         // title row
         fileTestLog.writeString(
@@ -124,7 +114,7 @@ public class MassScheduleEntropyTester {
             return false;
         }
 
-        FileHandler fileTestConfig = openWriteLogFile("paritial_hp_config");
+        FileHandler fileTestConfig = openLogFileToWrite("paritial_hp_config", "txt");
         fileTestConfig.writeString("Test Case = " + "PARTIAL_HP_XXX" + "\n");
         fileTestConfig.writeString("Test HP Proportion = " + hpProportion + "\n");
         fileTestConfig.writeString("Test Rounds = " + testRounds + "\n");
@@ -132,7 +122,7 @@ public class MassScheduleEntropyTester {
         fileTestConfig.writeString("Scheduling Algorithm = " + schedulingPolicy + "\n");
         /* TODO: write test config details to the fileTestConfig file. */
 
-        FileHandler fileTestLog = openWriteLogFile("partial_hp");
+        FileHandler fileTestLog = openLogFileToWrite("partial_hp", "csv");
 
         // title row
         fileTestLog.writeString(
@@ -185,14 +175,14 @@ public class MassScheduleEntropyTester {
             return false;
         }
 
-        FileHandler fileTestConfig = openWriteLogFile(testCaseLogFilePrefix + "_config");
+        FileHandler fileTestConfig = openLogFileToWrite(testCaseLogFilePrefix + "_config", "txt");
         fileTestConfig.writeString("Test Case = " + testCaseName + "\n");
         fileTestConfig.writeString("Test Rounds = " + testRounds + "\n");
         fileTestConfig.writeString("Entropy Algorithm = " + entropyAlgorithm + "\n");
         fileTestConfig.writeString("Scheduling Algorithm = " + schedulingPolicy + "\n");
         /* TODO: write test config details to the fileTestConfig file. */
 
-        FileHandler fileTestLog = openWriteLogFile(testCaseLogFilePrefix);
+        FileHandler fileTestLog = openLogFileToWrite(testCaseLogFilePrefix, "csv");
 
         // title row
         fileTestLog.writeString(
@@ -241,41 +231,8 @@ public class MassScheduleEntropyTester {
         return 10*Umath.lcm(po, pv);
     }
 
-    public boolean setLogFilePrefixPath(String logFilePrefixPath) {
-        this.logFileFolderPath = FilenameUtils.getFullPath(logFilePrefixPath);
-        this.logFileNamePrefix = FilenameUtils.getBaseName(logFilePrefixPath);
-
-        if (!this.logFileNamePrefix.isEmpty()) {
-            this.logFileNamePrefix += "_";
-        }
-        return true;
-    }
-
-    protected FileHandler openWriteLogFile(String fileNameSuffix) {
-        FileHandler newLogFile = new FileHandler();
-        newLogFile.openToWriteFile(Paths.get(logFileFolderPath, logFileNamePrefix + fileNameSuffix + ".csv").toString());
-        return newLogFile;
-    }
-
-    static public ArrayList<String> getTestCaseNames() {
-        // This function is from cy.utility
-        return Class.getPrefixMatchedVariableStringValues(MassScheduleEntropyTester.class, "TEST_CASES_");
-    }
-
-    public void setTaskSetContainer(TaskSetContainer taskSetContainer) {
-        this.taskSetContainer = taskSetContainer;
-    }
-
-    public void setSchedulingPolicy(String schedulingPolicy) {
-        this.schedulingPolicy = schedulingPolicy;
-    }
-
     public void setEntropyAlgorithm(String entropyAlgorithm) {
         this.entropyAlgorithm = entropyAlgorithm;
-    }
-
-    public void setExecutionVariation(boolean executionVariation) {
-        this.executionVariation = executionVariation;
     }
 
     public void setTestRounds(int testRounds) {
