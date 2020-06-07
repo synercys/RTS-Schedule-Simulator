@@ -55,8 +55,6 @@ public class LaplaceScheduler extends EdfScheduler {
             }
         }
 
-        System.out.println("Epsilon = " + epsilon);
-
     }
 
     protected void updateTaskJByDuration(Task task, long protectionTime) {
