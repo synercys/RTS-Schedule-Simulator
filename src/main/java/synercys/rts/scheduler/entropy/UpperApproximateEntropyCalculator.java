@@ -19,6 +19,7 @@ public class UpperApproximateEntropyCalculator implements ScheduleEntropyCalcula
     long beginTimestamp;
     long length;
     int totalScheduleCount = 0;
+    boolean meanSlotEnabled = false;
 
     public UpperApproximateEntropyCalculator(TaskSet taskSet, long beginTimestamp, long length) {
         this.taskSet = taskSet;
@@ -32,6 +33,11 @@ public class UpperApproximateEntropyCalculator implements ScheduleEntropyCalcula
             slotTaskOccurrences.add(thisSlot);
             slotEntropy.add(0.0);
         }
+    }
+
+    public UpperApproximateEntropyCalculator(TaskSet taskSet, long beginTimestamp, long length, boolean meanSlotEnabled) {
+        this(taskSet, beginTimestamp, length);
+        this.meanSlotEnabled = meanSlotEnabled;
     }
 
     @Override
@@ -57,12 +63,13 @@ public class UpperApproximateEntropyCalculator implements ScheduleEntropyCalcula
             slotEntropy.set(i, thisSlotEntropy);
             finalUASEntropy += thisSlotEntropy;
         }
+
+        if (meanSlotEnabled) {
+            finalUASEntropy /= length;
+        }
+
         return finalUASEntropy;
     }
-
-//    public double getPartialEntropy(int ) {
-//
-//    }
 
     protected double computeSlotEntropy(Map<Task, Integer> taskOccurrenceMap, int totalOccurrence) {
         double slotEntropy = 0.0;

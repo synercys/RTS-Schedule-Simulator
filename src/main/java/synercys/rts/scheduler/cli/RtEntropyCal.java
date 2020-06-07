@@ -141,10 +141,9 @@ public class RtEntropyCal implements Callable {
 
             long startTime = System.currentTimeMillis();
             MassScheduleEntropyTester massScheduleEntropyTester = new MassScheduleEntropyTester(outputFilePrefixPath, taskSetContainer);
+            massScheduleEntropyTester.setParams(simDuration, schedulingPolicy, optionExecutionVariation);
             massScheduleEntropyTester.setTestRounds(optionRounds);
-            massScheduleEntropyTester.setSchedulingPolicy(schedulingPolicy);
             massScheduleEntropyTester.setEntropyAlgorithm(entropyAlgorithm);
-            // TODO: set duration
             massScheduleEntropyTester.run(testCase);
             long estimatedTime = System.currentTimeMillis() - startTime;
             loggerConsole.info("Finished testing {} task sets. ({} ms)", taskSetContainer.size(), estimatedTime);
