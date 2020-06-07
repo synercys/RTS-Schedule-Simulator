@@ -16,8 +16,11 @@ public class ScheduleDFTAnalysisReport {
     LinkedHashMap<Double, Double> freqSpectrumAmplitudeMap;
     LinkedHashMap<Double, Double> freqSpectrumPhaseMap;
 
-    ArrayList<Double> peakFrequencies = null;
     ArrayList<Double> sortedFrequencies = null;
+
+    ArrayList<Double> peakFrequencies = null;
+    LinkedHashMap<Double, Double> freqSpectrumPeakThresholdMap = null;
+
 
     public double getBaseFreq() {
         return baseFreq;
@@ -39,6 +42,10 @@ public class ScheduleDFTAnalysisReport {
         return freqSpectrumPhaseMap;
     }
 
+    public LinkedHashMap<Double, Double> getFreqSpectrumPeakThresholdMap() {
+        return freqSpectrumPeakThresholdMap;
+    }
+
     public TaskSet getTaskSet() {
         return taskSet;
     }
@@ -55,17 +62,19 @@ public class ScheduleDFTAnalysisReport {
     }
 
     public ArrayList<Double> getPeakFrequenciesSignalDetector() {
-        if (peakFrequencies == null) {
-            peakFrequencies = new ArrayList<>();
+        if (peakFrequencies != null) {
+            return peakFrequencies;
         }
 
+        peakFrequencies = new ArrayList<>();
+        freqSpectrumPeakThresholdMap = new LinkedHashMap<Double, Double>();
 
         DecimalFormat df = new DecimalFormat("#0.000");
 
         SignalDetector signalDetector = new SignalDetector();
         int lag = (int)(10/baseFreq);
         double threshold = 3.5;
-        double influence = 0.5;
+        double influence = 0.1;
 
         System.out.println("Base Freq: " + baseFreq + " Hz");
 
@@ -103,7 +112,7 @@ public class ScheduleDFTAnalysisReport {
 
         // print running average
         // System.out.print("Avg Filter:\t");
-        // List<Double> avgFilterList = resultsMap.get("avgFilter");
+        List<Double> avgFilterList = resultsMap.get("avgFilter");
         // for (double d : avgFilterList) {
         //     System.out.print(df.format(d) + "\t");
         // }
@@ -111,11 +120,14 @@ public class ScheduleDFTAnalysisReport {
 
         // print running std
         // System.out.print("Std filter:\t");
-        // List<Double> stdFilterList = resultsMap.get("stdFilter");
+        List<Double> stdFilterList = resultsMap.get("stdFilter");
         // for (double d : stdFilterList) {
         //     System.out.print(df.format(d) + "\t");
         // }
         // System.out.println();
+        for (int i=0; i<stdFilterList.size(); i++) {
+            freqSpectrumPeakThresholdMap.put(freqList.get(i), avgFilterList.get(i) + stdFilterList.get(i)*threshold);
+        }
 
         // System.out.println();
         // for (int i = 0; i < signalsList.size(); i++) {

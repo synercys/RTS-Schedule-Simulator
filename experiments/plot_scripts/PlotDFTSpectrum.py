@@ -46,9 +46,13 @@ if __name__ == '__main__':
 
     # Load CSV
     data_dict_base = np.genfromtxt(StringIO(jsonRoot['data']['spectrumCSV']), delimiter=',', unpack=True, names=True)
-    xFreq = data_dict_base['frequency']
-    yMag = data_dict_base['magnitude']
-    yPhase = data_dict_base['phase']
+    xFreq = data_dict_base['Frequency']
+    yMag = data_dict_base['Magnitude']
+    yPhase = data_dict_base['Phase']
+    try:
+        yPeakThreshold = data_dict_base['Peak_Threshold']
+    except:
+        yPeakThreshold = None
 
     ''' Plot display config '''
     if displayDetail:
@@ -94,7 +98,7 @@ if __name__ == '__main__':
 
 
     # Y-axis Settings
-    ax.set_ylabel(ylabel='Magnitude \n(Normalized)')
+    ax.set_ylabel(ylabel='Amplitude \n(Normalized)')
 
     yaxis_limit = 1 # normalized # maxAmplitude if not normalized
     ax.set_ylim([0, yaxis_limit])
@@ -110,8 +114,18 @@ if __name__ == '__main__':
     maxAmplitude = max(yMag[:xFreq_limitIndx])
     displayedAmplitude = [amp / maxAmplitude for amp in yMag[:xFreq_limitIndx]] # Normalized
 
-    plt.plot(displayedFreq, displayedAmplitude, color='navy', alpha=0.75, linewidth=1.5)
+    plt.plot(displayedFreq, displayedAmplitude, color='navy', alpha=0.75, linewidth=1.5, label='Frequency Amplitude')
+
+    if yPeakThreshold is not None:
+        displayedPeakThreshold = [threshold / maxAmplitude for threshold in yPeakThreshold[:xFreq_limitIndx]] # Normalized
+        plt.plot(displayedFreq, displayedPeakThreshold, color='green', alpha=0.75, linewidth=1.5, label='Peak Threshold')
+
+
     plt.grid(linestyle=':')
+
+    # Post plot configurations
+    legend = plt.legend(shadow=False, loc='upper right')
+    # legend.get_frame().set_edgecolor('grey')
 
     '''Add ground truth lines'''
     if taskSet is not None:
@@ -131,6 +145,10 @@ if __name__ == '__main__':
 
     ''' Save the plot to files with the specified format '''
     for outFileName in outFileNames:
+
+        if outFileName == "png" or outFileName == "pdf":
+            outFileName = "{}.{}".format(inFileName.split('.')[0], outFileName)
+
         outputFormat = outFileName.split('.')[-1]
         if outputFormat == "pdf" or outputFormat == "png":
             plt.savefig(outFileName, pad_inches=0.015, bbox_inches='tight')

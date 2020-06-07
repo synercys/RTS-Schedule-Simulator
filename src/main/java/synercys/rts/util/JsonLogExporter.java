@@ -148,7 +148,7 @@ public class JsonLogExporter extends FileHandler {
         // root - data - dft-report - spectrumMagnitudeCSV
         jsonData.put(JsonLogStr.DFT_REPORT_SPECTRUM_CSV,
                 dftSpectrumToCSVString(report.getFreqSpectrumAmplitudeMap(),
-                report.getFreqSpectrumPhaseMap()));
+                report.getFreqSpectrumPhaseMap(), report.getFreqSpectrumPeakThresholdMap()));
 
         jsonRoot.put(JsonLogStr.ROOT_DATA, jsonData);
 
@@ -275,16 +275,26 @@ public class JsonLogExporter extends FileHandler {
 
 
 
-    protected String dftSpectrumToCSVString(Map<Double, Double> mapMagnitude, Map<Double, Double> mapPhase) {
+    protected String dftSpectrumToCSVString(Map<Double, Double> mapMagnitude, Map<Double, Double> mapPhase, Map<Double, Double> mapPeakThreshold) {
         StringBuilder output = new StringBuilder("");
 
         // title row
-        output.append("frequency,magnitude,phase\n");
+        if (mapPeakThreshold != null) {
+            output.append("Frequency,Magnitude,Phase,Peak Threshold\n");
+        } else {
+            output.append("Frequency,Magnitude,Phase\n");
+        }
 
         for (Double freq : mapMagnitude.keySet()) {
             double magnitude = mapMagnitude.get(freq);
             double phase = mapPhase.get(freq);
-            output.append(String.format("%.4f,%.4f,%.4f\n", freq, magnitude, phase));
+            String rowStr = String.format("%.4f,%.4f,%.4f", freq, magnitude, phase);
+            if (mapPeakThreshold != null) {
+                rowStr += String.format(",%.4f\n", mapPeakThreshold.get(freq));
+            } else {
+                rowStr += "\n";
+            }
+                output.append(rowStr);
         }
 
         return output.toString();
