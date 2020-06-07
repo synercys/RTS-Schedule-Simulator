@@ -20,7 +20,7 @@
             <AppenderRef ref="MainLogFile"/>
         </Logger>
         <Logger name="scheduler" level="TRACE">
-            <AppenderRef ref="Console" />
+<!--            <AppenderRef ref="Console" />-->
             <AppenderRef ref="MainLogFile"/>
         </Logger>
     </Loggers>
