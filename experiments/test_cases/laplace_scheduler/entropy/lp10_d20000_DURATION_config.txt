@@ -1,0 +1,5 @@
+Test Case = DURATION
+Test Rounds = 1000000
+Entropy Algorithm = uapenmeanslot
+Scheduling Algorithm = laplace10
+Sim Duration = 20000
