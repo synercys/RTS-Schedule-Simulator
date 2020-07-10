@@ -56,7 +56,7 @@ palletForManyDim = plt.cm.Pastel1.colors
 palletForMany = plt.cm.tab10.colors
 palletForManySet1 = plt.cm.Set1.colors
 
-pattern_list = ['+', 'x', '*', 'o', 'O', '.']
+pattern_list = ['+', 'x', '*', '.', 'O', 'o']
 hatch_list = ['', '.....', '/////']
 line_style_list = ['-', '--', '-.', ':']
 # palletForManyCustom = [{'color': palletForMany[0],

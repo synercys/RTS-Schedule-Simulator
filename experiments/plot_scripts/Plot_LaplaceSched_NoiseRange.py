@@ -14,7 +14,7 @@ def compute_noise_level_percentile(epsilon, j, delta, percentile):
 
 def plot_noise_range(show_plot, in_csv_file_list, out_plot_file_list, label_list):
     percentile = 0.95
-    delta = 10 # 10 ms
+    delta = 190 # 10 ms
     j_list = [1, 10, 50, 100]
 
     # Build epsilon list
@@ -34,7 +34,9 @@ def plot_noise_range(show_plot, in_csv_file_list, out_plot_file_list, label_list
 
     ### general plot configurations ###
     PlotUtility.config_plot(plt)
-    plt.rcParams['figure.figsize'] = 5.5,5
+    plt.rcParams['figure.figsize'] = 5.5,4.5
+    fig, ax = plt.subplots()
+
 
     # ax.set_xscale("log")
     plt.xscale('log')
@@ -48,22 +50,24 @@ def plot_noise_range(show_plot, in_csv_file_list, out_plot_file_list, label_list
     # Post plot configurations
 
     # Legend
-    legend = plt.legend(shadow=True, loc='lower left', title='$J$')
+    legend = plt.legend(shadow=True, loc='lower left', title='$J_i$')
     legend.get_frame().set_edgecolor('grey')
 
     # Axis Titles
     plt.ylabel('Noise Scale at '+str(100*percentile)[:-2]+'$^{th}$ Percentile ($ms$)')
-    plt.xlabel('$\epsilon$')
+    plt.xlabel('$\epsilon_i$')
 
     plt.xlim(0, max(epsilon_list)+1)
-    plt.ylim(0, 10000)
+    plt.ylim(0, 100000)
     # plt.ylim(bottom=0)
 
     # Grid
     plt.grid(True, 'major', 'y', color='0.8', linestyle='--', linewidth=1)
     plt.grid(True, 'major', 'x', color='0.8', linestyle='--', linewidth=1)
 
-
+    title = "$\Delta\eta_i={}$".format(delta)
+    ax.text(0.98, 0.98, title, transform=ax.transAxes, fontsize=14,
+            verticalalignment='top', horizontalalignment='right')
 
 
 
