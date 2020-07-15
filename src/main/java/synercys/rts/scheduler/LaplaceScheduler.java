@@ -17,13 +17,16 @@ public class LaplaceScheduler extends EdfScheduler {
     HashMap<Task, Long> taskJ = new HashMap<>();
     HashMap<Task, Long> taskSensitivity = new HashMap<>();
 
-    long globalSensitivity = 90*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER;    // 90ms
+    long globalSensitivity = 190*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER;    // 190ms
+    long globalProtectionInstanceCount = 0;
+    long globalAdmissibleUpperPeriod = 200*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER; // 5Hz
+    long globalAdmissibleLowerPeriod = 10*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER;  // 100Hz
 
     // protected LaplaceDistribution laplaceDistribution;
     Random rand = new Random();
     int i=0;
 
-    // By default J for each task will be 500ms.
+    // By default J for each task will be calculated based on the default protection time 500ms.
     public LaplaceScheduler(TaskSet taskSet, boolean runTimeVariation, double epsilon) {
         this(taskSet, runTimeVariation, 500*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER, epsilon);
     }
@@ -33,6 +36,8 @@ public class LaplaceScheduler extends EdfScheduler {
 
         this.assertOnDeadlineMiss = false;
 
+        globalProtectionInstanceCount = calculateGlobalJByProtectionTime(taskSet, protectionTime);
+
         // long globalSensitivity = taskSet.getLargestPeriod() - taskSet.getSmallestPeriod();
         for (Task task : taskSet.getRunnableTasksAsArray()) {
             // long maxInterArrivalTime = task.getPeriod()*3;
@@ -40,25 +45,38 @@ public class LaplaceScheduler extends EdfScheduler {
 
             taskEpsilon.put(task, epsilon);
             taskSensitivity.put(task, globalSensitivity);
-            updateTaskJByDuration(task, protectionTime);
-
+            taskJ.put(task, globalProtectionInstanceCount);
+            // updateTaskJByDuration(task, 500*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER);
             updateTaskLaplaceNoise(task);
 
             if (task.getAdmissiblePeriodUpper() == 0) {
                 // task.setAdmissiblePeriodUpper((long)(task.getPeriod()*1.2));
-                task.setAdmissiblePeriodUpper(100*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER);   // 10Hz
+                task.setAdmissiblePeriodUpper(globalAdmissibleUpperPeriod);
             }
 
             if (task.getAdmissiblePeriodLower() == 0) {
                 // task.setAdmissiblePeriodLower((long)(task.getPeriod()*0.8));
-                task.setAdmissiblePeriodLower(10*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER);   // 100Hz
+                task.setAdmissiblePeriodLower(globalAdmissibleLowerPeriod);
             }
         }
 
     }
 
+    protected long calculateGlobalJByProtectionTime(TaskSet taskSet, long protectionTime) {
+        long largestJ = 0;
+        for (Task task : taskSet.getRunnableTasksAsArray()) {
+            long thisJ = (long)Math.ceil((double)protectionTime/task.getPeriod());
+            largestJ = (thisJ>largestJ) ? thisJ : largestJ;
+        }
+        return largestJ;
+    }
+
     protected void updateTaskJByDuration(Task task, long protectionTime) {
         taskJ.put(task, (long)Math.ceil((double)protectionTime/task.getPeriod()));
+    }
+
+    protected void updateTaskJByAbsoluteValue(Task task, long j) {
+        taskJ.put(task, j);
     }
 
     protected void updateTaskLaplaceNoise(Task task) {
