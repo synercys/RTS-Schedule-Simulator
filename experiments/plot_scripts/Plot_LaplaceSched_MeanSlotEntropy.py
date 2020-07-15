@@ -15,6 +15,7 @@ def plot_peak_count(show_plot, in_csv_file_list, out_plot_file_list, label_list)
     plot_labels = [] if label_list is None else label_list
 
     ''' Data '''
+    x_list = []
     y_list = []
     y_mean_list = []
     y_error_list = []
@@ -22,9 +23,13 @@ def plot_peak_count(show_plot, in_csv_file_list, out_plot_file_list, label_list)
     first = True
     for csv_file in in_csv_file_list:
         data_dict = np.genfromtxt(csv_file, delimiter=',', unpack=True, names=True)
-        if first:
-            x = data_dict['Utilization']
-            first = False
+        # if first:
+        #     x = data_dict['Utilization']
+        #     first = False
+
+        this_x = data_dict['Utilization']
+        x_list.append(this_x)
+
         this_y = data_dict['Entropy']
         y_list.append(this_y)
 
@@ -35,7 +40,7 @@ def plot_peak_count(show_plot, in_csv_file_list, out_plot_file_list, label_list)
             util = u/10
             matched_values = np.array([])
             for i in range(len(this_y)):
-                if x[i]>=util and x[i]<(util+0.1):
+                if util <= this_x[i] < (util + 0.1):
                     matched_values = np.append(matched_values, this_y[i])
             x_mean.append(u/10 + 0.05)
             y_mean.append(matched_values.mean())
@@ -77,6 +82,7 @@ def plot_peak_count(show_plot, in_csv_file_list, out_plot_file_list, label_list)
     markerSize = 30
     for i in range(len(y_list)):
         y = y_list[i]
+        x = x_list[i]
         y_mean = y_mean_list[i]
         y_error = y_error_list[i]
         plt.scatter(x, y, marker=PlotUtility.pattern_list[i], facecolors=PlotUtility.palletForMany[i], color=PlotUtility.palletForMany[i], alpha=0.5, s=[markerSize for i in range(len(y))], label=plot_labels[i])

@@ -81,7 +81,7 @@ def plot_peak_count(show_plot, in_csv_file_list, out_plot_file_list, label_list)
         y_mean = y_mean_list[i]
         y_error = y_error_list[i]
         plt.scatter(x, y, marker=PlotUtility.pattern_list[i], facecolors=PlotUtility.palletForMany[i], color=PlotUtility.palletForMany[i], alpha=0.5, s=[markerSize for i in range(len(y))], label=plot_labels[i])
-        plt.errorbar(x_mean,y_mean,y_error,color="black",marker=PlotUtility.pattern_list[i])
+        plt.errorbar(x_mean,y_mean,y_error,color="black",marker=PlotUtility.pattern_list[i], linewidth=1)
 
 
     # Post plot configurations
