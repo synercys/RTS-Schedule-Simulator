@@ -9,7 +9,7 @@ import synercys.rts.analysis.dft.ScheduleSTFTAnalysisReport;
 import synercys.rts.analysis.dft.ScheduleSTFTAnalyzer;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
-import synercys.rts.scheduler.AdvanceableSchedulerInterface;
+import synercys.rts.scheduler.AdvanceableSchedulerSimulator;
 import synercys.rts.scheduler.SchedulerUtil;
 import synercys.rts.scheduler.TaskSetGenerator;
 import synercys.rts.util.JsonLogExporter;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class ScheduleSTFTTester {
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
-    AdvanceableSchedulerInterface scheduler;
+    AdvanceableSchedulerSimulator scheduler;
     TaskSet taskSet;
     ScheduleSTFTAnalysisReport report;
     ScheduleSTFTAnalyzer analyzer = new ScheduleSTFTAnalyzer();

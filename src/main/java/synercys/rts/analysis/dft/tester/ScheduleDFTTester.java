@@ -8,13 +8,14 @@ import synercys.rts.analysis.dft.ScheduleDFTAnalyzer;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
 import synercys.rts.scheduler.AdvanceableSchedulerInterface;
+import synercys.rts.scheduler.AdvanceableSchedulerSimulator;
 import synercys.rts.scheduler.SchedulerUtil;
 import synercys.rts.util.JsonLogExporter;
 
 public class ScheduleDFTTester {
     private static final Logger loggerConsole = LogManager.getLogger("console");
 
-    AdvanceableSchedulerInterface scheduler;
+    AdvanceableSchedulerSimulator scheduler;
     TaskSet taskSet;
     ScheduleDFTAnalysisReport report;
     ScheduleDFTAnalyzer analyzer = new ScheduleDFTAnalyzer();
@@ -22,6 +23,7 @@ public class ScheduleDFTTester {
     public ScheduleDFTTester(TaskSet taskSet, String schedulingPolicy, boolean executionVariation) {
         this.taskSet = taskSet;
         scheduler = SchedulerUtil.getScheduler(schedulingPolicy, taskSet, executionVariation);
+        scheduler.setTraceEnabled(true);
         analyzer.setTaskSet(taskSet);
     }
 
@@ -47,7 +49,7 @@ public class ScheduleDFTTester {
         return report;
     }
 
-    public AdvanceableSchedulerInterface getScheduler() {
+    public AdvanceableSchedulerSimulator getScheduler() {
         return scheduler;
     }
 }

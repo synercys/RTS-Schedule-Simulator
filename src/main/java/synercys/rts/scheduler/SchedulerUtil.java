@@ -12,7 +12,7 @@ public class SchedulerUtil {
     public static String SCHEDULER_REORDER = "ReOrder";
     public static String SCHEDULER_LAPLACE = "Laplace";
 
-    public static AdvanceableSchedulerInterface getScheduler(String schedulingPolicy, TaskSet taskSet, boolean executionVariation) {
+    public static AdvanceableSchedulerSimulator getScheduler(String schedulingPolicy, TaskSet taskSet, boolean executionVariation) {
         if (schedulingPolicy.isEmpty() || schedulingPolicy.equalsIgnoreCase("RM") || schedulingPolicy.equalsIgnoreCase("TaskShuffler0"))
             return new FixedPriorityScheduler(taskSet, executionVariation);
         else if (schedulingPolicy.equalsIgnoreCase("EDF") || schedulingPolicy.equalsIgnoreCase("ReOrder0"))
@@ -58,7 +58,7 @@ public class SchedulerUtil {
         return Class.getPrefixMatchedVariableStringValues(SchedulerUtil.class, "SCHEDULER_");
     }
 
-    public static String getSchedulerName(AdvanceableSchedulerInterface scheduler) {
+    public static String getSchedulerName(AdvanceableSchedulerSimulator scheduler) {
         if (scheduler instanceof LaplaceScheduler)
             return SCHEDULER_LAPLACE;
         if (scheduler instanceof TaskShufflerScheduler)
