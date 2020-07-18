@@ -19,15 +19,28 @@ import java.util.HashMap;
  * @author CY Chen (cchen140@illinois.edu)
  * @version 1.0 - 2018, 12/21
  */
-abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implements AdvanceableSchedulerInterface {
+public abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implements AdvanceableSchedulerInterface {
     // This map stores each task's next job instance, no matter it's arrived or not.
     protected HashMap<Task, Job> nextJobOfATask = new HashMap<>();
 
     protected boolean genIdleTimeEvents = true; // Should the scheduler log idle time intervals?
     protected boolean assertOnDeadlineMiss = true;
 
+    /* Tracing */
+    protected boolean traceEnabled = false;
+    protected HashMap<Task, Long> taskDeadlineMissCount = new HashMap<>();
+    protected HashMap<Task, ArrayList<Long>> taskInterArrivalTimeTrace = new HashMap<>();
+
+
     public AdvanceableSchedulerSimulator(TaskSet taskSet, boolean runTimeVariation, String schedulingPolicy) {
         super(taskSet, runTimeVariation, schedulingPolicy);
+
+        if (traceEnabled) {
+            for (Task task : taskSet.getRunnableTasksAsArray()) {
+                taskDeadlineMissCount.put(task, (long) 0);
+                taskInterArrivalTimeTrace.put(task, new ArrayList<>());
+            }
+        }
 
         /* Initialize the first job of each task. */
         initializeFirstTaskJobs();
@@ -108,12 +121,14 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
 
     protected Job updateTaskJob(Task task) {
         /* Determine next arrival time. */
-        long nextArrivalTime;
+        long interArrivalTime, nextArrivalTime;
         if (task.isSporadicTask()) {
-            nextArrivalTime = nextJobOfATask.get(task).releaseTime + getVariedInterArrivalTime(task);
+            interArrivalTime = getVariedInterArrivalTime(task);
         } else {
-            nextArrivalTime = nextJobOfATask.get(task).releaseTime + task.getPeriod();
+            interArrivalTime = task.getPeriod();
         }
+        nextArrivalTime = nextJobOfATask.get(task).releaseTime + interArrivalTime;
+        taskInterArrivalTimeTrace.get(task).add(interArrivalTime);
 
         /* Determine the execution time. */
         long executionTime;
@@ -157,6 +172,11 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
             if (runJobFinishTime > runJob.absoluteDeadline) {
                 if (assertOnDeadlineMiss) {
                     throw new AssertionError("A job (" + runJob.task.toString() + ") missed its deadline: deadline=" + runJob.absoluteDeadline + ", finishedTime=" + runJobFinishTime);
+                }
+
+                if (traceEnabled) {
+                    Task task = runJob.task;
+                    taskDeadlineMissCount.put(task, taskDeadlineMissCount.get(task)+1);
                 }
 
                 deadlineMissedHook(runJob);
@@ -225,6 +245,10 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
 
     public void setGenIdleTimeEvents(boolean genIdleTimeEvents) {
         this.genIdleTimeEvents = genIdleTimeEvents;
+    }
+
+    public void setTraceEnabled(boolean traceEnabled) {
+        this.traceEnabled = traceEnabled;
     }
 
     @Override
