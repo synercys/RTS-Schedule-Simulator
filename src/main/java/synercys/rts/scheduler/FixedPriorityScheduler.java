@@ -88,6 +88,11 @@ public class FixedPriorityScheduler extends AdvanceableSchedulerSimulator {
 
     }
 
+    @Override
+    protected void deadlineMissedHook(Job runJob) {
+
+    }
+
     protected Job getEarliestArrivedHigherPriorityJob() {
         Job targetJob = null;
         long earliestNextReleaseTime = Long.MAX_VALUE;

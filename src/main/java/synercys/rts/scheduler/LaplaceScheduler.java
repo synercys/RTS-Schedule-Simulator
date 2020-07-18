@@ -6,6 +6,7 @@ import synercys.rts.framework.Job;
 import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -21,6 +22,11 @@ public class LaplaceScheduler extends EdfScheduler {
     long globalProtectionInstanceCount = 0;
     long globalAdmissibleUpperPeriod = 200*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER; // 5Hz
     long globalAdmissibleLowerPeriod = 10*(long)RtsConfig.TIMESTAMP_MS_TO_UNIT_MULTIPLIER;  // 100Hz
+
+    boolean traceEnabled = false;
+    HashMap<Task, ArrayList<Long>> taskTraceInterArrivalTime = new HashMap<>();
+    HashMap<Task, Long> taskTraceDeadlineMissCount = new HashMap<>();
+
 
     // protected LaplaceDistribution laplaceDistribution;
     Random rand = new Random();
@@ -57,6 +63,12 @@ public class LaplaceScheduler extends EdfScheduler {
             if (task.getAdmissiblePeriodLower() == 0) {
                 // task.setAdmissiblePeriodLower((long)(task.getPeriod()*0.8));
                 task.setAdmissiblePeriodLower(globalAdmissibleLowerPeriod);
+            }
+
+            // tracing
+            if (traceEnabled) {
+                taskTraceInterArrivalTime.put(task, new ArrayList<>());
+                taskTraceDeadlineMissCount.put(task, (long) 0);
             }
         }
 
@@ -112,6 +124,10 @@ public class LaplaceScheduler extends EdfScheduler {
         long interArrivalTime = getLaplaceInterArrivalTime(task);
         long nextArrivalTime = nextJobOfATask.get(task).releaseTime + interArrivalTime;
         // System.out.println(interArrivalTime*RtsConfig.TIMESTAMP_UNIT_TO_MS_MULTIPLIER);
+
+        if (traceEnabled) {
+            taskTraceInterArrivalTime.get(task).add(interArrivalTime);
+        }
 
         /* Determine the execution time. */
         long executionTime;
@@ -185,7 +201,15 @@ public class LaplaceScheduler extends EdfScheduler {
         return interArrivalTime;
     }
 
+    @Override
+    protected void deadlineMissedHook(Job runJob) {
+        super.deadlineMissedHook(runJob);
 
+        if (traceEnabled) {
+            Task task = runJob.task;
+            taskTraceDeadlineMissCount.put(task, taskTraceDeadlineMissCount.get(task)+1);
+        }
+    }
 
     protected int getUniformNoise() {
         return rand.nextInt(2);

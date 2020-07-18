@@ -96,6 +96,11 @@ public class EdfScheduler extends AdvanceableSchedulerSimulator {
 
     }
 
+    @Override
+    protected void deadlineMissedHook(Job runJob) {
+
+    }
+
 
     protected Job getEarliestArrivedJobWithCloserDeadline() {
         Job targetJob = null;

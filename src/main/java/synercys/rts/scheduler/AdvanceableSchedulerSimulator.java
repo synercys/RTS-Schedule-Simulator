@@ -36,6 +36,7 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
     abstract protected Job getNextJob(long tick);
     abstract protected long getPreemptingTick(Job runJob, long tick);
     abstract protected void runJobExecutedHook(Job runJob, long tick, long executedTime);
+    abstract protected void deadlineMissedHook(Job runJob);
 
 
     @Override
@@ -157,6 +158,8 @@ abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator implemen
                 if (assertOnDeadlineMiss) {
                     throw new AssertionError("A job (" + runJob.task.toString() + ") missed its deadline: deadline=" + runJob.absoluteDeadline + ", finishedTime=" + runJobFinishTime);
                 }
+
+                deadlineMissedHook(runJob);
 
                 runJobFinishTime = runJob.absoluteDeadline;
                 jobEndState = SchedulerIntervalEvent.SCHEDULE_STATE_END_DEADLINE_MISSED;
