@@ -29,17 +29,22 @@ public abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator i
     /* Tracing */
     protected boolean traceEnabled = false;
     protected HashMap<Task, Long> taskDeadlineMissCount = new HashMap<>();
+    protected HashMap<Task, Boolean> taskDeadlineMissState = new HashMap<>();
+    protected HashMap<Task, Long> taskRunningConsecutiveDeadlineMissCount = new HashMap<>();
+    protected HashMap<Task, Long> taskMaxConsecutiveDeadlineMissCount = new HashMap<>();
     protected HashMap<Task, ArrayList<Long>> taskInterArrivalTimeTrace = new HashMap<>();
 
 
     public AdvanceableSchedulerSimulator(TaskSet taskSet, boolean runTimeVariation, String schedulingPolicy) {
         super(taskSet, runTimeVariation, schedulingPolicy);
 
-        if (traceEnabled) {
-            for (Task task : taskSet.getRunnableTasksAsArray()) {
-                taskDeadlineMissCount.put(task, (long) 0);
-                taskInterArrivalTimeTrace.put(task, new ArrayList<>());
-            }
+        // for tracing
+        for (Task task : taskSet.getRunnableTasksAsArray()) {
+            taskDeadlineMissCount.put(task, (long) 0);
+            taskDeadlineMissState.put(task, false);
+            taskRunningConsecutiveDeadlineMissCount.put(task, (long) 0);
+            taskMaxConsecutiveDeadlineMissCount.put(task, (long) 0);
+            taskInterArrivalTimeTrace.put(task, new ArrayList<>());
         }
 
         /* Initialize the first job of each task. */
@@ -177,13 +182,28 @@ public abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator i
                 if (traceEnabled) {
                     Task task = runJob.task;
                     taskDeadlineMissCount.put(task, taskDeadlineMissCount.get(task)+1);
+                    if (taskDeadlineMissState.get(task) == true) {
+                        long currentConsecutiveDeadlineMissCount = taskRunningConsecutiveDeadlineMissCount.get(task)+1;
+                        taskRunningConsecutiveDeadlineMissCount.put(task, currentConsecutiveDeadlineMissCount);
+
+                        if (currentConsecutiveDeadlineMissCount > taskMaxConsecutiveDeadlineMissCount.get(task)) {
+                            taskMaxConsecutiveDeadlineMissCount.put(task, currentConsecutiveDeadlineMissCount);
+                        }
+
+                    }
                 }
 
                 deadlineMissedHook(runJob);
 
                 runJobFinishTime = runJob.absoluteDeadline;
                 jobEndState = SchedulerIntervalEvent.SCHEDULE_STATE_END_DEADLINE_MISSED;
-                // TODO: Log the deadline miss
+
+            } else {
+                if (traceEnabled) {
+                    Task task = runJob.task;
+                    taskDeadlineMissState.put(task, false);
+                    taskRunningConsecutiveDeadlineMissCount.put(task, (long) 0);
+                }
             }
 
             runJob.remainingExecTime = 0;
@@ -249,6 +269,18 @@ public abstract class AdvanceableSchedulerSimulator extends SchedulerSimulator i
 
     public void setTraceEnabled(boolean traceEnabled) {
         this.traceEnabled = traceEnabled;
+    }
+
+    public HashMap<Task, Long> getTaskDeadlineMissCount() {
+        return taskDeadlineMissCount;
+    }
+
+    public HashMap<Task, ArrayList<Long>> getTaskInterArrivalTimeTrace() {
+        return taskInterArrivalTimeTrace;
+    }
+
+    public HashMap<Task, Long> getTaskMaxConsecutiveDeadlineMissCount() {
+        return taskMaxConsecutiveDeadlineMissCount;
     }
 
     @Override
