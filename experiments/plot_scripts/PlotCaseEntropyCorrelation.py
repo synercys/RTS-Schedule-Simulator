@@ -4,14 +4,14 @@ import os
 import PlotUtility
 
 
-def plot_case_entropy_correlation(show_plot, in_csv_file_list, out_plot_filename):
+def plot_case_entropy_correlation(show_plot, in_csv_file_list, out_plot_file_list):
 
     ### general plot configurations ###
     PlotUtility.config_plot(plt)
 
     plt.rcParams['figure.figsize'] = 6,5.5
 
-    plot_labels = []
+    plot_labels = ["100%", "75%", "50%", "25%"]
 
     data_dict_base = np.genfromtxt(in_csv_file_list[0], delimiter=',', unpack=True, names=True)
     x = data_dict_base['Entropy']
@@ -20,7 +20,12 @@ def plot_case_entropy_correlation(show_plot, in_csv_file_list, out_plot_filename
     for idx, in_csv_file in enumerate(in_csv_file_list):
         if idx == 0:
             continue
-        y.append(np.genfromtxt(in_csv_file, delimiter=',', unpack=True, names=True)['Entropy'])
+        test_length = 1
+        try:
+            test_length = np.genfromtxt(in_csv_file, delimiter=',', unpack=True, names=True)['Test_Length'][0]
+        except:
+            test_length = 20
+        y.append(np.genfromtxt(in_csv_file, delimiter=',', unpack=True, names=True)['Entropy']/test_length)
 
     for idx in range(len(y)-len(plot_labels)):
         plot_labels.append("")
@@ -79,20 +84,27 @@ def plot_case_entropy_correlation(show_plot, in_csv_file_list, out_plot_filename
     # plt.scatter(x, y25, marker='o', color=PlotUtility.palletForMany[3], alpha=0.8, s=[100 for i in range(len(y25))], label="25%")
 
     # Post plot configurations
-    # legend = plt.legend(shadow=True, loc='lower right')
-    # legend.get_frame().set_edgecolor('k')
+    legend = plt.legend(shadow=True, loc='lower right')
+    legend.get_frame().set_edgecolor('k')
 
+    ''' Save the plot to files with the specified format '''
+    for outFileName in out_plot_file_list:
+        print("Exporting the plot ...")
 
-    if not out_plot_filename == "":
-        filename, extension = os.path.splitext(out_plot_filename)
-        plt.savefig('{}.pdf'.format(filename), pad_inches=0.020, bbox_inches='tight')
-        plt.savefig('{}.png'.format(filename), pad_inches=0.020, bbox_inches='tight')
+        # if outFileName == "png" or outFileName == "pdf":
+        #     outFileName = "{}.{}".format(inFileName.split('.')[0], outFileName)
+
+        outputFormat = outFileName.split('.')[-1]
+        if outputFormat == "pdf" or outputFormat == "png" or True:
+            print('Saving the plot to "{}" ...'.format(outFileName), end=" ")
+            plt.savefig(outFileName, pad_inches=0.02, bbox_inches='tight')
+            print("Done")
 
     if show_plot:
         plt.show()
 
 
-def plot_case_entropy_correlation_single(show_plot, in_csv_file_list, out_plot_filename):
+def plot_case_entropy_correlation_single(show_plot, in_csv_file_list, out_plot_file_list):
     ### general plot configurations ###
     PlotUtility.config_plot(plt)
 
@@ -133,10 +145,18 @@ def plot_case_entropy_correlation_single(show_plot, in_csv_file_list, out_plot_f
                 s=[100 for i in range(len(y))])
     plt.plot([0, 40], [0, 40], '--', color='grey')
 
-    if not out_plot_filename == "":
-        filename, extension = os.path.splitext(out_plot_filename)
-        plt.savefig('{}.pdf'.format(filename), pad_inches=0.020, bbox_inches='tight')
-        plt.savefig('{}.png'.format(filename), pad_inches=0.020, bbox_inches='tight')
+    ''' Save the plot to files with the specified format '''
+    for outFileName in out_plot_file_list:
+        print("Exporting the plot ...")
+
+        # if outFileName == "png" or outFileName == "pdf":
+        #     outFileName = "{}.{}".format(inFileName.split('.')[0], outFileName)
+
+        outputFormat = outFileName.split('.')[-1]
+        if outputFormat == "pdf" or outputFormat == "png" or True:
+            print('Saving the plot to "{}" ...'.format(outFileName), end=" ")
+            plt.savefig(outFileName, pad_inches=0.02, bbox_inches='tight')
+            print("Done")
 
     if show_plot:
         plt.show()
@@ -150,6 +170,6 @@ if __name__ == '__main__':
     # ]
     # show_plot = True
 
-    show_plot, csv_file_list, output_file_name = PlotUtility.parse_arguments()
+    show_plot, csv_file_list, out_plot_file_list, label_list = PlotUtility.parse_arguments()
 
-    plot_case_entropy_correlation(show_plot, csv_file_list, output_file_name)
+    plot_case_entropy_correlation(show_plot, csv_file_list, out_plot_file_list)

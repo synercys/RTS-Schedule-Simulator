@@ -53,11 +53,14 @@ pallet = [{'color': 'DodgerBlue',
 
 # https://matplotlib.org/2.0.1/users/colormaps.html
 palletForManyDim = plt.cm.Pastel1.colors
+palletForManyDimCustom = [palletForManyDim[1], palletForManyDim[4], palletForManyDim[2], palletForManyDim[0], palletForManyDim[3]]
+palletForManyDimCustom.extend(palletForManyDim[5:])
 palletForMany = plt.cm.tab10.colors
 palletForManySet1 = plt.cm.Set1.colors
 
 pattern_list = ['+', 'x', '*', '.', 'O', 'o']
-hatch_list = ['', '.....', '/////']
+#hatch_list = ['', '.....', '/////']
+hatch_list = ['\\\\\\\\', '-----', '.....', 'xxxxx', '/////', '++++']
 line_style_list = ['-', '--', '-.', ':']
 # palletForManyCustom = [{'color': palletForMany[0],
 #                'hatch': '',  # .....

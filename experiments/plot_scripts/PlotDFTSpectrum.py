@@ -20,7 +20,7 @@ if __name__ == '__main__':
     #parser.add_argument('--example', nargs='?', const=1, type=int, help="")
     parser.add_argument('-i', "--in", required=True, help="A schedule DFT analysis report file.")
     # parser.add_argument('-t', "--taskset", required=False, help="A taskset file for the importing DFT analysis result.")
-    parser.add_argument('-o', "--out", required=False, nargs="*", help="Output file name and format determined by its extension name.")
+    parser.add_argument('-o', "--out", required=False, action='append', help="Output file name and format determined by its extension name.")
     parser.add_argument('-p', "--plot", action='store_true', help="Display the resulting DFT plot.")
     parser.add_argument('-d', "--detail", action='store_true', help="Display all three types of plots.")
 
@@ -145,14 +145,16 @@ if __name__ == '__main__':
 
     ''' Save the plot to files with the specified format '''
     for outFileName in outFileNames:
+        print("Exporting the plot ...")
 
         if outFileName == "png" or outFileName == "pdf":
             outFileName = "{}.{}".format(inFileName.split('.')[0], outFileName)
 
         outputFormat = outFileName.split('.')[-1]
-        if outputFormat == "pdf" or outputFormat == "png":
+        if outputFormat == "pdf" or outputFormat == "png" or True:
+            print('Saving the plot to "{}" ...'.format(outFileName), end=" ")
             plt.savefig(outFileName, pad_inches=0.015, bbox_inches='tight')
-            print('Save the plot to "{}".'.format(outFileName))
+            print("Done")
 
     # Output to console if output is not specified
     if len(outFileNames) == 0:
