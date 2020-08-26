@@ -1,13 +1,18 @@
 package synercys.rts.analysis.dft.tester;
 
+import cy.utility.Umath;
 import cy.utility.file.FileHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import synercys.rts.RtsConfig;
 import synercys.rts.analysis.MassTester;
 import synercys.rts.analysis.dft.ScheduleDFTAnalysisReport;
+import synercys.rts.framework.Task;
 import synercys.rts.framework.TaskSet;
+import synercys.rts.scheduler.AdvanceableSchedulerSimulator;
 import synercys.rts.scheduler.TaskSetContainer;
+
+import java.util.ArrayList;
 
 public class MassScheduleDFTTester extends MassTester {
     public static final String TEST_CASES_VARIED_SCHEDULE_LENGTH = "VARIED_SCHEDULE_LENGTH";
@@ -81,7 +86,15 @@ public class MassScheduleDFTTester extends MassTester {
                         + "Sample Variance,"
                         + "Normalized Sample Variance,"
                         + "Z-Score Based Peak Count,"
-                        + "Above Threshold Bin Count"
+                        + "Above Threshold Bin Count,"
+                        + "Deadline Miss Count,"
+                        + "Deadline Miss Ratio,"
+                        + "Max Consecutive Deadline Misses,"
+                        + "Mean Mean Task Frequency Error,"
+                        + "Geometric Mean Mean Task Frequency Error,"
+                        + "Worst Mean Task Frequency Error,"
+                        + "Mean Task Under Performance Ratio,"
+                        + "Worst Task Under Performance Ratio"
                 // + "Context Switches,"
                 // + "Mean Response Time Ratio To Period,"
                 // + "Mean Execution Range Ratio To Period"
@@ -112,6 +125,48 @@ public class MassScheduleDFTTester extends MassTester {
 
             int zScorePeakCount = report.getPeakFrequenciesSignalDetector().size();
 
+            AdvanceableSchedulerSimulator scheduler = tester.getScheduler();
+            long deadlineMissCount=0, maxConsecutiveDeadlineMisses=0, taskSetTotalJobCount=0, taskSetUnderPerformanceCount=0;
+            double worstMeanPeriodError=0.0, worstUnderPerformanceRatio=0.0;
+            ArrayList<Double> meanPeriodicErrorList = new ArrayList<>();
+            for (Task task : taskSet.getRunnableTasksAsArray()) {
+                taskSetTotalJobCount += scheduler.getTaskInterArrivalTimeTrace().get(task).size();
+
+                long taskTotalJobCount = scheduler.getTaskInterArrivalTimeTrace().get(task).size();
+
+                Long sum = (long) 0;
+                long taskUnderPerformanceCount = 0;
+                for (Long interArrivalTime : scheduler.getTaskInterArrivalTimeTrace().get(task)) {
+                    sum += interArrivalTime;
+
+                    if (interArrivalTime > task.getPeriod()) {
+                        taskUnderPerformanceCount += 1;
+                    }
+                }
+                double meanInterArrivalTime = sum.doubleValue()/taskTotalJobCount;
+                double meanInterArrivalTimeError = Math.abs((meanInterArrivalTime-task.getPeriod())/task.getPeriod());
+                if (meanInterArrivalTimeError > worstMeanPeriodError) {
+                    worstMeanPeriodError = meanInterArrivalTimeError;
+                }
+                meanPeriodicErrorList.add(meanInterArrivalTimeError);
+
+                double underPerformanceRatio = (double)taskUnderPerformanceCount/taskTotalJobCount;
+                if (underPerformanceRatio > worstUnderPerformanceRatio) {
+                    worstUnderPerformanceRatio = underPerformanceRatio;
+                }
+                taskSetUnderPerformanceCount += taskUnderPerformanceCount;
+
+                deadlineMissCount += scheduler.getTaskDeadlineMissCount().get(task);
+                if (scheduler.getTaskMaxConsecutiveDeadlineMissCount().get(task) > maxConsecutiveDeadlineMisses) {
+                    maxConsecutiveDeadlineMisses = scheduler.getTaskMaxConsecutiveDeadlineMissCount().get(task);
+                }
+
+            }
+            double deadlineMissRatio = (double)deadlineMissCount/taskSetTotalJobCount;
+            double meanUnderPerformanceRatio = (double)taskSetUnderPerformanceCount/taskSetTotalJobCount;
+            double geometricMeanMeanPeriodError = Umath.getGeometricMean(meanPeriodicErrorList);
+            double meanMeanPeriodError = Umath.getMean(meanPeriodicErrorList);
+
             fileTestLog.writeString(taskSetCount + ",");
             fileTestLog.writeString(taskSet.getId() + ",");
             fileTestLog.writeString(taskSet.getRunnableTasksAsArray().size() + ",");
@@ -121,12 +176,20 @@ public class MassScheduleDFTTester extends MassTester {
             fileTestLog.writeString(String.format("%.6f", sampleVariance) + ",");
             fileTestLog.writeString(String.format("%.6f", normalizedSampleVariance) + ",");
             fileTestLog.writeString(zScorePeakCount + ",");
-            fileTestLog.writeString(aboveThresholdCount + "\n");
+            fileTestLog.writeString(aboveThresholdCount + ",");
             // fileTestLog.writeString(report.contextSwitches + ",");
             // fileTestLog.writeString(String.format("%.4f", meanResponseTimeRatioToPeriod) + ",");
             // fileTestLog.writeString(String.format("%.4f", meanExecutionRangeRatioToPeriod) + "\n");
+            fileTestLog.writeString(deadlineMissCount + ",");
+            fileTestLog.writeString(String.format("%.6f", deadlineMissRatio) + ",");
+            fileTestLog.writeString(maxConsecutiveDeadlineMisses + ",");
+            fileTestLog.writeString(String.format("%.6f", meanMeanPeriodError) + ",");
+            fileTestLog.writeString(String.format("%.6f", geometricMeanMeanPeriodError) + ",");
+            fileTestLog.writeString(String.format("%.6f", worstMeanPeriodError) + ",");
+            fileTestLog.writeString(String.format("%.6f", meanUnderPerformanceRatio) + ",");
+            fileTestLog.writeString(String.format("%.6f", worstUnderPerformanceRatio) + "\n");
 
-            loggerConsole.info("\tDone. Variance={} AboveThresholdCount={} Z-ScorePeakCount={}", String.format("%.6f", normalizedSampleVariance), aboveThresholdCount, zScorePeakCount);
+            loggerConsole.info("\tDone. Variance={} AboveThresholdCount={} Z-ScorePeakCount={} deadlineMissRatio={} meanMeanPeriodError={} geometricMeanMeanPeriodError={} meanUnderPerformanceRatio={}", String.format("%.6f", normalizedSampleVariance), aboveThresholdCount, zScorePeakCount, String.format("%.6f", deadlineMissRatio), String.format("%.6f", meanMeanPeriodError), String.format("%.6f", geometricMeanMeanPeriodError), String.format("%.6f", meanUnderPerformanceRatio));
         }
 
         return true;
