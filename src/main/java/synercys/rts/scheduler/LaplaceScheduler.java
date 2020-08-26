@@ -73,7 +73,7 @@ public class LaplaceScheduler extends EdfScheduler {
         return largestJ;
     }
 
-    protected void updateTaskJByDuration(Task task, long protectionTime) {
+    public void updateTaskJByDuration(Task task, long protectionTime) {
         taskJ.put(task, (long)Math.ceil((double)protectionTime/task.getPeriod()));
     }
 
@@ -81,10 +81,14 @@ public class LaplaceScheduler extends EdfScheduler {
         taskJ.put(task, j);
     }
 
-    protected void updateTaskLaplaceNoise(Task task) {
+    public void updateTaskLaplaceNoise(Task task) {
         double mu = task.getPeriod(); // location
-        double beta = 2*taskJ.get(task)*taskSensitivity.get(task)/taskEpsilon.get(task); // b is sometimes referred to as the diversity, is a scale parameter.
-        taskLaplaceInterArrivalTimeGenerator.put(task, new LaplaceDistribution(mu, beta));
+        if (taskEpsilon.get(task) > 0) {
+            double beta = 2 * taskJ.get(task) * taskSensitivity.get(task) / taskEpsilon.get(task); // b is sometimes referred to as the diversity, is a scale parameter.
+            taskLaplaceInterArrivalTimeGenerator.put(task, new LaplaceDistribution(mu, beta));
+        } else {
+            taskLaplaceInterArrivalTimeGenerator.put(task, null);
+        }
     }
 
     public void updateTaskSetLaplaceNoiseByProtectionDuration(long protectionTime) {
@@ -93,6 +97,15 @@ public class LaplaceScheduler extends EdfScheduler {
             updateTaskLaplaceNoise(task);
         }
     }
+
+    public void updateTaskEpsilon(Task task, double epsilon) {
+        taskEpsilon.put(task, epsilon);
+    }
+
+    // public void updateTaskSetLaplaceNoiseByEpsilon(Task task, double epsilon) {
+    //     taskEpsilon.put(task, epsilon);
+    //     updateTaskLaplaceNoise(task);
+    // }
 
     @Override
     protected Job updateTaskJob(Task task) {
@@ -182,6 +195,9 @@ public class LaplaceScheduler extends EdfScheduler {
     }
 
     protected long getLaplaceInterArrivalTime(Task task) {
+        if (taskLaplaceInterArrivalTimeGenerator.get(task) == null)
+            return task.getPeriod();
+
         long interArrivalTime;
         while (true) {
             interArrivalTime = (long) taskLaplaceInterArrivalTimeGenerator.get(task).sample();
