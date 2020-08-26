@@ -9,7 +9,7 @@ public class RtsConfig implements CommandLine.IVersionProvider {
     static void RtsConfig() {
     }
 
-    public static String VERSION = "0.6.8";
+    public static String VERSION = "0.7.0";
 
     /* Configuration from log */
     //public static double LOG_TIMESTAMP_UNIT_NS = 1; // 1 tick represents 1ns in log
