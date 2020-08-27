@@ -1,0 +1,89 @@
+{
+    "data": {
+        "tickUnitInNs": 100000,
+        "tasksets": [{
+            "id": 0,
+            "tasks": [
+                {
+                    "phase": 0,
+                    "period": 0,
+                    "arrivalType": "periodic",
+                    "name": "IDLE",
+                    "id": 0,
+                    "type": "IDLE",
+                    "deadline": 0,
+                    "wcet": 0,
+                    "priority": 0
+                },
+                {
+                    "phase": 35,
+                    "period": 1000,
+                    "arrivalType": "periodic",
+                    "name": "APP1",
+                    "id": 1,
+                    "type": "APP",
+                    "deadline": 1000,
+                    "wcet": 1,
+                    "priority": 1
+                },
+                {
+                    "phase": 83,
+                    "period": 420,
+                    "arrivalType": "periodic",
+                    "name": "APP2",
+                    "id": 2,
+                    "type": "APP",
+                    "deadline": 420,
+                    "wcet": 30,
+                    "priority": 2
+                },
+                {
+                    "phase": 251,
+                    "period": 420,
+                    "arrivalType": "periodic",
+                    "name": "APP3",
+                    "id": 3,
+                    "type": "APP",
+                    "deadline": 420,
+                    "wcet": 180,
+                    "priority": 3
+                },
+                {
+                    "phase": 101,
+                    "period": 420,
+                    "arrivalType": "periodic",
+                    "name": "APP4",
+                    "id": 4,
+                    "type": "APP",
+                    "deadline": 420,
+                    "wcet": 15,
+                    "priority": 4
+                },
+                {
+                    "phase": 62,
+                    "period": 200,
+                    "arrivalType": "periodic",
+                    "name": "APP5",
+                    "id": 5,
+                    "type": "APP",
+                    "deadline": 200,
+                    "wcet": 20,
+                    "priority": 5
+                },
+                {
+                    "phase": 3,
+                    "period": 100,
+                    "arrivalType": "periodic",
+                    "name": "APP6",
+                    "id": 6,
+                    "type": "APP",
+                    "deadline": 100,
+                    "wcet": 1,
+                    "priority": 6
+                }
+            ]
+        }]
+    },
+    "dataType": "single taskset",
+    "formatVersion": "15"
+}
