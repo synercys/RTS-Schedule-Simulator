@@ -4,7 +4,7 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.ear
 
@@ -22,3 +22,9 @@ bin/
 out/
 target/
 .idea/
+
+# Python
+*.pyc
+
+# Run-time main logs
+main.log
