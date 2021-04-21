@@ -21,7 +21,8 @@ if __name__ == '__main__':
     parser.add_argument("--dst", help="Destination IP address")
     parser.add_argument("--start_id", help="Beginning packet ID to include in the analysis")
     parser.add_argument("--end_id", help="Ending packet ID to include in the analysis")
-    parser.add_argument("--fps_count", help="The number of FPS data points to be analyzed")
+    parser.add_argument("--duration", help="Compute FPS based on 1 seond as a unit, for the specified seconds")
+    parser.add_argument("--time", help="Time unit per FPS")
     parser.add_argument("-d", "--debug", help="Enable raw data messages", action="store_true")
 
     # Parse arguments
@@ -48,10 +49,16 @@ if __name__ == '__main__':
     else:
         end_id = sys.maxsize
 
-    if args.fps_count is not None:
-        fps_count_limit = int(args.fps_count)
+    if args.duration is not None:
+        duration = float(args.duration)
     else:
-        fps_count_limit = sys.maxsize
+        duration = sys.maxsize
+
+    if args.time is not None:
+        timeUnit = float(args.time)
+    else:
+        timeUnit = 1.0
+
 
     enabled_debug = args.debug
     # if args.debug is not None:
@@ -62,12 +69,14 @@ if __name__ == '__main__':
     with open(pcapngFilePath, 'rb') as fp:
         scanner = FileScanner(fp)
         firstBlock = True
-        lastFrameTimestamp = None
+        firstValidFrame = True
         frameDataSize = 0
         fpsDp = []
         seqHistory = []
         packetId = 0
         fpsDpCount = 0
+        perSecondFrameCount = 0
+        startTimestampOfCurrentSecond = 0
         for block in scanner:
 
             if firstBlock and isinstance(block, EnhancedPacket):
@@ -92,7 +101,8 @@ if __name__ == '__main__':
                     # Skip this packet if it was sent before
                     currentSeq = _pl2.seq
                     if currentSeq in seqHistory:
-                        print("Skipped a redundant packet.")
+                        if enabled_debug:
+                            print("Skipped a redundant packet.")
                         continue
                     else:
                         seqHistory.append(currentSeq)
@@ -101,25 +111,28 @@ if __name__ == '__main__':
 
                         currentFrameTimestamp = block.timestamp - timestampOrigin
 
-                        if lastFrameTimestamp is not None:
-                            currentFps = 1 / (currentFrameTimestamp - lastFrameTimestamp)
+                        if firstValidFrame:
+                            firstValidFrame = False
+                            firstFrameTimestamp = currentFrameTimestamp
+                            startTimestampOfCurrentSecond = currentFrameTimestamp
 
-                            # if currentFps > 100:
-                            #    continue
 
-                            fpsDpCount += 1
+                        if currentFrameTimestamp - startTimestampOfCurrentSecond < timeUnit:
+                            perSecondFrameCount += 1
+                        else:
+                            startTimestampOfCurrentSecond += timeUnit
+                            # fpsDpCount += 1
+                            currentFps = perSecondFrameCount/timeUnit
                             fpsDp.append(currentFps)
 
                             if enabled_debug:
-                                print('FPS_DP #{}, Packet #{}) {:.2f}:\t{:.2f}\tfps\t{}\tbytes'.format(fpsDpCount, packetId, currentFrameTimestamp, currentFps, frameDataSize))
+                                print('{:.2f}s:\t{:.2f}\tfps'.format(startTimestampOfCurrentSecond, currentFps))
 
-                            if fpsDpCount >= fps_count_limit:
-                                break
+                            perSecondFrameCount = 1
 
-                        lastFrameTimestamp = currentFrameTimestamp
-                        frameDataSize = 0
 
-                    frameDataSize += block.packet_len
+                        if currentFrameTimestamp - firstFrameTimestamp > duration:
+                            break
 
         npFpsDp = np.array(fpsDp)
 
@@ -141,6 +154,6 @@ if __name__ == '__main__':
         # print('      packet ID range: {} ~ {}'.format(start_id, end_id))
         # print('      FPS data point count: {}'.format(fps_count_limit))
         print('  - FPS Results:', end='')
-        print('      Mean: {:.2f}\t Std: {:.2f}\t CV:{:.2f}\t Max: {:.2f}\t Min: {:.2f}'.format(meanFps, stdFps, cvFps, maxFps, minFps))
-        print('      latex: ')
+        print('      Max: {:.2f}\t Mean: {:.2f}\t Min:{:.2f}\t Std: {:.2f}\t CV: {:.2f}'.format(maxFps, meanFps, minFps, stdFps, cvFps))
+        print('      latex: {:.2f} & {:.2f} & {:.2f} & {:.2f} & {:.2f}'.format(maxFps, meanFps, minFps, stdFps, cvFps))
         print('')
